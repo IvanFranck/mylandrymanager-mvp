@@ -24,7 +24,7 @@ type ServiceCreationDrawerProps = {
 export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreationDrawerProps) {
     const { toast } = useToast()
     const queryClient = useQueryClient()
-    const drawerCloserBtn = useRef(null)
+    const drawerCloserBtn = useRef<HTMLButtonElement>(null)
 
     const { mutateAsync, isPending } = useMutation({
         mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => await createService(data),
@@ -42,7 +42,7 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
                 description: data.message,
                 duration: 3000
             })
-            drawerCloserBtn.current.click()
+            drawerCloserBtn.current?.click()
         }
     })
     const form = useForm<z.infer<typeof ServiceFormSchema>>({

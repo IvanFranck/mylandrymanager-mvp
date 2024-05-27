@@ -23,7 +23,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
 
     const { toast } = useToast()
     const queryClient = useQueryClient()
-    const drawerCloserBtn = useRef(null)
+    const drawerCloserBtn = useRef<HTMLButtonElement>(null)
 
     const { mutateAsync: createCustomer, isPending: isCreating } = useMutation({
         mutationFn: async (data: z.infer<typeof CustomerFormSchema>) => await createCustomerQuery(data),
@@ -41,7 +41,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
                 description: data.message,
                 duration: 3000
             })
-            drawerCloserBtn.current.click()
+            drawerCloserBtn.current?.click()
         }
     })
     const form = useForm<z.infer<typeof CustomerFormSchema>>({
