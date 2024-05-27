@@ -12,6 +12,7 @@ import ServiceEditView from "@/views/services/service-edit-view"
 import ServiceCreationDrawer from "@/components/app/services/service-creation-drawer"
 import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
 import { PenLine } from "lucide-react"
+import RegisterView from "@/views/register-view"
 
 
 export const routes: RouteObject[] = [
@@ -23,6 +24,11 @@ export const routes: RouteObject[] = [
             {
                 index: true,
                 element: <Root />
+            },
+            {
+                id: "register",
+                path: '/register',
+                element: <RegisterView/>
             }
         ]
     },
