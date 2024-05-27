@@ -10,11 +10,13 @@ import { GenericForm } from "@/components/ui/generic-form"
 import { Button } from "@/components/ui/button"
 import { Loader } from "lucide-react"
 import { LOGIN_QUERY_KEY } from "@/common/constants/query-keys"
+import { useAuth } from "@/lib/hooks/useAuth"
 
 
 export default function LoginView() {
     const { toast } = useToast()
     const navigate = useNavigate()
+    const auth = useAuth()
     const queryKey = LOGIN_QUERY_KEY
     const { mutateAsync, isPending } = useMutation({
         mutationKey: queryKey,
@@ -30,6 +32,7 @@ export default function LoginView() {
         },
         onSuccess: (data: AxiosResponse<TGenericResponse<TLoginResponseDetails>>) => {
             const authDetails = data.data.details
+            auth?.login(authDetails.user)
             localStorage.setItem(AXIOS_ACCESS_TOKEN, authDetails.accessToken)
             localStorage.setItem(AXIOS_REFRESH_TOKEN, authDetails.refreshToken)
             localStorage.setItem(STORED_USER_DATA, JSON.stringify(authDetails.user))

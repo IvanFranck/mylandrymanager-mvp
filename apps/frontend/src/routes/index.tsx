@@ -13,6 +13,7 @@ import ServiceCreationDrawer from "@/components/app/services/service-creation-dr
 import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
 import { PenLine } from "lucide-react"
 import RegisterView from "@/views/register-view"
+import { ProtectedRoute } from "./protected-route"
 
 
 export const routes: RouteObject[] = [
@@ -37,61 +38,66 @@ export const routes: RouteObject[] = [
         element: <PageLayout />,
         children: [
             {
-                id: "home",
-                path: '/home',
-                element: <HomeView />
-            },
-            {
-                id: 'Commandes',
-                path: '/commands',
+                element: <ProtectedRoute/>,
                 children: [
                     {
-                        index: true,
-                        element: <CommandsListView />,
-                        handle: {
-                            pageTitle: () => <PageTitle pageName="Commandes" creationDrawer={<CommandCreationDrawer />} />
-                        }
+                        id: "home",
+                        path: '/home',
+                        element: <HomeView />
                     },
                     {
-                        id: 'commande view',
-                        path: ':commandId',
-                        element: <CommandDetailView />,
-                        handle: {
-                            pageTitle: (params: Params) => {
-                                return <PageTitle pageName={`Commande ${params.commandId}`} backlink='/commands' editionDrawer={<PenLine size={20} className="text-blue-600" />} />
+                        id: 'Commandes',
+                        path: '/commands',
+                        children: [
+                            {
+                                index: true,
+                                element: <CommandsListView />,
+                                handle: {
+                                    pageTitle: () => <PageTitle pageName="Commandes" creationDrawer={<CommandCreationDrawer />} />
+                                }
+                            },
+                            {
+                                id: 'commande view',
+                                path: ':commandId',
+                                element: <CommandDetailView />,
+                                handle: {
+                                    pageTitle: (params: Params) => {
+                                        return <PageTitle pageName={`Commande ${params.commandId}`} backlink='/commands' editionDrawer={<PenLine size={20} className="text-blue-600" />} />
+                                    }
+                                }
                             }
-                        }
-                    }
-                ]
-            },
-            {
-                id: "services",
-                path: '/services',
-                children: [
-                    {
-                        index: true,
-                        element: <ServicesListView />,
-                        handle: {
-                            pageTitle: () => <PageTitle pageName="Services" creationDrawer={<ServiceCreationDrawer />} />
-                        }
+                        ]
                     },
                     {
-                        id: 'service view',
-                        path: 'edit/:serviceId',
-                        element: <ServiceEditView />,
-                        handle: {
-                            pageTitle: (params: Params) => {
-                                return <PageTitle pageName={`Service ${params.serviceId}`} backlink='/services' />
+                        id: "services",
+                        path: '/services',
+                        children: [
+                            {
+                                index: true,
+                                element: <ServicesListView />,
+                                handle: {
+                                    pageTitle: () => <PageTitle pageName="Services" creationDrawer={<ServiceCreationDrawer />} />
+                                }
+                            },
+                            {
+                                id: 'service view',
+                                path: 'edit/:serviceId',
+                                element: <ServiceEditView />,
+                                handle: {
+                                    pageTitle: (params: Params) => {
+                                        return <PageTitle pageName={`Service ${params.serviceId}`} backlink='/services' />
+                                    }
+                                }
                             }
-                        }
-                    }
+                        ]
+                    },
+                    {
+                        id: "profile",
+                        path: '/profile',
+                        element: <ProfileView />
+                    },
                 ]
-            },
-            {
-                id: "profile",
-                path: '/profile',
-                element: <ProfileView />
-            },
+            }
         ]
     }
 
