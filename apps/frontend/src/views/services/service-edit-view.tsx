@@ -21,8 +21,6 @@ export default function ServiceEditView() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
-
-
     const { mutateAsync, isPending } = useMutation({
         mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => await editService(data, +serviceId),
         onError: (error: AxiosError<TGenericAxiosError>) => {

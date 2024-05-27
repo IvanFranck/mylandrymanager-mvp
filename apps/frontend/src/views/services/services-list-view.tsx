@@ -40,7 +40,7 @@ export default function ServicesListView() {
     const { mutateAsync, isPending } = useMutation({
         mutationFn: deleteService,
         onSuccess: (resp: TGenericResponse<ServicesEntity>) => {
-            toast({ description: resp.message })
+            toast({ description: resp.message, duration: 3000 })
             queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
         },
         onError: () => {
@@ -64,14 +64,14 @@ export default function ServicesListView() {
                 </DialogTrigger>
                 <DialogOverlay className="fixed top-0 left-0 right-0 bottom-0 overflow-y-auto grid place-items-center bg-black/[0.5]">
 
-                    <DialogContent>
-                        <Card>
+                    <DialogContent className="w-full grid place-items-center">
+                        <Card className="w-5/6">
                             <CardHeader>
 
                                 <DialogHeader>
                                     <DialogTitle className="text-lg font-medium">Attention</DialogTitle>
                                     <DialogDescription>
-                                        Voulez-vous vraiment supprimer ce service "{services?.find((service) => service.id === deletingServiceId)?.label}" ?
+                                        Voulez-vous vraiment supprimer ce service "<strong>{services?.find((service) => service.id === deletingServiceId)?.label}</strong>" ?
                                     </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter className="w-full flex justify-between flex-row">

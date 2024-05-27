@@ -1,0 +1,14 @@
+{
+  "name": "mylandrymanager",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "front:dev": "pnpm --filter app-frontend dev",
+    "back:dev": "pnpm --filter app-backend start:dev",
+    "compose:up": "docker-compose -f ./apps/backend/docker-compose.yml up -d",
+    "compose:down": "docker-compose -f ./apps/backend/docker-compose.yml down --volumes"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

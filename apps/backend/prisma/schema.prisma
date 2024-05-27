@@ -17,6 +17,8 @@ model User {
   signUpCompleted Boolean  @default(false)
 
   services Service[]
+  Command  Command[]
+  Customer Customer[]
 }
 
 model Customer {
@@ -26,7 +28,9 @@ model Customer {
   name      String   @db.VarChar(255)
   phone     Int      @unique
   address   String?  @db.VarChar(255)
+  userId    Int
 
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   commands Command[]
 }
 
@@ -39,22 +43,25 @@ model Service {
   description String?
   userId      Int
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   commands ServiceOnCommand[]
 }
 
 model Command {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  price       Int
-  description String?  @db.VarChar(255)
-  discount    Int?
-  customerId  Int
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  price        Int
+  description  String?  @db.VarChar(255)
+  discount     Int?
+  customerId   Int
+  userId       Int
+  withdrawDate DateTime
 
-  services ServiceOnCommand[]
+  code     CommandsCode?
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  services ServiceOnCommand[]
 }
 
 model ServiceOnCommand {
@@ -66,4 +73,12 @@ model ServiceOnCommand {
   command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
 
   @@id([serviceId, commandId])
+}
+
+model CommandsCode {
+  id        Int      @id @default(autoincrement())
+  code      String   @unique @db.VarChar(8)
+  createdAt DateTime @default(now())
+  commandId Int      @unique
+  command   Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
 }

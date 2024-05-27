@@ -1,27 +1,21 @@
-import { CommandListItem, CommandListItemProps } from "@/components/app/commands/CommandListItem"
+import { COMMANDS_QUERY_KEY } from "@/common/constants/query-keys"
+import { CommandListItem } from "@/components/app/commands/CommandListItem"
 import { CommandsStatusFilter } from "@/components/app/commands/CommandsStatusFilter"
+import { CommandListSkeleton } from "@/components/app/commands/command-list-skeleton"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { fetchAllCommandsQuery } from "@/lib/api/commands"
+import { useQuery } from "@tanstack/react-query"
 import { Plus } from "lucide-react"
 
-const commands: CommandListItemProps[] = [
-    {
-        commandId: "12673A4",
-        price: "3400",
-        customerName: "NZIMA YENGUE IVAN",
-        status: "En cours",
-        date: "Oct 17, 2023"
-    },
-    {
-        commandId: "89D00A1",
-        price: "7800",
-        customerName: "JOHN DOE",
-        status: "Annulé",
-        date: "Oct 18, 2023"
-    }
-]
 
 export const CommandsListView = () => {
+
+    const { data: commands } = useQuery({
+        queryKey: COMMANDS_QUERY_KEY,
+        queryFn: fetchAllCommandsQuery,
+        staleTime: 12000
+    })
     return (
 
         <div className="w-full flex flex-col space-y-3 px-2 mt-2">
@@ -36,13 +30,16 @@ export const CommandsListView = () => {
             <CommandsStatusFilter />
 
             <div className="w-full grid gap-2">
-                {commands.map((command, index) => (
-                    <CommandListItem
-                        key={index}
-                        {...command}
-                    />
+                {commands
+                    ? commands.map((command, index) => (
+                        <CommandListItem
+                            key={index}
+                            command={command}
+                        />
+                    ))
+                    : <CommandListSkeleton />
+                }
 
-                ))}
             </div>
         </div >
     )

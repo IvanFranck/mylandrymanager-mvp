@@ -1,16 +1,24 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Command, Service } from '@prisma/client';
+import { Command, CommandsCode, Service } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { CustomResponseInterface } from '@/common/interfaces/response.interface';
+import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 
 @Injectable()
 export class CommandsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(CommandsService.name);
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   /**
    * Compute the total price after applying a discount.
@@ -34,26 +42,34 @@ export class CommandsService {
    * A function to create a command using the provided data.
    *
    * @param {CreateCommandDto} createCommandDto - the data for creating the command
-   * @return {Promise<{ message: string, command: any }>} an object containing a message and the created command
+   * @return {Promise<CustomResponseInterface<Command>>} an object containing a message and the created command
    */
   async create(
     createCommandDto: CreateCommandDto,
-  ): Promise<{ message: string; command: any }> {
-    const { description, discount, customerId, services } = createCommandDto;
+    request: AccessTokenValidatedRequestInterface,
+  ): Promise<CustomResponseInterface<Command>> {
+    const { description, discount, customerId, services, withdrawDate } =
+      createCommandDto;
+    const userId = request.user.sub;
     try {
       // 1. compute the total price
       const totalPrice = this.computeTotalPrice(services, discount);
-      console.log('totalPrice: ', totalPrice);
 
       // 2. create the command and connect to customer
       const command = await this.prisma.command.create({
         data: {
           price: totalPrice,
-          description: description,
-          discount: discount,
+          description,
+          discount,
+          withdrawDate,
           customer: {
             connect: {
               id: customerId,
+            },
+          },
+          user: {
+            connect: {
+              id: userId,
             },
           },
           // 3. create all serviceoncommands entries and connect them to the created command
@@ -70,16 +86,50 @@ export class CommandsService {
         },
         include: {
           customer: true,
-          services: true,
+          code: true,
+          services: {
+            select: {
+              service: true,
+              quantity: true,
+              serviceId: false,
+              commandId: false,
+            },
+          },
         },
       });
 
+      // 4. generate command unique code and blacklist it
+      let code: string;
+      let isCodeUsed: CommandsCode | null;
+      do {
+        code = this.generateCommandeCode();
+
+        isCodeUsed = await this.prisma.commandsCode.findUnique({
+          where: {
+            code,
+          },
+        });
+      } while (isCodeUsed);
+
+      const commandCode = await this.prisma.commandsCode.create({
+        data: {
+          code,
+          command: {
+            connect: {
+              id: command.id,
+            },
+          },
+        },
+      });
+
+      command.code = { ...commandCode };
+
       return {
-        message: 'commande created',
-        command,
+        message: 'commande ajoutée',
+        details: command,
       };
     } catch (error) {
-      console.error(error);
+      this.logger.log(error);
       throw new BadRequestException(error);
     }
   }
@@ -90,19 +140,37 @@ export class CommandsService {
    * @param {void} - no parameters
    * @return {Promise<Command[]>} the found commands
    */
-  async findAll(): Promise<Command[]> {
+  async findAll(
+    request: AccessTokenValidatedRequestInterface,
+  ): Promise<CustomResponseInterface<Command[]>> {
+    const userId = request.user.sub;
     try {
       const commands = await this.prisma.command.findMany({
+        where: {
+          userId,
+        },
         include: {
           customer: true,
-          services: true,
+          code: {
+            select: {
+              code: true,
+            },
+          },
+          services: {
+            select: {
+              service: true,
+              quantity: true,
+              serviceId: false,
+              commandId: false,
+            },
+          },
         },
       });
 
-      if (!commands || commands.length === 0) {
-        throw new NotFoundException('any command found');
-      }
-      return commands;
+      return {
+        message: 'liste des commandes',
+        details: commands,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -118,24 +186,27 @@ export class CommandsService {
    * @param {number} id - The ID of the item to find
    * @return {Promise<{ message: string, command: any }>} An object containing a message and the found command
    */
-  async findOne(id: number): Promise<{ message: string; command: any }> {
+  async findOne(id: number): Promise<CustomResponseInterface<Command>> {
     try {
       const command = await this.prisma.command.findUnique({
         where: {
           id,
         },
         include: {
+          code: true,
           customer: true,
-          services: true,
+          services: {
+            select: {
+              service: true,
+              quantity: true,
+            },
+          },
         },
       });
 
-      if (!command) {
-        throw new NotFoundException('command not found');
-      }
       return {
-        message: 'command found',
-        command,
+        message: 'commande trouvée',
+        details: command,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
@@ -234,5 +305,22 @@ export class CommandsService {
       }
       throw new BadRequestException(error);
     }
+  }
+
+  /**
+   * Generates a random command code using the configured character set.
+   *
+   * @return {string} The randomly generated command code.
+   */
+  private generateCommandeCode(): string {
+    const char_set = this.configService.get<string>('COMMAND_CODE_ALPHABET');
+    const n = char_set.length;
+    let random_string = '';
+
+    for (let i = 0; i < 8; i++) {
+      random_string += char_set[Math.floor(Math.random() * n)];
+    }
+
+    return random_string;
   }
 }

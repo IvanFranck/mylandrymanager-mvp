@@ -9,11 +9,21 @@ import {
   HttpStatus,
   Put,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { CommandsService } from './commands.service';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { AccessTokenAuthGuard } from 'src/auth/guards/access-token-auth.guard';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+} from '@nestjs/swagger';
+import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
+import { CustomResponseInterface } from '@/common/interfaces/response.interface';
+import { Command } from '@prisma/client';
 
 @UseGuards(AccessTokenAuthGuard)
 @Controller({
@@ -23,14 +33,38 @@ import { AccessTokenAuthGuard } from 'src/auth/guards/access-token-auth.guard';
 export class CommandsController {
   constructor(private readonly commandsService: CommandsService) {}
 
+  @ApiBody({ type: CreateCommandDto })
+  @ApiCreatedResponse({
+    description: 'commande ajoutée !',
+  })
+  @ApiBadRequestResponse()
   @Post()
-  async create(@Body() createCommandDto: CreateCommandDto) {
-    return await this.commandsService.create(createCommandDto);
+  /**
+   * Endpoint: create a new command.
+   *
+   * @param {CreateCommandDto} createCommandDto - command data
+   * @param {AccessTokenValidatedRequestInterface} req - authenticated request
+   * @return {Promise<type>} description of return value
+   */
+  async create(
+    @Body() createCommandDto: CreateCommandDto,
+    @Req() req: AccessTokenValidatedRequestInterface,
+  ) {
+    return await this.commandsService.create(createCommandDto, req);
   }
 
+  @ApiOkResponse({ description: 'liste des commandes' })
   @Get()
-  async findAll() {
-    return await this.commandsService.findAll();
+  /**
+   * Endpoint: Find all commands of a connected landry.
+   *
+   * @param {AccessTokenValidatedRequestInterface} req -authenticated request
+   * @return {Promise<CustomResponseInterface<command[]>>} The list of all commands
+   */
+  async findAll(
+    @Req() req: AccessTokenValidatedRequestInterface,
+  ): Promise<CustomResponseInterface<Command[]>> {
+    return await this.commandsService.findAll(req);
   }
 
   @Get(':id')

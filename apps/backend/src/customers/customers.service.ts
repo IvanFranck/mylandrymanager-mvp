@@ -4,39 +4,53 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from 'src/prisma.service';
 import { Customer } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common/exceptions';
+import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
+import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 
 @Injectable()
 export class CustomersService {
   constructor(private readonly prisma: PrismaService) {}
-  async create(createCustomerDto: CreateCustomerDto) {
+  async create(
+    createCustomerDto: CreateCustomerDto,
+    req: AccessTokenValidatedRequestInterface,
+  ): Promise<CustomResponseInterface<Customer>> {
+    const userId = req.user.sub;
+    createCustomerDto.name = createCustomerDto.name.trim();
     try {
       const customer = await this.prisma.customer.create({
-        data: { ...createCustomerDto },
+        data: { ...createCustomerDto, user: { connect: { id: userId } } },
       });
 
       return {
-        message: 'customer created',
-        customer,
+        message: 'client ajouté !',
+        details: customer,
       };
     } catch (error) {
       console.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException(
-          'customer with this phone number already exists',
+          'un client avec ce numéro de téléphone existe déjà, veuillez en choisir un autre',
         );
       }
       throw new BadRequestException(error);
     }
   }
 
-  async findAll(): Promise<Customer[]> {
+  async findAll(
+    request: AccessTokenValidatedRequestInterface,
+  ): Promise<CustomResponseInterface<Customer[]>> {
+    const userId = request.user.sub;
     try {
-      const customers = await this.prisma.customer.findMany();
+      const customers = await this.prisma.customer.findMany({
+        where: {
+          userId,
+        },
+      });
 
-      if (!customers || customers.length === 0) {
-        throw new NotFoundException('any customer found');
-      }
-      return customers;
+      return {
+        message: 'liste des clients',
+        details: customers,
+      };
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
@@ -46,21 +60,19 @@ export class CustomersService {
     }
   }
 
-  async findOne(name: string) {
+  async findOne(name: string): Promise<CustomResponseInterface<Customer[]>> {
     try {
       // improve this: it make call to DB to retrieve all customers every time we call this.
       // try to cache the response from DB at the first place
       const customers = await this.prisma.customer.findMany();
 
-      const customer = customers.find((customer) =>
-        customer.name.includes(name),
+      const customer = customers.filter((customer) =>
+        customer.name.toLowerCase().includes(name.trim().toLowerCase()),
       );
-      if (!customer) {
-        throw new NotFoundException('customer not found');
-      }
+
       return {
-        message: 'customer found',
-        customer,
+        message: 'clients trouvés',
+        details: customer,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {

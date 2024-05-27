@@ -98,20 +98,19 @@ export class ServicesService {
   async findOneByName(
     name: string,
     request: AccessTokenValidatedRequestInterface,
-  ): Promise<{ message: string; service: Service }> {
+  ): Promise<CustomResponseInterface<Service[]>> {
     try {
+      // improve this: it make call to DB to retrieve all customers every time we call this.
+      // try to cache the response from DB at the first place
       const services = await this.findAll(request);
 
-      const service = services.details.find((service) =>
-        service.label.includes(name),
+      const service = services.details.filter((service) =>
+        service.label.trim().toLowerCase().includes(name.trim().toLowerCase()),
       );
 
-      if (!service) {
-        throw new NotFoundException('service not found');
-      }
       return {
-        message: 'service trouvé',
-        service,
+        message: 'services trouvés',
+        details: service,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
