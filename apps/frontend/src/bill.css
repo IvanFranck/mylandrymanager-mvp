@@ -1,0 +1,9 @@
+.bill {
+    border-bottom: 12px double;
+    background-clip: padding-box;
+    padding: 10px;
+    border-image-outset: 1100px;
+    border-image-width: 100px;
+    border-image: url(http://content.mycutegraphics.com/borders/wavy-border.png) 100 round;
+    border-image-slice: 170px;
+}

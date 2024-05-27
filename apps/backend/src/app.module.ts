@@ -29,6 +29,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
         TWILIO_VERIFY_API_ACCOUNT_SID: joi.string().required(),
         TWILIO_VERIFY_API_AUTH_KEY: joi.string().required(),
         TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
+        COMMAND_CODE_ALPHABET: joi.string().required(),
       }),
     }),
   ],

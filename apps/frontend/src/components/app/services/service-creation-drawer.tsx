@@ -17,7 +17,11 @@ import { SERVICES_QUERY_KEY } from "@/common/constants/query-keys"
 import { ServicesEntity } from "@/lib/types/entities"
 import { useRef } from "react"
 
-export default function ServiceCreationDrawer() {
+type ServiceCreationDrawerProps = {
+    onServiceCreated?: (customer: ServicesEntity) => void
+}
+
+export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreationDrawerProps) {
     const { toast } = useToast()
     const queryClient = useQueryClient()
     const drawerCloserBtn = useRef(null)
@@ -51,8 +55,8 @@ export default function ServiceCreationDrawer() {
     })
 
     const onSubmit = async (values: z.infer<typeof ServiceFormSchema>) => {
-        console.log("🚀 ~ onSubmit ~ values:", values)
-        await mutateAsync(values)
+        const newService = await mutateAsync(values)
+        if (onServiceCreated) onServiceCreated(newService.details)
     }
 
     return (

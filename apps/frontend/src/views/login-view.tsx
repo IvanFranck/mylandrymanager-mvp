@@ -48,7 +48,7 @@ export default function LoginView() {
         await mutateAsync(values)
     }
     return (
-        <div className="w-full min-h-svh min-h-screen flex flex-col justify-center items-center bg-black text-white">
+        <div className="w-full min-h-screen flex flex-col justify-center items-center bg-black text-white">
             <div className="flex flex-col px-3">
                 <h1 className="text-4xl font-medium">Connectez vous à votre compte.</h1>
                 <div className="mt-8">

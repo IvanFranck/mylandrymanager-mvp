@@ -6,22 +6,30 @@ type PageTitleProps = {
     backlink?: string,
     children?: React.ReactNode
     creationDrawer?: React.ReactNode
+    editionDrawer?: React.ReactNode
 }
 
-export default function PageTitle({ pageName, backlink, creationDrawer }: PageTitleProps) {
+export default function PageTitle({ pageName, backlink, creationDrawer, editionDrawer }: PageTitleProps) {
 
     return (
         <>
             {backlink ?
-                <div className="w-full flex items-center space-x-2 p-2 text-lg font-medium" >
-                    <NavLink className="" to={backlink}>
+                <div className="w-full flex items-center space-x-2 text-lg font-medium" >
+                    <NavLink className="text-blue-600 grow-0" to={backlink}>
                         <MoveLeft size={20} />
                     </NavLink>
-                    <span>{pageName}</span>
+                    <div className={`grow ${editionDrawer ? 'flex items-center' : 'text-center'} `}>
+                        <span className="grow text-center">{pageName}</span>
+                        {editionDrawer && (
+                            <div className="grow-0">
+                                {editionDrawer}
+                            </div>
+                        )}
+                    </div>
                 </div>
                 :
                 <div className="w-full flex flex-row items-center px-2">
-                    <span className="text-lg font-medium grow text-center">{pageName}</span>
+                    <h2 className="text-lg font-medium grow text-center">{pageName}</h2>
                     {creationDrawer}
                 </div>
             }

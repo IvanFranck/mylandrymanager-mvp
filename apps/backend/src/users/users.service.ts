@@ -35,9 +35,6 @@ export class UsersService {
           updatedAt: true,
         },
       });
-
-      this.logger.log(user);
-
       return {
         message: 'user created',
         user,

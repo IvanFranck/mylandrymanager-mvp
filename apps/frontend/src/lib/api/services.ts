@@ -19,6 +19,14 @@ export async function fetchAllServicesQuery() {
                 })
 }
 
+export async function searchServiceByName(text: string) {
+    return await axiosInstance
+                    .get(`${API_ROUTES.SERVICES}/search?name=${text}`)
+                    .then((resp: AxiosResponse<TGenericResponse<ServicesEntity[]>>) => {
+                        return resp.data.details
+                    })
+}
+
 export async function createService(data: z.infer<typeof ServiceFormSchema>){
     return await axiosInstance
                     .post(`${API_ROUTES.SERVICES}`, data)
