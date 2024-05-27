@@ -1,0 +1,15 @@
+services:
+  database:
+    image: bitnami/postgresql
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=ivanfranck
+      - POSTGRESQL_PASSWORD=paqssd163HZZ82sgdsiSf
+      - POSTGRESQL_DATABASE=mylandryappdb
+    volumes:
+    - postgresql-persistance-data:/bitnami/postgresql
+
+volumes:
+  postgresql-persistance-data:
+  

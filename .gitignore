@@ -1,0 +1,52 @@
+# Ignore .cursorrules file
+.cursorrules
+
+# Node modules
+node_modules
+/apps/backend/node_modules/
+/apps/frontend/node_modules/
+
+# Compiled output
+/apps/backend/dist/
+/apps/backend/build/
+/apps/frontend/dist/
+/apps/frontend/dist-ssr/
+
+# Logs
+/apps/backend/logs/
+/apps/backend/*.log
+/apps/frontend/logs/
+/apps/frontend/*.log
+
+# OS files
+*.DS_Store
+
+# IDEs and editors
+/apps/backend/.idea/
+/apps/backend/*.launch
+/apps/backend/.vscode/*
+/apps/frontend/.vscode/*
+/apps/frontend/.idea/
+
+# dotenv environment variable files
+/apps/frontend/.env
+/apps/frontend/.env.development.local
+/apps/frontend/.env.test.local
+/apps/frontend/.env.production.local
+/apps/frontend/.env.local
+/apps/backend/.env
+/apps/backend/.env.development.local
+/apps/backend/.env.test.local
+/apps/backend/.env.production.local
+/apps/backend/.env.local
+
+# Temp directories
+/apps/backend/.temp
+/apps/backend/.tmp
+
+# Diagnostic reports
+/apps/backend/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# JWT keys
+/apps/backend/private-key.pem
+/apps/backend/public-key.pem

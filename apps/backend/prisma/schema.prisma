@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  username        String   @db.VarChar(255)
+  phone           Int      @unique
+  password        String   @db.VarChar(255)
+  signUpCompleted Boolean  @default(false)
+
+  services Service[]
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @db.VarChar(255)
+  phone     Int      @unique
+  address   String?  @db.VarChar(255)
+
+  commands Command[]
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  label       String   @unique
+  price       Int
+  description String?
+  userId      Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  commands ServiceOnCommand[]
+}
+
+model Command {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  price       Int
+  description String?  @db.VarChar(255)
+  discount    Int?
+  customerId  Int
+
+  services ServiceOnCommand[]
+  customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+}
+
+model ServiceOnCommand {
+  quantity  Int
+  serviceId Int
+  commandId Int
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  @@id([serviceId, commandId])
+}

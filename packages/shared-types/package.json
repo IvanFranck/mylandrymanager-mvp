@@ -1,0 +1,12 @@
+{
+  "name": "shared-types",
+  "description": "types and interfaces shared accross my apps",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
