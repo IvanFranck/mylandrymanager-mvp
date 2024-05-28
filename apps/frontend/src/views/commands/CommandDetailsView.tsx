@@ -3,6 +3,8 @@ import { COMMANDS_QUERY_KEY, COMMAND_ID_QUERY_KEY } from '@/common/constants/que
 import { fetchCommandById } from '@/lib/api/commands'
 import { CommandsEntity } from '@/lib/types/entities'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { formatDate } from 'date-fns'
+import { fr } from 'date-fns/locale'
 import { X } from 'lucide-react'
 import { useParams } from 'react-router-dom'
 
@@ -21,7 +23,7 @@ export const CommandDetailView = () => {
     })
 
     return (
-        <div className="w-full px-2 mt-4">
+        <div className="w-full rounded-3xl overflow-hidden mt-4">
             {
                 isLoading
                     ? <p>loading ...</p>
@@ -30,10 +32,9 @@ export const CommandDetailView = () => {
                         {/* header */}
                         <div className="w-full flex justify-between">
                             <div>
-                                <h2 className="text-xl text-center font-medium">PRESSING 2k</h2>
-                                <p className="text-gray-400 font-normal">{command?.customer.name}</p>
+                                <h2 className="text-xl text-center font-semibold">CMD #{command?.code.code}</h2>
+                                <p>Due {formatDate((command?.createdAt as Date).toString(), "dd MM yy", {locale: fr})}</p>
                             </div>
-                            <span className="font-normal text-sm">{command?.code.code}</span>
                         </div>
 
                         {/* services */}

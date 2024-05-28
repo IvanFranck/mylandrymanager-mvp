@@ -61,8 +61,8 @@ export const routes: RouteObject[] = [
                                 path: ':commandId',
                                 element: <CommandDetailView />,
                                 handle: {
-                                    pageTitle: (params: Params) => {
-                                        return <PageTitle pageName={`Commande ${params.commandId}`} backlink='/commands' editionDrawer={<PenLine size={20} className="text-blue-600" />} />
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Détails de la commande" backlink='/commands' />
                                     }
                                 }
                             }
