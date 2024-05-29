@@ -1,6 +1,7 @@
 import '@/bill.css'
 import { COMMANDS_QUERY_KEY, COMMAND_ID_QUERY_KEY } from '@/common/constants/query-keys'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import { fetchCommandById } from '@/lib/api/commands'
 import { CommandsEntity, CustomersEntity } from '@/lib/types/entities'
 import { calculateCommandSubtotal, getInitials } from '@/lib/utils'
@@ -8,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ChevronRight, X } from 'lucide-react'
+import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
 export const CommandDetailView = () => {
@@ -22,8 +24,11 @@ export const CommandDetailView = () => {
         placeholderData: () => {
             const commands: CommandsEntity[] | undefined = queryClient.getQueryData(COMMANDS_QUERY_KEY)
             return numericCommandId ? commands?.find(command => command.id === numericCommandId) : undefined
-        }
+        },
+        enabled: numericCommandId > 0,
     })
+
+    const commandServices = useMemo(() => command?.services, [command])
 
     return (
         <div className="w-full rounded-t-3xl bg-white overflow-hidden flex-1 mt-4">
@@ -42,18 +47,21 @@ export const CommandDetailView = () => {
                         {/* header */}
                         <div className="w-full flex flex-col gap-4 mt-4">
                             <div className='w-full'>
-                                <h2 className="text-xl text-left font-semibold">CMD #{command?.code.code}</h2>
-                                <p className='text-sm text-gray-400 mt-2'>Attendue le {formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr})}</p>
+                                <h2 className="text-xl text-left font-semibold">CMD #{command && command.code ? command.code.code : 'N/A'}</h2>
+                                <p className='text-sm text-gray-400 mt-2'>
+                                    Attendue le {command && command.withdrawDate ? formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr}) : 'N/A'}
+                                </p>
                             </div>
 
                             <CommandOwnerCard customer={command?.customer} date={command?.createdAt as Date}/>
                         </div>
 
-                        {/* services details */}
+                        {/* bill */}
                         <div className='w-full mt-6 bg-gray-100 pt-3 rounded-lg flex flex-col gap-8'>
+                            {/* services details */}
                             <CommandBillSection title='Détails des services'>
                                 <div className='w-full flex flex-col gap-4'>
-                                    {command?.services && command.services.map(({ service, quantity }) => (
+                                    {commandServices && commandServices.map(({ service, quantity }) => (
                                         <div key={service.id} className='w-full flex justify-between'>
                                             <div className='flex flex-col font-normal'>
                                                 <h5 className='font-semibold '>{service.label}</h5>
@@ -61,7 +69,8 @@ export const CommandDetailView = () => {
                                             </div>
                                             <span className="text-sm font-semibold">{quantity * service.price} fcfa</span>
                                         </div>
-                                    ))}
+                                        ))
+                                    }
                                 </div>
                             </CommandBillSection>
 
@@ -83,6 +92,17 @@ export const CommandDetailView = () => {
                                     <p>{command?.price} fcfa</p>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* actions*/}
+                        <div className='w-full flex flex-col gap-4 mt-6'>
+                            <Button className='w-full text-white bg-blue-500' size="lg" variant='default'>
+                                Evoyer la facture
+                            </Button>
+                            
+                            <Button  size="lg" variant='ghost'>
+                                Modifier
+                            </Button>
                         </div>
                     </div>
             }
