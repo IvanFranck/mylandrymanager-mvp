@@ -26,12 +26,12 @@ export const CommandDetailView = () => {
     })
 
     return (
-        <div className="w-full rounded-3xl overflow-hidden mt-4">
+        <div className="w-full rounded-t-3xl bg-white overflow-hidden flex-1 mt-4">
             {
                 isLoading
                     ? <p>loading ...</p>
                     :
-                    <div className="border bg-white border-gray-200 rounded-md p-4 pt-6">
+                    <div className="p-4 pt-6">
                         {/* command status */}
                         <div className='w-full flex justify-between'>
                             <span className='border font-medium text-xs text-green-500 border-green-500 px-4 py-1 rounded-full'>
@@ -40,7 +40,7 @@ export const CommandDetailView = () => {
                         </div>
 
                         {/* header */}
-                        <div className="w-full flex flex-col gap-4 mt-6">
+                        <div className="w-full flex flex-col gap-4 mt-4">
                             <div className='w-full'>
                                 <h2 className="text-xl text-left font-semibold">CMD #{command?.code.code}</h2>
                                 <p className='text-sm text-gray-400 mt-2'>Attendue le {formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr})}</p>
