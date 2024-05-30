@@ -11,9 +11,10 @@ import { ProfileView } from "@/views/profile-view"
 import ServiceEditView from "@/views/services/service-edit-view"
 import ServiceCreationDrawer from "@/components/app/services/service-creation-drawer"
 import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
-import { PenLine } from "lucide-react"
 import RegisterView from "@/views/register-view"
 import { ProtectedRoute } from "./protected-route"
+import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
+import { CustomersListView } from "@/views/customers/CustomersListView"
 
 
 export const routes: RouteObject[] = [
@@ -61,8 +62,31 @@ export const routes: RouteObject[] = [
                                 path: ':commandId',
                                 element: <CommandDetailView />,
                                 handle: {
-                                    pageTitle: (params: Params) => {
-                                        return <PageTitle pageName={`Commande ${params.commandId}`} backlink='/commands' editionDrawer={<PenLine size={20} className="text-blue-600" />} />
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Détails de la commande" backlink='/commands' />
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        id: 'Customers',
+                        path: '/customers',
+                        children: [
+                            {
+                                index: true,
+                                element: <CustomersListView />,
+                                handle: {
+                                    pageTitle: () => <PageTitle pageName="Vos clients" />
+                                }
+                            },
+                            {
+                                id: 'customer view',
+                                path: ':customerId',
+                                element: <CustomerDetailView />,
+                                handle: {
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Client" backlink='/commands' />
                                     }
                                 }
                             }
