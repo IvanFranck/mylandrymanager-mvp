@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as joi from 'joi';
 import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { WhatsappMessagingModule } from './whatsapp-messaging/whatsappmessaging.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
     UsersModule,
     AuthModule,
     OTPModule,
+    WhatsappMessagingModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
@@ -30,6 +32,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
         TWILIO_VERIFY_API_AUTH_KEY: joi.string().required(),
         TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
         COMMAND_CODE_ALPHABET: joi.string().required(),
+        TWILIO_VERIFY_API_PHONE_NUMBER: joi.string().required(),
       }),
     }),
   ],
