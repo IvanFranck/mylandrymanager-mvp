@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
   Injectable,
@@ -7,9 +8,10 @@ import {
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Service } from '@prisma/client';
+import { Service, ServiceVersion } from '@prisma/client';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
+import { ServiceEntity } from './entities/service.entity';
 
 @Injectable()
 export class ServicesService {
@@ -25,20 +27,24 @@ export class ServicesService {
   async create(
     createServiceDto: CreateServiceDto,
     request: AccessTokenValidatedRequestInterface,
-  ): Promise<CustomResponseInterface<Service>> {
+  ): Promise<CustomResponseInterface<ServiceVersion>> {
     const id = request.user.sub;
     try {
-      const user = await this.prisma.user.update({
-        where: {
-          id,
-        },
+      const serviceVersion = await this.prisma.service.create({
         data: {
-          services: {
-            create: createServiceDto,
+          versions: {
+            create: {
+              ...createServiceDto,
+            },
+          },
+          user: {
+            connect: {
+              id: id,
+            },
           },
         },
         select: {
-          services: {
+          versions: {
             orderBy: {
               createdAt: 'desc',
             },
@@ -46,10 +52,9 @@ export class ServicesService {
           },
         },
       });
-
       return {
         message: 'service créé!',
-        details: user.services[0],
+        details: serviceVersion.versions[0],
       };
     } catch (error) {
       if (error.code === 'P2002') {
@@ -66,7 +71,7 @@ export class ServicesService {
    */
   async findAll(
     request: AccessTokenValidatedRequestInterface,
-  ): Promise<CustomResponseInterface<Service[]>> {
+  ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     const userId = request.user.sub;
     try {
       const user = await this.prisma.user.findUnique({
@@ -74,7 +79,16 @@ export class ServicesService {
           id: userId,
         },
         include: {
-          services: true,
+          services: {
+            include: {
+              versions: {
+                orderBy: {
+                  createdAt: 'desc',
+                },
+                take: 1,
+              },
+            },
+          },
         },
       });
 
@@ -98,14 +112,17 @@ export class ServicesService {
   async findOneByName(
     name: string,
     request: AccessTokenValidatedRequestInterface,
-  ): Promise<CustomResponseInterface<Service[]>> {
+  ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     try {
       // improve this: it make call to DB to retrieve all customers every time we call this.
       // try to cache the response from DB at the first place
       const services = await this.findAll(request);
 
       const service = services.details.filter((service) =>
-        service.label.trim().toLowerCase().includes(name.trim().toLowerCase()),
+        service[0]?.version.label
+          .trim()
+          .toLowerCase()
+          .includes(name.trim().toLowerCase()),
       );
 
       return {
@@ -158,21 +175,58 @@ export class ServicesService {
     updateServiceDto: UpdateServiceDto,
   ): Promise<{ message: string; service: unknown }> {
     try {
+      const lastServiceVersion = await this.prisma.service.findUnique({
+        where: {
+          id: id,
+        },
+        select: {
+          versions: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 1,
+          },
+        },
+      });
+
+      const {
+        createdAt,
+        id: lastServiceVersionId,
+        serviceId,
+        ...lastServiceVersionUsefulData
+      } = lastServiceVersion.versions[0];
+
+      const newServiceVersion = {
+        ...lastServiceVersionUsefulData,
+        ...updateServiceDto,
+      };
       const service = await this.prisma.service.update({
         where: {
-          id,
+          id: id,
         },
         data: {
-          ...updateServiceDto,
+          versions: {
+            create: {
+              ...newServiceVersion,
+            },
+          },
+        },
+        select: {
+          versions: {
+            orderBy: {
+              createdAt: 'desc',
+            },
+            take: 1,
+          },
         },
       });
 
       if (!service) {
-        throw new NotFoundException();
+        throw new NotFoundException('Service not found');
       }
       return {
         message: 'service modifié',
-        service,
+        service: service.versions[0],
       };
     } catch (error) {
       if (error.code === 'P2025') {

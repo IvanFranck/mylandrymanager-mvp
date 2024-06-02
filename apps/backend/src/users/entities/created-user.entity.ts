@@ -3,5 +3,5 @@ import { UserEntity } from './user.entity';
 
 export class CreatedUserEntity extends OmitType(UserEntity, [
   'password',
-  'signUpCompleted',
+  'verified',
 ] as const) {}

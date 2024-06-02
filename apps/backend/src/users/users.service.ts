@@ -40,7 +40,7 @@ export class UsersService {
         user,
       };
     } catch (error) {
-      console.error('error: ', error);
+      this.logger.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException(
           'user with this phone number already exists',

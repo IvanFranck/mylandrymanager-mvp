@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "Command" ALTER COLUMN "code" SET DATA TYPE VARCHAR(36);
+
+-- AlterTable
+ALTER TABLE "Invoice" ALTER COLUMN "code" SET DATA TYPE VARCHAR(36);

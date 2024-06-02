@@ -67,8 +67,8 @@ export class AuthService {
       user: Omit<User, 'password'>;
     }>
   > {
-    const { id, username, phone, signUpCompleted } = user;
-    const payload = { sub: id, username, phone, signUpCompleted };
+    const { id, username, phone, verified } = user;
+    const payload = { sub: id, username, phone, verified };
 
     const [accessToken, refreshToken] = await this.getTokens(payload);
     console.log('accessToken: ', accessToken);

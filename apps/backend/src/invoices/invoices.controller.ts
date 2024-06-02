@@ -1,6 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
+import { CreateInvoiceDTO } from './dto/create-invoice.dto';
+import { AccessTokenAuthGuard } from '@/auth/guards/access-token-auth.guard';
 
+@UseGuards(AccessTokenAuthGuard)
 @Controller({
   path: 'invoices',
   version: '1',
@@ -8,8 +11,8 @@ import { InvoicesService } from './invoices.service';
 export class InvoicesController {
   constructor(private readonly invoicesService: InvoicesService) {}
 
-  @Get()
-  async createInvoice() {
-    return await this.invoicesService.createInvoice();
+  @Post()
+  async createInvoice(@Body() createInvoiceDto: CreateInvoiceDTO) {
+    return await this.invoicesService.createInvoice(createInvoiceDto);
   }
 }

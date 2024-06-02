@@ -1,7 +1,7 @@
 import * as PDFDocument from 'pdfkit';
 import { createWriteStream } from 'fs-extra';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
-import dayjs from 'dayjs';
+import * as dayjs from 'dayjs';
 
 export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
   const doc: PDFKit.PDFDocument = new PDFDocument({

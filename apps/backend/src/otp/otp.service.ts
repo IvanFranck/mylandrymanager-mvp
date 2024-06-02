@@ -32,7 +32,7 @@ export class OTPService {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
-        signUpCompleted: false,
+        verified: undefined,
       },
     });
 
@@ -97,15 +97,16 @@ export class OTPService {
           id: userId,
         },
         data: {
-          signUpCompleted: true,
+          verified: new Date(),
         },
         select: {
           id: true,
           createdAt: true,
           updatedAt: true,
           phone: true,
-          signUpCompleted: true,
+          verified: true,
           username: true,
+          address: true,
         },
       });
       return {
