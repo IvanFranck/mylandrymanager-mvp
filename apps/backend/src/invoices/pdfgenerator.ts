@@ -1,16 +1,17 @@
 import * as PDFDocument from 'pdfkit';
 import { createWriteStream } from 'fs-extra';
-import { join } from 'path';
+import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
+import dayjs from 'dayjs';
 
-export const pdfGenerator = async () => {
+export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
   const doc: PDFKit.PDFDocument = new PDFDocument({
     margin: 50,
     size: 'A4',
   });
 
-  const pdfFilePath = join('./', 'result.pdf');
+  const pdfFilePath = invoiceParams.pdfFilePath;
   const pdfStream = createWriteStream(pdfFilePath);
-  const barcodeFilePath = join('./', 'barcode.png');
+  const barcodeFilePath = invoiceParams.barcodeFilePath;
 
   doc.pipe(pdfStream);
 
@@ -30,17 +31,19 @@ export const pdfGenerator = async () => {
   const enterpriseIndfosStartX = doc.page.margins.left;
   const enterpriseIndfosStartY = doc.page.margins.top;
 
+  const userInfos = invoiceParams.invoice.command.user;
+
   doc.font('Helvetica-Bold').fontSize(20);
-  doc.text('MY PRESSING', enterpriseIndfosStartX, enterpriseIndfosStartY, {
+  doc.text(userInfos.username, enterpriseIndfosStartX, enterpriseIndfosStartY, {
     width: usableWidth,
     align: 'center',
   });
   doc.font('Helvetica').fontSize(12);
-  doc.text('YAOUNDE, Chapelle NSIMEYON', {
+  doc.text(userInfos.address, {
     width: usableWidth,
     align: 'center',
   });
-  doc.text('65648816', { width: usableWidth, align: 'center' });
+  doc.text(userInfos.phone.toString(), { width: usableWidth, align: 'center' });
 
   const enterpriseIndfosHeight = 70;
 
@@ -63,6 +66,7 @@ export const pdfGenerator = async () => {
   const headerStarterY = bodyStartY;
 
   // infos client
+  const customerInfos = invoiceParams.invoice.command.customer;
   const customerWidth = usableWidth * 0.5;
   doc.fillColor('black').fontSize(14).font('Helvetica-Bold');
   doc.text('FACTURÉ À', headerStarterX, headerStarterY, {
@@ -70,9 +74,8 @@ export const pdfGenerator = async () => {
     align: 'left',
   });
   doc.fillColor('#41413F').fontSize(12).font('Helvetica');
-  doc.text('NZIMA Ivan', { width: customerWidth, align: 'left' });
-  doc.text('Nkolmesseng , Bel-Air', { width: customerWidth, align: 'left' });
-  doc.text('656488116', { width: customerWidth, align: 'left' });
+  doc.text(customerInfos.name, { width: customerWidth, align: 'left' });
+  doc.text(customerInfos.address, { width: customerWidth, align: 'left' });
 
   /**
    * ********* partie de droite: infos facture **********
@@ -81,19 +84,21 @@ export const pdfGenerator = async () => {
   const infosFacture = [
     {
       titre: 'FACTURE N°',
-      valeur: '1293842037',
+      valeur: invoiceParams.invoice.code,
     },
     {
       titre: 'DATE',
-      valeur: '20/02/2024',
+      valeur: dayjs(invoiceParams.invoice.createdAt).format('DD/MM/YYYY'),
     },
     {
       titre: 'COMMANDE N°',
-      valeur: '186383003',
+      valeur: invoiceParams.invoice.command.code,
     },
     {
       titre: 'ÉCHÉANCE',
-      valeur: '28/02/2024',
+      valeur: dayjs(invoiceParams.invoice.command.withdrawDate).format(
+        'DD/MM/YYYY',
+      ),
     },
   ];
   const billInfosWidth = usableWidth * 0.5;
@@ -177,20 +182,8 @@ export const pdfGenerator = async () => {
     return prixUnitaire * quantite;
   }
 
-  const article1 = {
-    reference: 'Veste',
-    prixUnitaire: 3000,
-    quantite: 2,
-  };
-
-  const article2 = {
-    reference: 'Pantalon',
-    prixUnitaire: 4500,
-    quantite: 1,
-  };
-
   // Supposons que vous ayez un tableau d'articles
-  const articles = [article1, article2];
+  const articles = invoiceParams.invoice.command.services;
 
   let articleStartY = productTableHeaderHeight + productTableStartY + 10;
   const articleStartX = productTableStartX;
@@ -202,7 +195,7 @@ export const pdfGenerator = async () => {
       doc.rect(articleStartX, articleStartY, usableWidth, 30).fill('#EBEBEA'); // Dessiner le fond coloré
       doc.fillColor('black').fontSize(10);
       currentX = articleStartX;
-      doc.text(article.reference, 50 + 2, articleStartY + 5, {
+      doc.text(article.service.label, 50 + 2, articleStartY + 5, {
         width: sectionWidths[0] - 5,
         align: 'left',
       });
@@ -212,7 +205,7 @@ export const pdfGenerator = async () => {
         .lineTo(currentX, articleStartY + 30)
         .stroke('white');
       doc.text(
-        article.prixUnitaire + ' Fcfa',
+        article.service.price.toString() + ' fcfa',
         50 + sectionWidths[0],
         articleStartY + 5,
         { width: sectionWidths[1] - 5, align: 'right' },
@@ -223,7 +216,7 @@ export const pdfGenerator = async () => {
         .lineTo(currentX, articleStartY + 30)
         .stroke('white');
       doc.text(
-        article.quantite.toString(),
+        article.quantity.toString(),
         50 + sectionWidths[0] + sectionWidths[1],
         articleStartY + 5,
         { width: sectionWidths[2] - 5, align: 'right' },
@@ -234,30 +227,30 @@ export const pdfGenerator = async () => {
         .lineTo(currentX, articleStartY + 30)
         .stroke('white');
       doc.text(
-        getPrixTotal(article.prixUnitaire, article.quantite) + ' fcfa',
+        getPrixTotal(article.service.price, article.quantity) + ' fcfa',
         50 + sectionWidths[0] + sectionWidths[1] + sectionWidths[2],
         articleStartY + 5,
         { width: sectionWidths[3] - 5, align: 'right' },
       );
     } else {
-      doc.text(article.reference, 50 + 2, articleStartY, {
+      doc.text(article.service.label, 50 + 2, articleStartY, {
         width: sectionWidths[0] - 5,
         align: 'left',
       });
       doc.text(
-        article.prixUnitaire + ' fcfa',
+        article.service.price.toString() + ' fcfa',
         articleStartX + sectionWidths[0],
         articleStartY,
         { width: sectionWidths[1] - 5, align: 'right' },
       );
       doc.text(
-        article.quantite.toString(),
+        article.quantity.toString(),
         articleStartX + sectionWidths[0] + sectionWidths[1],
         articleStartY,
         { width: sectionWidths[2] - 5, align: 'right' },
       );
       doc.text(
-        getPrixTotal(article.prixUnitaire, article.quantite) + ' fcfa',
+        getPrixTotal(article.service.price, article.quantity) + ' fcfa',
         articleStartX + sectionWidths[0] + sectionWidths[1] + sectionWidths[2],
         articleStartY,
         { width: sectionWidths[3] - 5, align: 'right' },
@@ -268,16 +261,21 @@ export const pdfGenerator = async () => {
 
   const totalPartiel = articles.reduce(
     (acc, article) =>
-      acc + getPrixTotal(article.prixUnitaire, article.quantite),
+      acc + getPrixTotal(article.service.price, article.quantity),
     0,
   );
-  const remise = 500; // Remise fixe pour l'exemple
+  const remise = invoiceParams.invoice.command.discount; // Remise fixe pour l'exemple
+  const advance = invoiceParams.invoice.advance;
   const totalFinal = totalPartiel - remise;
 
   const total = [
     {
       text: 'Total Partiel :',
       value: totalPartiel,
+    },
+    {
+      text: 'Avance :',
+      value: advance,
     },
     {
       text: 'Remise :',
