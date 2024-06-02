@@ -10,6 +10,7 @@ import { ConfigModule } from '@nestjs/config';
 import * as joi from 'joi';
 import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { InvoicesModule } from './invoices/invoices.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
     UsersModule,
     AuthModule,
     OTPModule,
+    InvoicesModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
