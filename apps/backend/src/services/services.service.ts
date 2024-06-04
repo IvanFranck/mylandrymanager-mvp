@@ -32,6 +32,7 @@ export class ServicesService {
     try {
       const serviceVersion = await this.prisma.service.create({
         data: {
+          currentVersion: 1,
           versions: {
             create: {
               ...createServiceDto,
@@ -175,50 +176,56 @@ export class ServicesService {
     updateServiceDto: UpdateServiceDto,
   ): Promise<{ message: string; service: unknown }> {
     try {
-      const lastServiceVersion = await this.prisma.service.findUnique({
-        where: {
-          id: id,
-        },
-        select: {
-          versions: {
-            orderBy: {
-              createdAt: 'desc',
-            },
-            take: 1,
+      const service = await this.prisma.$transaction(async (tx) => {
+        const lastServiceVersion = await this.prisma.service.findUnique({
+          where: {
+            id: id,
           },
-        },
-      });
+          select: {
+            versions: {
+              orderBy: {
+                createdAt: 'desc',
+              },
+              take: 1,
+            },
+          },
+        });
 
-      const {
-        createdAt,
-        id: lastServiceVersionId,
-        serviceId,
-        ...lastServiceVersionUsefulData
-      } = lastServiceVersion.versions[0];
+        const {
+          createdAt,
+          id: lastServiceVersionId,
+          serviceId,
+          ...lastServiceVersionUsefulData
+        } = lastServiceVersion.versions[0];
 
-      const newServiceVersion = {
-        ...lastServiceVersionUsefulData,
-        ...updateServiceDto,
-      };
-      const service = await this.prisma.service.update({
-        where: {
-          id: id,
-        },
-        data: {
-          versions: {
-            create: {
-              ...newServiceVersion,
+        const newServiceVersion = {
+          ...lastServiceVersionUsefulData,
+          ...updateServiceDto,
+        };
+        const service = await this.prisma.service.update({
+          where: {
+            id: id,
+          },
+          data: {
+            currentVersion: {
+              increment: 1,
+            },
+            versions: {
+              create: {
+                ...newServiceVersion,
+              },
             },
           },
-        },
-        select: {
-          versions: {
-            orderBy: {
-              createdAt: 'desc',
+          select: {
+            versions: {
+              orderBy: {
+                createdAt: 'desc',
+              },
+              take: 1,
             },
-            take: 1,
           },
-        },
+        });
+        return service;
       });
 
       if (!service) {

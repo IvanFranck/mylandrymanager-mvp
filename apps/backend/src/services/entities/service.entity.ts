@@ -3,6 +3,7 @@ export class ServiceEntity {
   createdAt: Date;
   updatedAt: Date;
   userId: number;
+  currentVersion: number;
   versions: {
     id: number;
     createdAt: Date;
