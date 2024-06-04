@@ -7,9 +7,11 @@ import { CommandsModule } from './commands/commands.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import * as joi from 'joi';
+import joi from 'joi';
 import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
+import { InvoicesModule } from './invoices/invoices.module';
+import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 
 @Module({
   imports: [
@@ -18,7 +20,9 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
     CommandsModule,
     UsersModule,
     AuthModule,
+    JwtKeysModule,
     OTPModule,
+    InvoicesModule,
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
@@ -29,7 +33,12 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
         TWILIO_VERIFY_API_ACCOUNT_SID: joi.string().required(),
         TWILIO_VERIFY_API_AUTH_KEY: joi.string().required(),
         TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
-        COMMAND_CODE_ALPHABET: joi.string().required(),
+        CODE_ALPHABET: joi.string().required(),
+        CODE_SALT: joi.string().required(),
+        CODE_MIN_LENGTH: joi.number().required(),
+        INVOICES_ROOT_PATH: joi.string().required(),
+        COMMAND_BARCODE_ROOT_PATH: joi.string().required(),
+        JWT_ALGORITHM: joi.string().required(),
       }),
     }),
   ],

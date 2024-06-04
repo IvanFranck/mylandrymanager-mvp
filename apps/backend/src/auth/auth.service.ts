@@ -5,20 +5,21 @@ import {
 } from '@nestjs/common';
 import { ValidateUserDto } from './dto/validate-user.dto';
 import { PrismaService } from 'src/prisma.service';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { ValidatedUserEntity } from './entites/validate-user.entity';
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { JWT_CONSTANT } from './constants';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JWTDecodedEntity } from './entites/jwt-decoded-payload.entity';
+import { JwtKeysService } from '../jwtkeys/jwtkeys.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly jwtKeysService: JwtKeysService,
   ) {}
 
   /**
@@ -67,8 +68,8 @@ export class AuthService {
       user: Omit<User, 'password'>;
     }>
   > {
-    const { id, username, phone, signUpCompleted } = user;
-    const payload = { sub: id, username, phone, signUpCompleted };
+    const { id, username, phone, verified } = user;
+    const payload = { sub: id, username, phone, verified };
 
     const [accessToken, refreshToken] = await this.getTokens(payload);
     console.log('accessToken: ', accessToken);
@@ -100,7 +101,7 @@ export class AuthService {
         refreshTokenDto.refreshToken,
         {
           ignoreExpiration: false,
-          publicKey: JWT_CONSTANT.PUBLIC_KEY,
+          publicKey: this.jwtKeysService.publicKey,
         },
       );
       if (token) {

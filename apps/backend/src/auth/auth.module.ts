@@ -5,20 +5,37 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { JWT_CONSTANT } from './constants';
 import { AccessTokenStrategy } from './strategies/access-token-strategy';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtKeysModule } from '@/jwtkeys/jwtkeys.module';
+import { JwtKeysService } from '@/jwtkeys/jwtkeys.service';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      privateKey: JWT_CONSTANT.PRIVATE_KEY,
-      publicKey: JWT_CONSTANT.PUBLIC_KEY,
-      signOptions: { algorithm: 'RS256' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule, JwtKeysModule],
+      useFactory: async (
+        configService: ConfigService,
+        jwtKeysService: JwtKeysService,
+      ) => {
+        return {
+          privateKey: jwtKeysService.privateKey,
+          publicKey: jwtKeysService.publicKey,
+          signOptions: { algorithm: configService.get('JWT_ALGORITHM') },
+        };
+      },
+      inject: [ConfigService, JwtKeysService],
     }),
   ],
   controllers: [AuthController],
-  providers: [PrismaService, AuthService, LocalStrategy, AccessTokenStrategy],
+  providers: [
+    PrismaService,
+    AuthService,
+    LocalStrategy,
+    AccessTokenStrategy,
+    JwtKeysService,
+  ],
   exports: [AccessTokenStrategy],
 })
 export class AuthModule {}

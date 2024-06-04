@@ -7,10 +7,11 @@ import {
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Command, CommandsCode, Service } from '@prisma/client';
+import { Command, ServiceVersion } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CommandsService {
@@ -28,7 +29,7 @@ export class CommandsService {
    * @return {number} the total price after applying the discount
    */
   private computeTotalPrice(
-    services: { service: Service; quantity: number }[],
+    services: { service: ServiceVersion; quantity: number }[],
     discount: number | undefined,
   ): number {
     const totalServicesPrice = services.reduce(
@@ -52,6 +53,7 @@ export class CommandsService {
       createCommandDto;
     const userId = request.user.sub;
     try {
+      const code = uuidv4();
       // 1. compute the total price
       const totalPrice = this.computeTotalPrice(services, discount);
 
@@ -59,9 +61,10 @@ export class CommandsService {
       const command = await this.prisma.command.create({
         data: {
           price: totalPrice,
-          description,
-          discount,
-          withdrawDate,
+          description: description,
+          discount: discount,
+          code: code,
+          withdrawDate: withdrawDate,
           customer: {
             connect: {
               id: customerId,
@@ -84,7 +87,16 @@ export class CommandsService {
             })),
           },
         },
-        include: {
+        select: {
+          createdAt: true,
+          updatedAt: true,
+          id: true,
+          price: true,
+          description: true,
+          discount: true,
+          customerId: true,
+          userId: true,
+          withdrawDate: true,
           customer: true,
           code: true,
           services: {
@@ -97,32 +109,6 @@ export class CommandsService {
           },
         },
       });
-
-      // 4. generate command unique code and blacklist it
-      let code: string;
-      let isCodeUsed: CommandsCode | null;
-      do {
-        code = this.generateCommandeCode();
-
-        isCodeUsed = await this.prisma.commandsCode.findUnique({
-          where: {
-            code,
-          },
-        });
-      } while (isCodeUsed);
-
-      const commandCode = await this.prisma.commandsCode.create({
-        data: {
-          code,
-          command: {
-            connect: {
-              id: command.id,
-            },
-          },
-        },
-      });
-
-      command.code = { ...commandCode };
 
       return {
         message: 'commande ajoutée',
@@ -151,11 +137,6 @@ export class CommandsService {
         },
         include: {
           customer: true,
-          code: {
-            select: {
-              code: true,
-            },
-          },
           services: {
             select: {
               service: true,
@@ -193,7 +174,6 @@ export class CommandsService {
           id,
         },
         include: {
-          code: true,
           customer: true,
           services: {
             select: {

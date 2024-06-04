@@ -1,1 +1,15 @@
-export class Service {}
+export class ServiceEntity {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: number;
+  currentVersion: number;
+  versions: {
+    id: number;
+    createdAt: Date;
+    label: string;
+    price: number;
+    description: string;
+    serviceId: number;
+  }[];
+}

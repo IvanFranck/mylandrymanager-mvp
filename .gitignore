@@ -1,5 +1,6 @@
-# Ignore .cursorrules file
-.cursorrules
+# ignore pdf and image files
+*.pdf
+*.png
 
 # Node modules
 node_modules
