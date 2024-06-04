@@ -89,7 +89,7 @@ model ServiceOnCommand {
 model Invoice {
   id        Int      @id @default(autoincrement())
   code      String?  @unique @db.VarChar(36)
-  pathParam String?  @db.VarChar(36)
+  fileName  String   @unique @db.VarChar(36)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   commandId Int

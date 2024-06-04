@@ -1,7 +1,7 @@
 import { GenerateBarcodeDTO } from './dto/generate-barcode.dto';
 import { Injectable, Logger } from '@nestjs/common';
 import { RenderOptions, toBuffer } from 'bwip-js';
-import { promises, ensureDir } from 'fs-extra';
+import { promises, ensureDir, createReadStream, ReadStream } from 'fs-extra';
 import { join } from 'path';
 import { pdfGenerator } from './pdfgenerator';
 import { ConfigService } from '@nestjs/config';
@@ -40,6 +40,7 @@ export class InvoicesService {
       const invoice = await this.prismaClient.$transaction(async (tx) => {
         const newInvoice = await tx.invoice.create({
           data: {
+            fileName: filePath,
             advance: createInvoiceDto.advance,
             command: {
               connect: {
@@ -55,14 +56,13 @@ export class InvoicesService {
             id: newInvoice.id,
           },
           data: {
-            pathParam: filePath,
             code,
           },
           select: {
             id: true,
             code: true,
             advance: true,
-            pathParam: true,
+            fileName: true,
             createdAt: true,
             command: {
               select: {
@@ -111,8 +111,8 @@ export class InvoicesService {
       await ensureDir(barcodeDirPath);
       await ensureDir(pdfDirPath);
 
-      const barcodeFilePath = join(barcodeDirPath, `${invoice.pathParam}.png`);
-      const pdfFilePath = join(pdfDirPath, `${invoice.pathParam}.pdf`);
+      const barcodeFilePath = join(barcodeDirPath, `${invoice.fileName}.png`);
+      const pdfFilePath = join(pdfDirPath, `${invoice.fileName}.pdf`);
       await this.generateInvoiceBarcode({
         barcodeText: invoice.code,
         outputPath: barcodeFilePath,
@@ -131,6 +131,29 @@ export class InvoicesService {
     return {
       message: 'Facture créée',
     };
+  }
+
+  async getInvoice(filePath: string): Promise<ReadStream> {
+    try {
+      const invoice = await this.prismaClient.invoice.findUnique({
+        where: { fileName: filePath },
+      });
+      if (!invoice) {
+        throw new Error(
+          `Facture avec le nom de fichier ${filePath} non trouvée`,
+        );
+      }
+      const pdfFileRootPath = this.getFileSubPath(
+        this.configService.get('INVOICES_ROOT_PATH'),
+        invoice.createdAt,
+      );
+      const pdfFilePath = join(pdfFileRootPath, `${invoice.fileName}.pdf`);
+
+      return createReadStream(pdfFilePath);
+    } catch (error) {
+      this.loger.error('Erreur lors de la récupération de la facture:', error);
+      throw new Error('Erreur lors de la récupération de la facture:');
+    }
   }
 
   private async generateInvoiceBarcode(dto: GenerateBarcodeDTO) {
@@ -159,7 +182,10 @@ export class InvoicesService {
     }
   }
 
-  private getFileSubPath(rootPath: string) {
+  private getFileSubPath(rootPath: string, date?: Date) {
+    if (date) {
+      return join(rootPath, `${dayjs(date).format('YYYY/MM')}/`);
+    }
     return join(rootPath, `${dayjs().format('YYYY/MM')}/`);
   }
 }
