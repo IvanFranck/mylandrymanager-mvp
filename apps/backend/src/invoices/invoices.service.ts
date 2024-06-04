@@ -41,7 +41,7 @@ export class InvoicesService {
         const newInvoice = await tx.invoice.create({
           data: {
             fileName: filePath,
-            advance: createInvoiceDto.advance,
+            amountPaid: createInvoiceDto.advance,
             command: {
               connect: {
                 id: createInvoiceDto.commandId,
@@ -61,7 +61,7 @@ export class InvoicesService {
           select: {
             id: true,
             code: true,
-            advance: true,
+            amountPaid: true,
             fileName: true,
             createdAt: true,
             command: {
@@ -69,6 +69,7 @@ export class InvoicesService {
                 withdrawDate: true,
                 code: true,
                 discount: true,
+                advance: true,
                 user: {
                   select: {
                     username: true,

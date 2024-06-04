@@ -99,6 +99,8 @@ export class CommandsService {
           withdrawDate: true,
           customer: true,
           code: true,
+          advance: true,
+          status: true,
           services: {
             select: {
               service: true,

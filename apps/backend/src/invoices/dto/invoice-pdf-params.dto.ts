@@ -3,12 +3,13 @@ export class InvoicePDFParamsDto {
   barcodeFilePath: string;
   invoice: {
     code: string;
-    advance: number;
+    amountPaid: number;
     createdAt: Date;
     command: {
       code: string;
       withdrawDate: Date;
       discount: number;
+      advance: number;
       user: {
         username: string;
         phone: number;
