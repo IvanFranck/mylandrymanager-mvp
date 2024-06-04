@@ -20,9 +20,13 @@ export default function ServiceEditView() {
     const { serviceId } = useParams()
     const queryClient = useQueryClient()
     const { toast } = useToast()
-
     const { mutateAsync, isPending } = useMutation({
-        mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => await editService(data, +serviceId),
+        mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => {
+            if (!serviceId) {
+                throw new Error("Service ID is undefined");
+            }
+            return await editService(data, +serviceId);
+        },
         onError: (error: AxiosError<TGenericAxiosError>) => {
             console.log("🚀 ~ ServiceEditView ~ error:", error)
             const message = error.response?.data?.message || 'Une erreur est survenue lors de la modification du service'
@@ -32,11 +36,13 @@ export default function ServiceEditView() {
             })
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: SERVICE_ID_QUERY_KEY(+serviceId) })
-            queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
-            toast({
-                description: 'Service modifié avec succes',
-            })
+            if (serviceId) {
+                queryClient.invalidateQueries({ queryKey: SERVICE_ID_QUERY_KEY(+serviceId) })
+                queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
+                toast({
+                    description: 'Service modifié avec succes',
+                })
+            }
             // navigate('/services')
         }
     })

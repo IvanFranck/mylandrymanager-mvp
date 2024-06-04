@@ -5,11 +5,12 @@ import { promises, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { pdfGenerator } from './pdfgenerator';
 import { ConfigService } from '@nestjs/config';
-import * as dayjs from 'dayjs';
+import dayjs from 'dayjs';
 import { CreateInvoiceDTO } from './dto/create-invoice.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '@/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
+import Hashids from 'hashids';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
@@ -19,61 +20,87 @@ export class InvoicesService {
   ) {}
   async createInvoice(createInvoiceDto: CreateInvoiceDTO) {
     try {
-      const code = uuidv4();
-      const invoice = await this.prismaClient.invoice.create({
-        data: {
-          code,
-          advance: createInvoiceDto.advance,
-          command: {
-            connect: {
-              id: createInvoiceDto.commandId,
-            },
-          },
-        },
+      const command = await this.prismaClient.command.findUnique({
+        where: { id: createInvoiceDto.commandId },
       });
 
-      const invoiceWithDetails = await this.prismaClient.invoice.findUnique({
-        where: {
-          id: invoice.id,
-        },
-        select: {
-          code: true,
-          advance: true,
-          createdAt: true,
-          command: {
-            select: {
-              withdrawDate: true,
-              code: true,
-              discount: true,
-              user: {
-                select: {
-                  username: true,
-                  phone: true,
-                  address: true,
-                },
+      if (!command) {
+        throw new Error(
+          `Command with ID ${createInvoiceDto.commandId} not found`,
+        );
+      }
+
+      const filePath = uuidv4();
+      const hashIds = new Hashids(
+        this.configService.get('CODE_SALT'),
+        this.configService.get('CODE_MIN_LENGTH'),
+        this.configService.get('CODE_ALPHABET'),
+      );
+
+      const invoice = await this.prismaClient.$transaction(async (tx) => {
+        const newInvoice = await tx.invoice.create({
+          data: {
+            advance: createInvoiceDto.advance,
+            command: {
+              connect: {
+                id: createInvoiceDto.commandId,
               },
-              services: {
-                select: {
-                  quantity: true,
-                  service: {
-                    select: {
-                      label: true,
-                      price: true,
+            },
+          },
+        });
+
+        const code = hashIds.encode(newInvoice.id);
+        const invoice = await tx.invoice.update({
+          where: {
+            id: newInvoice.id,
+          },
+          data: {
+            pathParam: filePath,
+            code,
+          },
+          select: {
+            id: true,
+            code: true,
+            advance: true,
+            pathParam: true,
+            createdAt: true,
+            command: {
+              select: {
+                withdrawDate: true,
+                code: true,
+                discount: true,
+                user: {
+                  select: {
+                    username: true,
+                    phone: true,
+                    address: true,
+                  },
+                },
+                services: {
+                  select: {
+                    quantity: true,
+                    service: {
+                      select: {
+                        label: true,
+                        price: true,
+                      },
                     },
                   },
                 },
-              },
-              customer: {
-                select: {
-                  name: true,
-                  phone: true,
-                  address: true,
+                customer: {
+                  select: {
+                    name: true,
+                    phone: true,
+                    address: true,
+                  },
                 },
               },
             },
           },
-        },
+        });
+        return invoice;
       });
+
       const barcodeDirPath = this.getFileSubPath(
         this.configService.get('COMMAND_BARCODE_ROOT_PATH'),
       );
@@ -84,11 +111,8 @@ export class InvoicesService {
       await ensureDir(barcodeDirPath);
       await ensureDir(pdfDirPath);
 
-      const barcodeFilePath = join(
-        barcodeDirPath,
-        `${invoice.code}-barcode.png`,
-      );
-      const pdfFilePath = join(pdfDirPath, `${invoice.code}.pdf`);
+      const barcodeFilePath = join(barcodeDirPath, `${invoice.pathParam}.png`);
+      const pdfFilePath = join(pdfDirPath, `${invoice.pathParam}.pdf`);
       await this.generateInvoiceBarcode({
         barcodeText: invoice.code,
         outputPath: barcodeFilePath,
@@ -96,7 +120,7 @@ export class InvoicesService {
       const params: InvoicePDFParamsDto = {
         pdfFilePath,
         barcodeFilePath,
-        invoice: invoiceWithDetails,
+        invoice: invoice,
       };
       await pdfGenerator(params);
     } catch (error) {

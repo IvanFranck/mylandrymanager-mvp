@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { SendOTPDto } from './dto/send-otp.dto';
-import * as twilio from 'twilio';
+import twilio from 'twilio';
 import { ConfigService } from '@nestjs/config';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
 import { VerifyOTPDto } from './dto/verify-otp.dto';

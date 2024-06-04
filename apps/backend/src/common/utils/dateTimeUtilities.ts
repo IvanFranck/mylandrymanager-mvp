@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import  moment from 'moment';
 
 /**
  * Calculate the expiration time based on the current time and a 5-second interval.
