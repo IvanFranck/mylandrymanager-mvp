@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import { GenericForm } from "@/components/ui/generic-form"
 import { Button } from "@/components/ui/button"
 import { Loader } from "lucide-react"
-import { useLogin } from "@/lib/hooks/useLogin"
+import { useLogin } from "@/lib/hooks/use-cases/useLogin"
 
 
 export default function LoginView() {
@@ -29,7 +29,7 @@ export default function LoginView() {
                         isPending={isPending}
                         submitButton={<SubmitButton isPending={isPending} />}
                     />
-                    <p className="text-sm text-center mt-4">Vous n'avez pas de compte ? <Link className="text-blue-500" to="/register">Créer en un</Link></p>
+                    <p className="text-md text-center mt-4">Vous n'avez pas de compte ? <Link className="text-blue-500" to="/register">Créer en un</Link></p>
                 </div>
             </div>
         </div>
@@ -38,9 +38,11 @@ export default function LoginView() {
 
 const SubmitButton = ({isPending}: {isPending: boolean}) => {
     return (
-        <Button disabled={isPending} className="bg-white text-black rounded-lg text-lg py-5" type="submit">
-            Se connecter
-            {isPending && <Loader size={18} className="animate-spin ml-3" />}
-        </Button>
+        <div className="mt-20 w-full">
+            <Button disabled={isPending} className="bg-white w-full text-black rounded-lg text-lg py-5" type="submit">
+                Se connecter
+                {isPending && <Loader size={18} className="animate-spin ml-3" />}
+            </Button>
+        </div>
     )
 }

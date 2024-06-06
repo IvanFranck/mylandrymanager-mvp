@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import { LoginFormSchema, loginQuery } from "../api/auth";
+import { LoginFormSchema, loginQuery } from "../../api/auth";
 import { z } from "zod"
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "./useAuth";
+import { useAuth } from "../useAuth";
 import { LOGIN_QUERY_KEY } from "@/common/constants/query-keys";
 import { AxiosError, AxiosResponse } from "axios";
-import { TGenericAxiosError, TGenericResponse, TLoginResponseDetails } from "../types/responses";
+import { TGenericAxiosError, TGenericResponse, TLoginResponseDetails } from "../../types/responses";
 import { AXIOS_ACCESS_TOKEN, AXIOS_REFRESH_TOKEN, STORED_USER_DATA } from "@/common/constants/local-storage-keys";
 
 export const useLogin = () => {

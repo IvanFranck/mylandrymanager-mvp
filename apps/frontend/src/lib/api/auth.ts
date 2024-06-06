@@ -17,7 +17,8 @@ export const loginQuery = async (data: z.infer<typeof LoginFormSchema>) => {
 export const RegisterFormSchema = z.object({
     username: z.string(),
     password: z.string(),
-    phone: z.string().min(9, 'Le numéro de téléphone doit contenir 9 chiffres').max(9, 'Le numéro de téléphone doit contenir 9 chiffres')
+    phone: z.string().min(9, 'Le numéro de téléphone doit contenir 9 chiffres').max(9, 'Le numéro de téléphone doit contenir 9 chiffres'),
+    address: z.string(),
 })
 
 export const registerQuery = async (data: z.infer<typeof RegisterFormSchema>) => {
