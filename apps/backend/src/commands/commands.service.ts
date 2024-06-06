@@ -210,7 +210,8 @@ export class CommandsService {
     id: number,
     updateCommandDto: UpdateCommandDto,
   ): Promise<{ message: string; command: any }> {
-    const { description, discount, customerId, services } = updateCommandDto;
+    const { description, discount, customerId, services, advance } =
+      updateCommandDto;
     try {
       let totalPrice: number | undefined = undefined;
 
@@ -226,6 +227,9 @@ export class CommandsService {
           price: totalPrice,
           description,
           discount,
+          advance: {
+            increment: advance,
+          },
           customer: {
             connect: { id: customerId },
           },

@@ -275,12 +275,12 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
       value: totalPartiel,
     },
     {
-      text: 'Net à payer :',
-      value: totalFinal,
-    },
-    {
       text: 'Remise :',
       value: remise,
+    },
+    {
+      text: 'Net à payer :',
+      value: totalFinal,
     },
     {
       text: 'Montant avancé :',
