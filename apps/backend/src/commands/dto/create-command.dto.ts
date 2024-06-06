@@ -27,6 +27,13 @@ export class CreateCommandDto {
   @IsISO8601({ strict: true })
   withdrawDate: Date;
 
+  @ApiProperty({
+    nullable: true,
+  })
+  @IsOptional()
+  @IsNumber()
+  advance?: number;
+
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()

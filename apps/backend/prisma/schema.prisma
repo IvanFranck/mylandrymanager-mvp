@@ -58,16 +58,18 @@ model ServiceVersion {
 }
 
 model Command {
-  id           Int      @id @default(autoincrement())
-  code         String   @unique @db.VarChar(36)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  code         String        @unique @db.VarChar(36)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   price        Int
-  description  String?  @db.VarChar(255)
+  description  String?       @db.VarChar(255)
   discount     Int?
   customerId   Int
   userId       Int
   withdrawDate DateTime
+  advance      Int           @default(0)
+  status       CommandStatus @default(NOT_PAID)
 
   user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -87,12 +89,18 @@ model ServiceOnCommand {
 }
 
 model Invoice {
-  id        Int      @id @default(autoincrement())
-  code      String?  @unique @db.VarChar(36)
-  fileName  String   @unique @db.VarChar(36)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  commandId Int
-  advance   Int
-  command   Command  @relation(fields: [commandId], references: [id])
+  id         Int      @id @default(autoincrement())
+  code       String?  @unique @db.VarChar(36)
+  fileName   String   @unique @db.VarChar(36)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  commandId  Int
+  amountPaid Int      @default(0)
+  command    Command  @relation(fields: [commandId], references: [id])
+}
+
+enum CommandStatus {
+  PENDING
+  PAID
+  NOT_PAID
 }
