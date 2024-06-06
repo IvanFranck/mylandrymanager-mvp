@@ -292,21 +292,4 @@ export class CommandsService {
       throw new BadRequestException(error);
     }
   }
-
-  /**
-   * Generates a random command code using the configured character set.
-   *
-   * @return {string} The randomly generated command code.
-   */
-  private generateCommandeCode(): string {
-    const char_set = this.configService.get<string>('COMMAND_CODE_ALPHABET');
-    const n = char_set.length;
-    let random_string = '';
-
-    for (let i = 0; i < 8; i++) {
-      random_string += char_set[Math.floor(Math.random() * n)];
-    }
-
-    return random_string;
-  }
 }
