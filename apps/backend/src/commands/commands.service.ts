@@ -11,7 +11,7 @@ import { Command, ServiceVersion } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
-import { v4 as uuidv4 } from 'uuid';
+import Hashids from 'hashids';
 
 @Injectable()
 export class CommandsService {
@@ -52,64 +52,80 @@ export class CommandsService {
     const { description, discount, customerId, services, withdrawDate } =
       createCommandDto;
     const userId = request.user.sub;
+    const hashIds = new Hashids(
+      this.configService.get('CODE_SALT'),
+      this.configService.get('CODE_MIN_LENGTH'),
+      this.configService.get('CODE_ALPHABET'),
+    );
     try {
-      const code = uuidv4();
       // 1. compute the total price
       const totalPrice = this.computeTotalPrice(services, discount);
 
       // 2. create the command and connect to customer
-      const command = await this.prisma.command.create({
-        data: {
-          price: totalPrice,
-          description: description,
-          discount: discount,
-          code: code,
-          withdrawDate: withdrawDate,
-          customer: {
-            connect: {
-              id: customerId,
-            },
-          },
-          user: {
-            connect: {
-              id: userId,
-            },
-          },
-          // 3. create all serviceoncommands entries and connect them to the created command
-          services: {
-            create: services.map((service) => ({
-              service: {
-                connect: {
-                  id: service.service.id,
-                },
+      const command = await this.prisma.$transaction(async (tx) => {
+        const newCommand = await tx.command.create({
+          data: {
+            price: totalPrice,
+            description: description,
+            discount: discount,
+            withdrawDate: withdrawDate,
+            customer: {
+              connect: {
+                id: customerId,
               },
-              quantity: service.quantity,
-            })),
-          },
-        },
-        select: {
-          createdAt: true,
-          updatedAt: true,
-          id: true,
-          price: true,
-          description: true,
-          discount: true,
-          customerId: true,
-          userId: true,
-          withdrawDate: true,
-          customer: true,
-          code: true,
-          advance: true,
-          status: true,
-          services: {
-            select: {
-              service: true,
-              quantity: true,
-              serviceId: false,
-              commandId: false,
+            },
+            user: {
+              connect: {
+                id: userId,
+              },
+            },
+            // 3. create all serviceoncommands entries and connect them to the created command
+            services: {
+              create: services.map((service) => ({
+                service: {
+                  connect: {
+                    id: service.service.id,
+                  },
+                },
+                quantity: service.quantity,
+              })),
             },
           },
-        },
+        });
+
+        const code = hashIds.encode(newCommand.id);
+
+        return await tx.command.update({
+          where: {
+            id: newCommand.id,
+          },
+          data: {
+            code,
+          },
+          select: {
+            createdAt: true,
+            updatedAt: true,
+            id: true,
+            price: true,
+            description: true,
+            discount: true,
+            customerId: true,
+            userId: true,
+            withdrawDate: true,
+            customer: true,
+            code: true,
+            advance: true,
+            status: true,
+            services: {
+              select: {
+                service: true,
+                quantity: true,
+                serviceId: false,
+                commandId: false,
+              },
+            },
+          },
+        });
       });
 
       return {

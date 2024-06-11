@@ -40,7 +40,7 @@ model Service {
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   userId         Int
-  currentVersion Int?
+  currentVersion Int              @default(1)
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   versions       ServiceVersion[]
 }
@@ -59,7 +59,7 @@ model ServiceVersion {
 
 model Command {
   id           Int           @id @default(autoincrement())
-  code         String        @unique @db.VarChar(36)
+  code         String?       @unique @db.VarChar(36)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   price        Int
