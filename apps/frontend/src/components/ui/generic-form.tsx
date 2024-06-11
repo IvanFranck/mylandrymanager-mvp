@@ -9,9 +9,18 @@ import { Input } from "./input";
 type GenericFormProps<T extends FieldValues> = {
     schema: z.ZodSchema<T>;
     defaultValues: DefaultValues<T>;
-    onSubmit: (data: T) => Promise<void>;
-    fields: Array<{ name: Path<T>; label: string; type?: string; placeholder?: string, errorMessage?: string, labelStyle?: string, inputStyle?: string }>;
-    isPending: boolean;
+    onSubmit: ((data: T) => Promise<void>) | ((data: T) => void);
+    fields: Array<{ 
+        name: Path<T>; 
+        label?: string; 
+        type?: React.HTMLInputTypeAttribute; 
+        onChange?: React.FormEventHandler<HTMLElement>,
+        placeholder?: string, 
+        errorMessage?: string, 
+        labelStyle?: string, 
+        inputStyle?: string 
+    }>;
+    isPending?: boolean;
     submitButton?: React.ReactNode,
     submitLabel?: string,
 };
@@ -26,15 +35,15 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
                 <div className="flex flex-col space-y-6">
-                    {fields.map(({ name, label, type = "text", placeholder, errorMessage, labelStyle, inputStyle }) => (
+                    {fields.map(({ name, label, onChange, type = "text", placeholder, errorMessage, labelStyle, inputStyle }) => (
                         <FormField
                             key={String(name)}
                             control={form.control}
                             name={name}
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel className={labelStyle}>{label}</FormLabel>
-                                    <FormControl>
+                                    {label && <FormLabel className={labelStyle}>{label}</FormLabel>}
+                                    <FormControl onChange={onChange}>
                                         <Input className={inputStyle} type={type} placeholder={placeholder} disabled={isPending} {...field} />
                                     </FormControl>
                                     {

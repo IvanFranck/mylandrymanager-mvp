@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem } from "@/components/ui/form";
+import { GenericForm } from "@/components/ui/generic-form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
@@ -50,6 +51,7 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
 
 
     const handleChange = () => {
+        console.log('hello')
         setInputDiscount(form.getValues().discount)
     }
 
@@ -74,27 +76,15 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
                                     <p className="text-gray-500 text-md"> - {discount} fcfa</p>
                                     <Button variant='link' className="text-lg font-medium hover:underline-offset-1 hover:underline text-red-600" onClick={() => setShowDiscount(false)}><X size={24} /></Button>
                                 </div>
-                                : <Form {...form}>
-                                    <form onSubmit={form.handleSubmit(onSubmit)}>
-                                        <div className="w-full flex flex-col space-y-2">
-                                            <FormField
-                                                control={form.control}
-                                                name="discount"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormControl onChange={handleChange}>
-                                                            <Input type="number" className="grow bg-inherit" {...field} />
-                                                        </FormControl>
-                                                        {
-                                                            form.formState.errors.discount &&
-                                                            <FormDescription className="text-red-500">
-                                                                La valeur de la réduction ne doit pas être supérieure au montant de la facture !
-                                                            </FormDescription>
-                                                        }
-                                                    </FormItem>
-                                                )}
-                                            />
-
+                                : (
+                                    <GenericForm
+                                        schema={DiscountFormSchema}
+                                        defaultValues={{discount: 0}}
+                                        onSubmit={onSubmit}
+                                        fields={[
+                                            {name: "discount", type: "number", onChange:{handleChange}, inputStyle: 'grow bg-inherit', errorMessage: "La valeur de la réduction ne doit pas être supérieure au montant de la facture !"}
+                                        ]}
+                                        submitButton={
                                             <Button
                                                 type="submit"
                                                 disabled={inputDiscount <= 0}
@@ -102,10 +92,9 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
                                             >
                                                 Appliquer {0 < inputDiscount && discountPercentage <= 100 && <strong className="ml-1">(-{discountPercentage}%)</strong>}
                                             </Button>
-                                        </div>
-
-                                    </form>
-                                </Form>
+                                        }
+                                    />
+                                )
                         }
                     </div>
                 )
