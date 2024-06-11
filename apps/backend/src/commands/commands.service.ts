@@ -49,8 +49,14 @@ export class CommandsService {
     createCommandDto: CreateCommandDto,
     request: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<Command>> {
-    const { description, discount, customerId, services, withdrawDate } =
-      createCommandDto;
+    const {
+      description,
+      discount,
+      customerId,
+      services,
+      withdrawDate,
+      advance,
+    } = createCommandDto;
     const userId = request.user.sub;
     const hashIds = new Hashids(
       this.configService.get('CODE_SALT'),
@@ -69,6 +75,7 @@ export class CommandsService {
             description: description,
             discount: discount,
             withdrawDate: withdrawDate,
+            advance,
             customer: {
               connect: {
                 id: customerId,

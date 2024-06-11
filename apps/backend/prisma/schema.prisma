@@ -64,7 +64,7 @@ model Command {
   updatedAt    DateTime      @updatedAt
   price        Int
   description  String?       @db.VarChar(255)
-  discount     Int?
+  discount     Int           @default(0)
   customerId   Int
   userId       Int
   withdrawDate DateTime
