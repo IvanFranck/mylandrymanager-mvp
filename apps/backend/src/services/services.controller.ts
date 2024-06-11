@@ -28,7 +28,7 @@ import {
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 import { Service } from '@prisma/client';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
-import { FormatResponseInterceptor } from '@/common/interceptors/formatResponse.interceptor';
+import { FormatServicesResponseInterceptor } from '@/common/interceptors/formatServicesResponse.interceptor';
 
 @ApiTags('services')
 @UseGuards(AccessTokenAuthGuard)
@@ -36,7 +36,7 @@ import { FormatResponseInterceptor } from '@/common/interceptors/formatResponse.
   path: 'services',
   version: '1',
 })
-@UseInterceptors(new FormatResponseInterceptor())
+@UseInterceptors(new FormatServicesResponseInterceptor())
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 

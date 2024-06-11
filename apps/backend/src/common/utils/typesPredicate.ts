@@ -1,5 +1,5 @@
 import { ServiceEntity } from '@/services/entities/service.entity';
-import { Service } from '@prisma/client';
+import { Service, ServiceVersion } from '@prisma/client';
 
 // service
 export function isService(data: any): data is Service {
@@ -22,6 +22,16 @@ export function isServiceArray(data: any): data is Service[] {
         'userId' in item &&
         'currentVersion' in item,
     )
+  );
+}
+
+export function isServiceVersion(data: any): data is ServiceVersion {
+  return (
+    'id' in data &&
+    'createdAt' in data &&
+    'price' in data &&
+    'label' in data &&
+    'serviceId' in data
   );
 }
 

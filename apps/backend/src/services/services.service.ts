@@ -120,7 +120,7 @@ export class ServicesService {
       const services = await this.findAll(request);
 
       const service = services.details.filter((service) =>
-        service[0]?.version.label
+        service.versions[0]?.label
           .trim()
           .toLowerCase()
           .includes(name.trim().toLowerCase()),
