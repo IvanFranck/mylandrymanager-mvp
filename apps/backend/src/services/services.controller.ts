@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -27,6 +28,7 @@ import {
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 import { Service } from '@prisma/client';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
+import { FormatResponseInterceptor } from '@/common/interceptors/formatResponse.interceptor';
 
 @ApiTags('services')
 @UseGuards(AccessTokenAuthGuard)
@@ -34,6 +36,7 @@ import { CustomResponseInterface } from '@/common/interfaces/response.interface'
   path: 'services',
   version: '1',
 })
+@UseInterceptors(new FormatResponseInterceptor())
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 

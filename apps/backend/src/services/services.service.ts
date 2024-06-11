@@ -169,15 +169,15 @@ export class ServicesService {
    *
    * @param {number} id - description of parameter
    * @param {UpdateServiceDto} updateServiceDto - description of parameter
-   * @return {Promise<{ message: string, service: unknown }>} description of return value
+   * @return {Promise<CustomResponseInterface<ServiceVersion>>} description of return value
    */
   async update(
     id: number,
     updateServiceDto: UpdateServiceDto,
-  ): Promise<{ message: string; service: unknown }> {
+  ): Promise<CustomResponseInterface<ServiceVersion>> {
     try {
       const service = await this.prisma.$transaction(async (tx) => {
-        const lastServiceVersion = await this.prisma.service.findUnique({
+        const lastServiceVersion = await tx.service.findUnique({
           where: {
             id: id,
           },
@@ -202,7 +202,7 @@ export class ServicesService {
           ...lastServiceVersionUsefulData,
           ...updateServiceDto,
         };
-        const service = await this.prisma.service.update({
+        const service = await tx.service.update({
           where: {
             id: id,
           },
@@ -233,7 +233,7 @@ export class ServicesService {
       }
       return {
         message: 'service modifié',
-        service: service.versions[0],
+        details: service.versions[0],
       };
     } catch (error) {
       if (error.code === 'P2025') {
@@ -250,7 +250,7 @@ export class ServicesService {
    * @param {number} id - description of parameter
    * @return {Promise<{message: string, service: any}>} description of return value
    */
-  async remove(id: number): Promise<{ message: string; service: any }> {
+  async remove(id: number): Promise<CustomResponseInterface<Service>> {
     try {
       const service = await this.prisma.service.delete({
         where: {
@@ -259,7 +259,7 @@ export class ServicesService {
       });
       return {
         message: 'service supprimé',
-        service,
+        details: service,
       };
     } catch (error) {
       console.error('error: ', error);
