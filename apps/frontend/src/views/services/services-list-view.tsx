@@ -1,59 +1,43 @@
-import { SERVICES_QUERY_KEY } from "@/common/constants/query-keys"
 import { ServiceListItem } from "@/components/app/services/service-list-item"
 import { ServiceListItemSkeleton } from "@/components/app/services/service-list-item-skeloton"
-import { fetchAllServicesQuery } from "@/lib/api/services"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogOverlay, DialogTitle, DialogTrigger } from "@radix-ui/react-dialog";
 import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader } from "@/components/ui/card"
 import { useRef, useState } from "react"
-import { deleteService } from "@/lib/api/services";
-import { TGenericResponse } from "@/lib/types/responses"
-import { ServicesEntity } from "@/lib/types/entities"
-import { useToast } from "@/components/ui/use-toast"
 import { Loader } from "lucide-react"
+import { useDeleteService } from "@/lib/hooks/use-cases/services/useDeleteService"
+import { useGetAllServices } from "@/lib/hooks/use-cases/services/useGetAllServices"
+import { NoDataIllustration } from "@/components/illustrations/no-data-illustration"
 
 
 export default function ServicesListView() {
 
     const [deletingServiceId, setDeletingServiceId] = useState<number>(-1)
-    const triggerBtn = useRef(null)
-    const { toast } = useToast()
-    const queryClient = useQueryClient()
+    const triggerBtn = useRef<HTMLButtonElement>(null)
+    const {deleteService, isDeleting} = useDeleteService()
 
-    const { data: services } = useQuery({
-        queryKey: SERVICES_QUERY_KEY,
-        queryFn: fetchAllServicesQuery,
-        staleTime: 12000
-    })
+    const { services, isFetching } = useGetAllServices()
     const triggerServiceDeletion = (id: number) => {
         setDeletingServiceId(id)
-        triggerBtn.current.click()
+        triggerBtn.current?.click()
     }
 
     const handleServiceDeletion = async (id: number) => {
         if (deletingServiceId === -1) return;
-        await mutateAsync(id)
+        await deleteService(id)
         setDeletingServiceId(-1)
     }
-    const { mutateAsync, isPending } = useMutation({
-        mutationFn: deleteService,
-        onSuccess: (resp: TGenericResponse<ServicesEntity>) => {
-            toast({ description: resp.message, duration: 3000 })
-            queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
-        },
-        onError: () => {
-            toast({ variant: 'destructive', title: 'Error', description: 'Une erreur est survenue lors de la suppression du service' })
-        }
-    })
 
     return (
         <div className="px-2">
-            {
-                services ?
-                    services.map((service) => <ServiceListItem onDelete={triggerServiceDeletion} service={service} key={service.id} />)
-                    : <ServiceListItemSkeleton />
+            {   isFetching ?
+                    <ServiceListItemSkeleton />
+                    :   services && services.length ?
+                            services.map((service) => <ServiceListItem onDelete={triggerServiceDeletion} service={service} key={service.id} />)
+                            : <div className="w-full px-3">
+                                <NoDataIllustration text="Oops! Votre catalogue de service est vide 😅. Veillez enregistrer votre premier service "/>
+                            </div>
             }
 
             <Dialog>
@@ -75,13 +59,13 @@ export default function ServicesListView() {
                                     </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter className="w-full flex justify-between flex-row">
-                                    <DialogClose disabled={isPending} asChild>
+                                    <DialogClose disabled={isDeleting} asChild>
                                         <Button variant='outline'>Annuler</Button>
                                     </DialogClose>
                                     <DialogClose asChild>
-                                        <Button disabled={isPending} variant='destructive' onClick={() => handleServiceDeletion(deletingServiceId)}>
+                                        <Button disabled={isDeleting} variant='destructive' onClick={() => handleServiceDeletion(deletingServiceId)}>
                                             Supprimer
-                                            {isPending && <Loader size={18} className="animate-spin ml-3" />}
+                                            {isDeleting && <Loader size={18} className="animate-spin ml-3" />}
                                         </Button>
                                     </DialogClose>
                                 </DialogFooter>
