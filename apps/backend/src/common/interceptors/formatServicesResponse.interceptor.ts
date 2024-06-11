@@ -71,7 +71,6 @@ export class FormatServicesResponseInterceptor implements NestInterceptor {
               details: result,
             };
           }
-          console.log('data', data);
           return data;
         },
       ),
