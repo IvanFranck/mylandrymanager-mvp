@@ -14,7 +14,7 @@ type GenericFormProps<T extends FieldValues> = {
         name: Path<T>; 
         label?: string; 
         type?: React.HTMLInputTypeAttribute; 
-        onChange?: React.FormEventHandler<HTMLElement>,
+        onFieldChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
         placeholder?: string, 
         errorMessage?: string, 
         labelStyle?: string, 
@@ -35,7 +35,7 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
                 <div className="flex flex-col space-y-6">
-                    {fields.map(({ name, label, onChange, type = "text", placeholder, errorMessage, labelStyle, inputStyle }) => (
+                    {fields.map(({ name, label, onFieldChange, type = "text", placeholder, errorMessage, labelStyle, inputStyle }) => (
                         <FormField
                             key={String(name)}
                             control={form.control}
@@ -43,7 +43,9 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
                             render={({ field }) => (
                                 <FormItem>
                                     {label && <FormLabel className={labelStyle}>{label}</FormLabel>}
-                                    <FormControl onChange={onChange}>
+                                    <FormControl onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
+                                        onFieldChange && onFieldChange(e)
+                                    }}>
                                         <Input className={inputStyle} type={type} placeholder={placeholder} disabled={isPending} {...field} />
                                     </FormControl>
                                     {

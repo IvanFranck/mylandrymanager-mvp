@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem } from "@/components/ui/form";
 import { GenericForm } from "@/components/ui/generic-form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { Dispatch, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { Dispatch, useEffect, useState } from "react";
 import z from "zod"
 export type DiscountStepProps = {
     setDiscount: Dispatch<React.SetStateAction<number>>
@@ -27,13 +23,6 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
             .transform(value => parseFloat(value))
     })
 
-    const form = useForm<z.infer<typeof DiscountFormSchema>>({
-        resolver: zodResolver(DiscountFormSchema),
-        defaultValues: {
-            discount: 0
-        }
-    })
-
     useEffect(() => {
         const percentageReduction = (inputDiscount / billingPrice) * 100;
         const roundedPercentage = Math.round(percentageReduction * 100) / 100;
@@ -44,15 +33,11 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
         if (showDiscount === false) {
             setDiscount(0)
             setInputDiscount(0)
-            form.reset()
         }
-    }, [showDiscount, setDiscount, form])
+    }, [showDiscount, setDiscount])
 
-
-
-    const handleChange = () => {
-        console.log('hello')
-        setInputDiscount(form.getValues().discount)
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setInputDiscount(parseFloat(e.target.value))
     }
 
     const onSubmit = (values: z.infer<typeof DiscountFormSchema>) => {
@@ -65,7 +50,7 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
     }
 
     return (
-        <section className="w-full space-y-4">
+        <section className={`w-full space-y-4 p-2 rounded-lg ${showDiscount ? 'bg-blue-50' : ''}`}>
             <Button disabled={Boolean(discount) && showDiscount} onClick={handleClick} variant='link' className="p-0 text-lg font-medium hover:underline-offset-1 hover:underline text-blue-600">Ajouter une réduction ?</Button>
             {
                 showDiscount && (
@@ -82,13 +67,19 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
                                         defaultValues={{discount: 0}}
                                         onSubmit={onSubmit}
                                         fields={[
-                                            {name: "discount", type: "number", onChange:{handleChange}, inputStyle: 'grow bg-inherit', errorMessage: "La valeur de la réduction ne doit pas être supérieure au montant de la facture !"}
+                                            {
+                                                name: "discount", 
+                                                type: "number", 
+                                                onFieldChange:handleChange, 
+                                                inputStyle: 'grow bg-inherit', 
+                                                errorMessage: "La valeur de la réduction ne doit pas être supérieure au montant de la facture !"
+                                            }
                                         ]}
                                         submitButton={
                                             <Button
                                                 type="submit"
                                                 disabled={inputDiscount <= 0}
-                                                className="bg-blue-500 py-5"
+                                                className="bg-blue-500 py-5 mt-2 w-full"
                                             >
                                                 Appliquer {0 < inputDiscount && discountPercentage <= 100 && <strong className="ml-1">(-{discountPercentage}%)</strong>}
                                             </Button>
