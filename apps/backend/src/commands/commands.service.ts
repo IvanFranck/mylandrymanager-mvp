@@ -7,11 +7,12 @@ import {
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Command, ServiceVersion } from '@prisma/client';
+import { Command } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 import Hashids from 'hashids';
+import { computeTotalPartial } from '../common/utils/priceProcessing';
 
 @Injectable()
 export class CommandsService {
@@ -20,24 +21,6 @@ export class CommandsService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
   ) {}
-
-  /**
-   * Compute the total price after applying a discount.
-   *
-   * @param {Array<{service: Service, quantity: number}>} services - the list of services and their quantities
-   * @param {number} discount - the discount amount to be applied
-   * @return {number} the total price after applying the discount
-   */
-  private computeTotalPrice(
-    services: { service: ServiceVersion; quantity: number }[],
-    discount: number | undefined,
-  ): number {
-    const totalServicesPrice = services.reduce(
-      (acc, { service, quantity }) => acc + service.price * quantity,
-      0,
-    );
-    return discount ? totalServicesPrice - discount : totalServicesPrice;
-  }
 
   /**
    * A function to create a command using the provided data.
@@ -65,7 +48,7 @@ export class CommandsService {
     );
     try {
       // 1. compute the total price
-      const totalPrice = this.computeTotalPrice(services, discount);
+      const totalPrice = computeTotalPartial(services);
 
       // 2. create the command and connect to customer
       const command = await this.prisma.$transaction(async (tx) => {
@@ -239,7 +222,7 @@ export class CommandsService {
       let totalPrice: number | undefined = undefined;
 
       if (services) {
-        totalPrice = this.computeTotalPrice(services, discount);
+        totalPrice = computeTotalPartial(services);
       }
 
       const command = await this.prisma.command.update({
