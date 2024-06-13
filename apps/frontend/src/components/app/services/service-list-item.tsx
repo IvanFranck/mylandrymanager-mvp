@@ -18,7 +18,7 @@ export function ServiceListItem({ service, onDelete, simple, ...props }: ServSer
 
     return (
 
-        <Card className={`bg-inherit rounded-2xl shadow-lg bg-white ${props.className}`}>
+        <Card className={`bg-white ${simple ? 'rounded-none shadow-none' : 'rounded-2xl shadow-lg'} ${props.className}`}>
             <CardHeader className="px-4 py-5">
                 {
                     !simple && onDelete
@@ -50,7 +50,7 @@ export function ServiceListItem({ service, onDelete, simple, ...props }: ServSer
                             </DropdownMenu>
 
                         </CardTitle>
-                        : <CardTitle className="font-normal  mb-2 ">
+                        : <CardTitle className="font-normal">
                             {service.label}
                         </CardTitle>
 

@@ -8,7 +8,8 @@ import { formatISO } from "date-fns";
 
 export const CommandSchema = z.object({
     description: z.string().optional(),
-    discount: z.number().optional(),
+    discount: z.number().optional().default(0),
+    advance: z.number().optional().default(0),
     customerId: z.number(),
     withdrawDate: z.date().transform(date => formatISO(date)),
     services: z.array(z.object({
@@ -19,7 +20,6 @@ export const CommandSchema = z.object({
             label: z.string(),
             price: z.number(),
             description: z.string().optional(),
-            userId: z.number()
         }),
         quantity: z.number()
     }))

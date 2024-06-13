@@ -1,20 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Loader, Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion"
 import { CustomerStep } from "./multistep-creation-form/customer-step";
 import { ServiceStep } from "./multistep-creation-form/service-step";
-import { CommandsEntity, CustomersEntity, ServiceOnCommandEntity } from "@/lib/types/entities";
+import { CustomersEntity, ServiceOnCommandEntity } from "@/lib/types/entities";
 import DiscountStep from "./multistep-creation-form/discount-step";
 import WithdrawalDateStep from "./multistep-creation-form/withdrawal-date-step";
 import DescriptionStep from "./multistep-creation-form/description-step";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
-import { CommandSchema, createCommandQuery } from "@/lib/api/commands";
-import { AxiosError } from "axios";
-import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
-import { useToast } from "@/components/ui/use-toast";
-import { COMMANDS_QUERY_KEY } from "@/common/constants/query-keys";
+import { CommandSchema } from "@/lib/api/commands";
+import AdvanceStep from "./multistep-creation-form/advance-step";
+import { useCreateCommand } from "@/lib/hooks/use-cases/commands/useCreateCommand";
 
 export function CommandCreationDrawer() {
 
@@ -23,38 +20,15 @@ export function CommandCreationDrawer() {
     const [selectedServices, setSelectedServices] = useState<ServiceOnCommandEntity[] | []>([])
     const [billingPrice, setBillingPrice] = useState(0)
     const [discount, setDiscount] = useState(0)
+    const [advance, setAdvance] = useState(0)
     const [date, setDate] = useState<Date | undefined>(undefined)
     const [description, setDescription] = useState("")
-
-    const queryClient = useQueryClient()
-    const { toast } = useToast()
 
     useEffect(() => {
         if (selectedServices.length === 0) setDiscount(0)
         const total = selectedServices.reduce((prev, curr) => prev + curr.service.price * curr.quantity, 0)
         setBillingPrice(total)
     }, [selectedServices])
-
-    const { mutateAsync, isPending } = useMutation({
-        mutationFn: async (data: z.infer<typeof CommandSchema>) => await createCommandQuery(data),
-        onError: (error: AxiosError<TGenericAxiosError>) => {
-            const message = error.response?.data?.message || 'Une erreur est survene lors de ma crétaion de la commande'
-            toast({
-                variant: 'destructive',
-                description: message,
-                duration: 7000
-            })
-        },
-        onSuccess: (data: TGenericResponse<CommandsEntity>) => {
-            queryClient.invalidateQueries({ queryKey: COMMANDS_QUERY_KEY })
-            toast({
-                variant: 'success',
-                description: data.message,
-                duration: 3000
-            })
-            cancel()
-        }
-    })
 
     const reset = () => {
         setSelectedServices([])
@@ -64,23 +38,37 @@ export function CommandCreationDrawer() {
         setDescription('')
     }
 
-    const cancel = () => {
+    const cancel = useCallback(() => {
         setOpen(!isOpen)
         reset()
-    }
+    }, [isOpen])
+
+    const {createCommand, creatingCommand, createCommandSucced} = useCreateCommand()
+
+    useEffect(()=>{
+        if(createCommandSucced){
+            cancel()
+        }
+    }, [createCommandSucced, cancel])
 
     const save = async () => {
         const data: z.infer<typeof CommandSchema> = {
             description,
             discount,
+            advance,
             customerId: selectedCustomer?.id || 0,
-            withdrawDate: date || new Date(),
-            services: selectedServices as ServiceOnCommandEntity[]
+            withdrawDate: date ? date.toISOString() : new Date().toISOString(),
+            services: selectedServices.map(service => ({
+                service: {
+                    ...service.service,
+                },
+                quantity: service.quantity
+            }))
         }
-        console.log("🚀 ~ save ~ data:", data)
-
-        await mutateAsync(data)
+        await createCommand(data)
     }
+
+    
 
     return (
         <>
@@ -124,24 +112,28 @@ export function CommandCreationDrawer() {
                                                 setSelectedServices={setSelectedServices}
                                             />
                                         }
+                                        {selectedServices.length > 0 && <CustomerStep selectedCustomer={selectedCustomer} setSelectedCustomer={setSelectedCustomer} />}
                                         {
-                                            selectedServices.length > 0 &&
+                                            selectedCustomer && 
+                                            <AdvanceStep advance={advance} setAdvance={setAdvance} billingPrice={billingPrice}/>
+                                        }
+                                        {
+                                            selectedCustomer &&
                                             <DiscountStep billingPrice={billingPrice} setDiscount={setDiscount} discount={discount} />
                                         }
-                                        {selectedServices.length > 0 && <CustomerStep selectedCustomer={selectedCustomer} setSelectedCustomer={setSelectedCustomer} />}
                                         {selectedCustomer && <WithdrawalDateStep date={date} setDate={setDate} />}
                                         {selectedCustomer && <DescriptionStep description={description} setDescription={setDescription} />}
                                         {
 
                                             date && selectedCustomer && <div className="w-full flex flex-col">
                                                 <Button
-                                                    disabled={isPending}
+                                                    disabled={creatingCommand}
                                                     className="bg-green-600 py-6 space-x-2 mb-8"
                                                     onClick={save}
                                                 >
                                                     <span className="text-lg">Valider - </span>
                                                     <span className="font-bold text-2xl">{billingPrice - discount} fcfa</span>
-                                                    {isPending && <Loader size={18} className="animate-spin" />}
+                                                    {creatingCommand && <Loader size={18} className="animate-spin" />}
                                                 </Button>
                                             </div>
                                         }
