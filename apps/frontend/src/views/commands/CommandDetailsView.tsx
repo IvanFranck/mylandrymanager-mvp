@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { fetchCommandById } from '@/lib/api/commands'
 import { CommandsEntity, CustomersEntity } from '@/lib/types/entities'
-import { calculateCommandSubtotal, getInitials } from '@/lib/utils'
+import { calculateCommandSubtotal, getCommandStatusVariant, getInitials } from '@/lib/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -35,21 +35,21 @@ export const CommandDetailView = () => {
             {
                 isLoading
                     ? <p>loading ...</p>
-                    :
+                    : command &&
                     <div className="p-4 pt-6">
                         {/* command status */}
                         <div className='w-full flex justify-between'>
-                            <span className='border font-medium text-xs text-green-500 border-green-500 px-4 py-1 rounded-full'>
-                                Réglée
+                            <span className={`border font-medium text-xs ${getCommandStatusVariant(command.status)?.variant} px-4 py-1 rounded-full`}>
+                                {getCommandStatusVariant(command.status)?.text ?? command.status}
                             </span>
                         </div>
 
                         {/* header */}
                         <div className="w-full flex flex-col gap-4 mt-4">
                             <div className='w-full'>
-                                <h2 className="text-xl text-left font-semibold">CMD #{command && command.code ? command.code.code : 'N/A'}</h2>
+                                <h2 className="text-xl text-left font-semibold">CMD #{command.code ?? 'N/A'}</h2>
                                 <p className='text-sm text-gray-400 mt-2'>
-                                    Attendue le {command && command.withdrawDate ? formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr}) : 'N/A'}
+                                    Attendue le {formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr})}
                                 </p>
                             </div>
 

@@ -36,11 +36,9 @@ export type CommandsEntity = BaseEntity & {
     userId: number
     withdrawDate: Date
     customer: CustomersEntity
-    code: CommandCodeEntity
+    code: string,
+    status: CommandStatus,
     services: ServiceOnCommandEntity[]
 }
 
-export type CommandCodeEntity = Omit<BaseEntity, 'updatedAt'> & {
-    code: string,
-    commandId: number
-}
+export type CommandStatus = 'PENDING' | 'PAID' | 'NOT_PAID'

@@ -4,7 +4,7 @@ import { CommandListSkeleton } from "@/components/app/commands/command-list-skel
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useGetAllCommands } from "@/lib/hooks/use-cases/useGetAllCommands"
+import { useGetAllCommands } from "@/lib/hooks/use-cases/commands/useGetAllCommands"
 import { Plus } from "lucide-react"
 
 

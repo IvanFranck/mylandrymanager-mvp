@@ -18,7 +18,7 @@ export const CommandListItem = ({ command }: CommandListItemProps) => {
         <Card onClick={() => navigate(`/commands/${command.id}`)} className="cursor-pointer">
             <CardHeader>
                 <CardTitle className="text-lg flex justify-between">
-                    <span>{command.code.code}</span>
+                    <span>#{command.code}</span>
                     <span>{command.price} Fcfa</span>
                 </CardTitle>
                 <CardDescription className="text-md text-gray-500">{command.customer.name}</CardDescription>
