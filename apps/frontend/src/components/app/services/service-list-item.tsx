@@ -18,20 +18,20 @@ export function ServiceListItem({ service, onDelete, simple, ...props }: ServSer
 
     return (
 
-        <Card className={`bg-inherit rounded-none shadow-none border-b-slate-300 ${props.className}`}>
-            <CardHeader className="px-2 py-5">
+        <Card className={`bg-inherit rounded-2xl shadow-lg bg-white ${props.className}`}>
+            <CardHeader className="px-4 py-5">
                 {
                     !simple && onDelete
                         ? <CardTitle className=" flex justify-between items-start">
                             <div className="w-full">
-                                <h2 className="text-lg font-medium mb-2">{service.label}</h2>
-                                {service.description && <p className="text-gray-500 font-normal mb-1">{service.description}</p>}
-                                <span className="text-sm font-medium">{service.price} Fcfa</span>
+                                <h2 className="text-xl font-medium">{service.label}</h2>
+                                <span className="text-base font-medium text-blue-400">{service.price} fcfa</span>
+                                {service.description && <p className="text-gray-500 font-normal mt-4">{service.description}</p>}
                             </div>
 
                             <DropdownMenu>
-                                <DropdownMenuTrigger className=" shadow-none bg-slate-200 w-18 h-18 flex justify-center items-center p-1">
-                                    <MoreHorizontal color="#384A61" size={18} />
+                                <DropdownMenuTrigger className="rounded-full w-18 h-18 flex justify-center items-center p-1">
+                                    <MoreHorizontal color="#384A61" size={24} />
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent className="font-normal text-sm mr-3 bg-gray-100 border border-gray-300 rounded-sm text-gray-600">
                                     <DropdownMenuItem className="flex flex-row items-center">

@@ -15,7 +15,6 @@ export type ServicesEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
-    userId: number
 }
 
 export type ServiceOnCommandEntity = {

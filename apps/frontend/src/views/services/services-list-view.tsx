@@ -34,7 +34,7 @@ export default function ServicesListView() {
             {   isFetching ?
                     <ServiceListItemSkeleton />
                     :   services && services.length ?
-                            services.map((service) => <ServiceListItem onDelete={triggerServiceDeletion} service={service} key={service.id} />)
+                            services.map((service) => <ServiceListItem className="mb-4" onDelete={triggerServiceDeletion} service={service} key={service.id} />)
                             : <div className="w-full px-3">
                                 <NoDataIllustration text="Oops! Votre catalogue de service est vide 😅. Veillez enregistrer votre premier service "/>
                             </div>
