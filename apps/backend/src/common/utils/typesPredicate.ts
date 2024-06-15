@@ -20,7 +20,7 @@ export function isServiceArray(data: any): data is Service[] {
         'createdAt' in item &&
         'updatedAt' in item &&
         'userId' in item &&
-        'currentVersion' in item,
+        'currentVersionId' in item,
     )
   );
 }
@@ -41,7 +41,7 @@ export function isServiceEntity(data: any): data is ServiceEntity {
     'createdAt' in data &&
     'updatedAt' in data &&
     'userId' in data &&
-    'currentVersion' in data &&
+    'currentVersionId' in data &&
     Array.isArray(data.versions) &&
     data.versions.every(
       (item: any) => 'id' in item && 'createdAt' in item && 'serviceId' in item,
@@ -58,7 +58,7 @@ export function isServiceEntityArray(data: any): data is ServiceEntity[] {
         'createdAt' in item &&
         'updatedAt' in item &&
         'userId' in item &&
-        'currentVersion' in item &&
+        'currentVersionId' in item &&
         Array.isArray(item.versions) &&
         item.versions.every(
           (subitem: any) =>

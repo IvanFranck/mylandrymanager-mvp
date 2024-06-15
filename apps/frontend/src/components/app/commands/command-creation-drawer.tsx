@@ -45,10 +45,12 @@ export function CommandCreationDrawer() {
 
     const {createCommand, creatingCommand, createCommandSucced} = useCreateCommand()
 
-    if(createCommandSucced){
-        cancel()
-    }
-
+    useEffect(()=>{
+        if(createCommandSucced){
+            cancel()
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [createCommandSucced])
 
     const save = async () => {
         const data: z.infer<typeof CommandSchema> = {
@@ -118,7 +120,7 @@ export function CommandCreationDrawer() {
                                         }
                                         {
                                             selectedCustomer && 
-                                            <AdvanceStep advance={advance} setAdvance={setAdvance} billingPrice={billingPrice}/>
+                                            <AdvanceStep discount={discount} advance={advance} setAdvance={setAdvance} billingPrice={billingPrice}/>
                                         }
                                         {selectedCustomer && <WithdrawalDateStep date={date} setDate={setDate} />}
                                         {selectedCustomer && <DescriptionStep description={description} setDescription={setDescription} />}

@@ -19,6 +19,7 @@ export const CommandSchema = z.object({
             updatedAt: z.date(),
             label: z.string(),
             price: z.number(),
+            currentVersionId: z.number(),
             description: z.string().optional(),
         }),
         quantity: z.number()

@@ -15,6 +15,7 @@ export type ServicesEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
+    currentVersionId: number
 }
 
 export type ServiceOnCommandEntity = {

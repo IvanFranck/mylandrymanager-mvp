@@ -27,7 +27,7 @@ export const CommandsListView = () => {
             <div className="w-full grid gap-2">
                 {isFecthing
                     ? <CommandListSkeleton />
-                    : commands ? commands.map((command, index) => (
+                    : commands && commands.length ? commands.map((command, index) => (
                         <CommandListItem
                             key={index}
                             command={command}

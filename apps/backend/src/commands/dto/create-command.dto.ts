@@ -14,6 +14,7 @@ export type CreateCommand_ServiceType = {
   label: string;
   price: number;
   description?: string;
+  currentVersionId: number;
 };
 export class CreateCommandDto {
   @ApiProperty({

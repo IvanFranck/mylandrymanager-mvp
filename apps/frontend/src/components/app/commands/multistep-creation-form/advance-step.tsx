@@ -2,16 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GenericForm } from "@/components/ui/generic-form";
 import { X } from "lucide-react";
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch, useEffect, useState } from "react";
 import z from "zod";
 
 export type AdvanceStepProps = {
     setAdvance: Dispatch<React.SetStateAction<number>>;
     advance: number;
     billingPrice: number
+    discount: number
 };
 
-export default function AdvanceStep({ setAdvance, advance, billingPrice }: AdvanceStepProps) {
+export default function AdvanceStep({ setAdvance, advance, billingPrice, discount }: AdvanceStepProps) {
     const [inputAdvance, setInputAdvance] = useState(0);
     const [showInput, setShowInput] = useState(false)
 
@@ -38,13 +39,18 @@ export default function AdvanceStep({ setAdvance, advance, billingPrice }: Advan
 
     const handleClick = () => {
         if (Boolean(advance) && showInput) return
-        if (showInput){
-            setAdvance(billingPrice);
+        setShowInput(!showInput)
+    }
+
+    useEffect(()=>{
+        if (!showInput){
+            setAdvance(billingPrice-discount);
         }else{
             setAdvance(0)
         }
-        setShowInput(!showInput)
-    }
+    }, [billingPrice, discount, setAdvance, showInput])
+
+    console.log('advance', advance)
 
     return (
         <section className="w-full space-y-4 p-2">

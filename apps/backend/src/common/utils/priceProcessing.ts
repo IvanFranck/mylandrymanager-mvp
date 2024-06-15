@@ -9,9 +9,8 @@ import { CreateCommand_ServiceType } from '@/commands/dto/create-command.dto';
 export function computeTotalPartial(
   services: { service: CreateCommand_ServiceType; quantity: number }[],
 ): number {
-  const totalServicesPrice = services.reduce(
-    (acc, { service, quantity }) => acc + service.price * quantity,
+  return services.reduce(
+    (acc, { quantity, service }) => acc + service.price * quantity,
     0,
   );
-  return totalServicesPrice;
 }

@@ -50,7 +50,9 @@ export class CommandsService {
     );
     try {
       // 1. compute the total price
+      console.log('services from request', services);
       const totalPrice = computeTotalPartial(services);
+      console.log('totalPrice', totalPrice);
 
       const commandStatus = this.getCommandStatus(totalPrice, advance);
 
@@ -79,7 +81,7 @@ export class CommandsService {
               create: services.map((service) => ({
                 service: {
                   connect: {
-                    id: service.service.id,
+                    id: service.service.currentVersionId,
                   },
                 },
                 quantity: service.quantity,
