@@ -25,7 +25,7 @@ export class InvoicesController {
   // }
 
   @UseGuards(AccessTokenAuthGuard)
-  @Get('/:commandId')
+  @Get('/command/:commandId')
   async getAllInvoicesByCommandId(
     @Param(
       'commandId',

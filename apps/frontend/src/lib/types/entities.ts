@@ -42,4 +42,11 @@ export type CommandsEntity = BaseEntity & {
     services: ServiceOnCommandEntity[]
 }
 
+export type InvoiceENtity = BaseEntity & {
+    code:string,
+    fileName: string
+    commandId: number,
+    amountPaid: number
+}
+
 export type CommandStatus = 'PENDING' | 'PAID' | 'NOT_PAID'
