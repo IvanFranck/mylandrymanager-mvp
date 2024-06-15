@@ -286,11 +286,11 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
     },
     {
       text: 'Montant avancé :',
-      value: advance ?? '-',
+      value: advance ?? '0',
     },
     {
       text: 'Montant versé :',
-      value: amountPaid ?? '-',
+      value: amountPaid ?? '0',
     },
     {
       text: 'Reste à payer :',
