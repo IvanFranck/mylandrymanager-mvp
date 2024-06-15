@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GenericForm } from "@/components/ui/generic-form";
 import { X } from "lucide-react";
 import React, { Dispatch, useEffect, useState } from "react";
@@ -50,15 +51,28 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
     }
 
     return (
-        <section className={`w-full space-y-4 p-2 rounded-lg ${showDiscount ? 'bg-blue-50' : ''}`}>
-            <Button disabled={Boolean(discount) && showDiscount} onClick={handleClick} variant='link' className="p-0 text-lg font-medium hover:underline-offset-1 hover:underline text-blue-600">Ajouter une réduction ?</Button>
+        <section className={`w-full space-y-4 p-2 rounded-lg `}>
+            <div className="items-top flex space-x-2" >
+                <Checkbox checked={showDiscount} id="discountbtn"  onClick={handleClick} />
+                <div className="grid gap-1.5 leading-none">
+                    <label
+                        htmlFor="discountbtn"
+                        className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                        Offrir une réduction
+                    </label>
+                    <p className={`text-sm text-muted-foreground ${showDiscount ? 'block' : 'hidden'}`}>
+                        Entrez le montant
+                    </p>
+                </div>
+            </div>
             {
                 showDiscount && (
                     <div className="w-full flex flex-col space-y-2">
                         {
                             discount > 0
                                 ? <div className="w-full flex justify-between items-center">
-                                    <p className="text-gray-500 text-md"> - {discount} fcfa</p>
+                                    <p className="text-red-500 text-lg font-medium"> - {discount} fcfa</p>
                                     <Button variant='link' className="text-lg font-medium hover:underline-offset-1 hover:underline text-red-600" onClick={() => setShowDiscount(false)}><X size={24} /></Button>
                                 </div>
                                 : (

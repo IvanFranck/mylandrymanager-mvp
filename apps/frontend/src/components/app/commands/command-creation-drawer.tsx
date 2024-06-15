@@ -114,12 +114,12 @@ export function CommandCreationDrawer() {
                                         }
                                         {selectedServices.length > 0 && <CustomerStep selectedCustomer={selectedCustomer} setSelectedCustomer={setSelectedCustomer} />}
                                         {
-                                            selectedCustomer && 
-                                            <AdvanceStep advance={advance} setAdvance={setAdvance} billingPrice={billingPrice}/>
-                                        }
-                                        {
                                             selectedCustomer &&
                                             <DiscountStep billingPrice={billingPrice} setDiscount={setDiscount} discount={discount} />
+                                        }
+                                        {
+                                            selectedCustomer && 
+                                            <AdvanceStep advance={advance} setAdvance={setAdvance} billingPrice={billingPrice}/>
                                         }
                                         {selectedCustomer && <WithdrawalDateStep date={date} setDate={setDate} />}
                                         {selectedCustomer && <DescriptionStep description={description} setDescription={setDescription} />}
