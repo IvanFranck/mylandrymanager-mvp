@@ -229,7 +229,7 @@ export class CommandsService {
     id: number,
     updateCommandDto: UpdateCommandDto,
   ): Promise<{ message: string; command: any }> {
-    const { description, discount, customerId, advance } = updateCommandDto;
+    const { description, advance } = updateCommandDto;
     try {
       const command = await this.prisma.$transaction(async (tx) => {
         const command = await tx.command.findUnique({
@@ -245,13 +245,9 @@ export class CommandsService {
           },
           data: {
             description,
-            discount,
             status: commandStatus,
             advance: {
               increment: advance,
-            },
-            customer: {
-              connect: { id: customerId },
             },
           },
           include: {
