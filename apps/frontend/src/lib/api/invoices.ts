@@ -7,7 +7,7 @@ import { InvoiceENtity } from "../types/entities"
 export async function fetchAllCommandInvoices(id: number) {
     return await axiosInstance
                 .get(`${API_ROUTES.INVOICES}/command/${id}`)
-                .then((resp: AxiosResponse<TGenericResponse<InvoiceENtity>>) => {
+                .then((resp: AxiosResponse<TGenericResponse<InvoiceENtity[]>>) => {
                     return resp.data.details
                 })
 }

@@ -95,7 +95,7 @@ export const CommandDetailView = () => {
                         </div>
 
                         {/** command paiements timeline */}
-                        <CommandDetailsInvoicesTimeline/>
+                        <CommandDetailsInvoicesTimeline commandId={numericCommandId}/>
                     </div>
             }
         </div>
