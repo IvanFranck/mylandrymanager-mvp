@@ -267,7 +267,6 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
     0,
   );
   const remise = invoiceParams.invoice.command.discount; // Remise fixe pour l'exemple
-  const amountPaid = invoiceParams.invoice.amountPaid;
   const advance = invoiceParams.invoice.command.advance;
   const totalFinal = totalPartiel - remise;
 
@@ -289,12 +288,8 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
       value: advance ?? '0',
     },
     {
-      text: 'Montant versé :',
-      value: amountPaid ?? '0',
-    },
-    {
       text: 'Reste à payer :',
-      value: totalFinal - advance - amountPaid,
+      value: totalFinal - advance,
     },
   ];
 

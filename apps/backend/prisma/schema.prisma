@@ -96,7 +96,7 @@ model Invoice {
   updatedAt  DateTime @updatedAt
   commandId  Int
   amountPaid Int      @default(0)
-  command    Command  @relation(fields: [commandId], references: [id])
+  command    Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
 }
 
 enum CommandStatus {

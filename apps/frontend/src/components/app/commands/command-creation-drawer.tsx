@@ -45,11 +45,10 @@ export function CommandCreationDrawer() {
 
     const {createCommand, creatingCommand, createCommandSucced} = useCreateCommand()
 
-    useEffect(()=>{
-        if(createCommandSucced){
-            cancel()
-        }
-    }, [createCommandSucced, cancel])
+    if(createCommandSucced){
+        cancel()
+    }
+
 
     const save = async () => {
         const data: z.infer<typeof CommandSchema> = {
