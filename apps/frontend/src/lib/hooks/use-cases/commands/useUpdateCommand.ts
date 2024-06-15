@@ -1,4 +1,4 @@
-import { COMMAND_ID_QUERY_KEY } from "@/common/constants/query-keys"
+import { COMMAND_INVOICES_ID_KEY } from "@/common/constants/query-keys"
 import { useToast } from "@/components/ui/use-toast"
 import { CommandPaienmentSchema, updateCommand } from "@/lib/api/commands"
 import { CommandsEntity } from "@/lib/types/entities"
@@ -25,7 +25,7 @@ export const useUpdateCommand = ({commandId}: Params) => {
             })
         },
         onSuccess: (data: TGenericResponse<CommandsEntity>) => {
-            queryClient.invalidateQueries({ queryKey: COMMAND_ID_QUERY_KEY(commandId) })
+            queryClient.invalidateQueries({ queryKey: COMMAND_INVOICES_ID_KEY(commandId) })
             toast({
                 description: data.message,
                 duration: 3000

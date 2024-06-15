@@ -50,14 +50,18 @@ export class CommandsService {
     );
     try {
       // 1. compute the total price
-      console.log('services from request', services);
       const totalPrice = computeTotalPartial(services);
-      console.log('totalPrice', totalPrice);
 
       const commandStatus = this.getCommandStatus(totalPrice, advance);
 
       // 2. create the command and connect to customer
       const command = await this.prisma.$transaction(async (tx) => {
+        if (advance > totalPrice) {
+          throw new BadRequestException(
+            'Le montant entré est supérieur au reste à payer',
+          );
+        }
+
         const newCommand = await tx.command.create({
           data: {
             price: totalPrice,
@@ -237,6 +241,12 @@ export class CommandsService {
             id,
           },
         });
+
+        if (command.advance + advance > command.price) {
+          throw new BadRequestException(
+            'Le montant entré est supérieur au reste à payer',
+          );
+        }
         const commandStatus = this.getCommandStatus(command.price, advance);
 
         const updatedCommand = await tx.command.update({

@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/common/constants/api-routes";
-import { object, z } from "zod";
+import { z } from "zod";
 import { axiosInstance } from "../plugins/axios";
 import { AxiosResponse } from "axios";
 import { TGenericResponse } from "../types/responses";
