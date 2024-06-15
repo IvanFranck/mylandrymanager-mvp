@@ -28,7 +28,6 @@ export const useCreateService = () => {
                 description: data.message,
                 duration: 3000
             })
-            
         }
     })
 

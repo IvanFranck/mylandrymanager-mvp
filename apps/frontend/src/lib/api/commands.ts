@@ -1,5 +1,5 @@
 import { API_ROUTES } from "@/common/constants/api-routes";
-import { z } from "zod";
+import { object, z } from "zod";
 import { axiosInstance } from "../plugins/axios";
 import { AxiosResponse } from "axios";
 import { TGenericResponse } from "../types/responses";
@@ -26,6 +26,12 @@ export const CommandSchema = z.object({
     }))
 })
 
+export const CommandPaienmentSchema = z.object({
+    advance: z.string()
+            .trim()
+            .transform(value => parseFloat(value))
+})
+
 export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
     return await axiosInstance
                     .post(`${API_ROUTES.COMMANDS}`, data)
@@ -44,4 +50,12 @@ export async function fetchCommandById(id: number) {
                 .then((resp: AxiosResponse<TGenericResponse<CommandsEntity>>) => {
                     return resp.data.details
                 })
+}
+
+export async function updateCommand(commandId: number, data: z.infer<typeof CommandPaienmentSchema>){
+    return await axiosInstance
+                    .put(`${API_ROUTES.COMMANDS}/${commandId}`, data)
+                    .then((resp: AxiosResponse<TGenericResponse<CommandsEntity>>) => {
+                        return resp.data
+                    })
 }

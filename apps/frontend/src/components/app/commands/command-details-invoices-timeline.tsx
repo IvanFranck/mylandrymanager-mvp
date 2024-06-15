@@ -3,6 +3,7 @@ import { useGetAllCommandInvoices } from "@/lib/hooks/use-cases/invoices/useGetC
 import { formatDate } from "date-fns"
 import { fr } from "date-fns/locale"
 import { BadgeInfo, Eye, Plus } from "lucide-react"
+import { CommandNewPaiementDrawer } from "./command-new-paiement-drawer"
 
 type CommandDetailsInvoicesTimelineProps = {
     commandId: number
@@ -15,7 +16,7 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
     return (
         <div className="space-y-4">
             <h3 className="text-gray-400">Historique des paiements</h3>
-            <ul className="flex flex-col">
+            <ul className="flex flex-col space-y-5">
                 {
                     isInvoicesLoading ? <p>loading ...</p>
                     : commandInvoices &&
@@ -25,8 +26,8 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
                                 <div className="h-4 w-4 rounded-full bg-gray-300"></div>
                                 <div className="flex flex-col text-sm">
                                     <span className="text-sm font-normal text-gray-400 leading-none">{formatDate((invoice.createdAt as Date).toString(), "dd/MM/yyyy", {locale: fr})}</span>
-                                    <p className="mt-1">Montant versé: <span className="font-semibold">{invoice.amountPaid}</span></p>
-                                    <p className="mt-1">Facture n°{invoice.code}</p>
+                                    <p className="mt-1">Montant versé: <span className="font-semibold">{invoice.amountPaid} fcfa</span></p>
+                                    <p className="mt-1">Facture n° {invoice.code}</p>
                                     <Button variant="link" className="justify-start font-normal text-blue-400 mt-3 flex items-center gap-1 p-0 h-min"><Eye size={14} className=""/> <span className="">Afficher la facture</span></Button>
                                 </div>
                             </li>
@@ -41,12 +42,17 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
             {
                 (price > advance) && (
                     <>
-                        <Button variant="link" className="flex items-center gap-2 p-0 text-blue-500">
-                            <div className="rounded-full bg-transparent border-2 border-blue-600 border-dashed p-[2px]">
-                                <Plus size={12} color="#2563EB"/>
+                        <CommandNewPaiementDrawer
+                            commandId={commandId}
+                            rest={price - advance}
+                        >
+                            <div className="flex items-center gap-2 p-0 text-blue-500">
+                                <div className="rounded-full bg-transparent border-2 border-blue-600 border-dashed p-[2px]">
+                                    <Plus size={12} color="#2563EB"/>
+                                </div>
+                                <p className="text-sm font-base ">Enregristrer un nouveau paiement</p>
                             </div>
-                            <p className="text-sm font-base ">Enregristrer un nouveau paiement</p>
-                        </Button>
+                        </CommandNewPaiementDrawer>
                         <div className="w-full flex justify-between border border-red-500 bg-red-200 p-4 items-center rounded-md gap-2">
                             <BadgeInfo size={20} color="#DD1313" /> <p className="flex-1 text-center text-gray-600 text-md font-base">Reste à payer: <span className="text-lg text-black  font-bold">{price - advance} Fcfa</span></p>
                         </div>
