@@ -95,7 +95,11 @@ export const CommandDetailView = () => {
                         </div>
 
                         {/** command paiements timeline */}
-                        <CommandDetailsInvoicesTimeline commandId={numericCommandId}/>
+                        <CommandDetailsInvoicesTimeline 
+                            commandId={numericCommandId} 
+                            advance={command.advance} 
+                            price={command.price - (command.discount ?? 0)}
+                        />
                     </div>
             }
         </div>

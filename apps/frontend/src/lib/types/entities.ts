@@ -36,7 +36,8 @@ export type CommandsEntity = BaseEntity & {
     customerId: number
     userId: number
     withdrawDate: Date
-    customer: CustomersEntity
+    advance: number,
+    customer: CustomersEntity,
     code: string,
     status: CommandStatus,
     services: ServiceOnCommandEntity[]

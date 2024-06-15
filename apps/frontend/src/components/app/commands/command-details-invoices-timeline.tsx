@@ -2,13 +2,15 @@ import { Button } from "@/components/ui/button"
 import { useGetAllCommandInvoices } from "@/lib/hooks/use-cases/invoices/useGetCommandInvoices"
 import { formatDate } from "date-fns"
 import { fr } from "date-fns/locale"
-import { Eye, Plus } from "lucide-react"
+import { BadgeInfo, Eye, Plus } from "lucide-react"
 
 type CommandDetailsInvoicesTimelineProps = {
     commandId: number
+    advance: number,
+    price: number,
 }
 
-export const CommandDetailsInvoicesTimeline = ({commandId}: CommandDetailsInvoicesTimelineProps) => {
+export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: CommandDetailsInvoicesTimelineProps) => {
     const { commandInvoices, isInvoicesLoading } = useGetAllCommandInvoices({commandId})
     return (
         <div className="space-y-4">
@@ -32,13 +34,25 @@ export const CommandDetailsInvoicesTimeline = ({commandId}: CommandDetailsInvoic
                     )
                 }
             </ul>
+            
+            
 
-            <Button variant="link" className="flex items-center gap-2 p-0 text-blue-500">
-                <div className="rounded-full bg-transparent border-2 border-blue-600 border-dashed p-[2px]">
-                    <Plus size={12} color="#2563EB"/>
-                </div>
-                <p className="text-sm font-base ">Enregristrer un nouveau paiement</p>
-            </Button>
+
+            {
+                (price > advance) && (
+                    <>
+                        <Button variant="link" className="flex items-center gap-2 p-0 text-blue-500">
+                            <div className="rounded-full bg-transparent border-2 border-blue-600 border-dashed p-[2px]">
+                                <Plus size={12} color="#2563EB"/>
+                            </div>
+                            <p className="text-sm font-base ">Enregristrer un nouveau paiement</p>
+                        </Button>
+                        <div className="w-full flex justify-between border border-red-500 bg-red-200 p-4 items-center rounded-md gap-2">
+                            <BadgeInfo size={20} color="#DD1313" /> <p className="flex-1 text-center text-gray-600 text-md font-base">Reste à payer: <span className="text-lg text-black  font-bold">{price - advance} Fcfa</span></p>
+                        </div>
+                    </>
+                )
+            }
         </div>
     )
 }
