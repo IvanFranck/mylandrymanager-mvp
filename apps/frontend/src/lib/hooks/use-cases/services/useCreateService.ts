@@ -25,8 +25,9 @@ export const useCreateService = () => {
         onSuccess: (data: TGenericResponse<ServicesEntity>) => {
             queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
             toast({
+                variant: "success",
                 description: data.message,
-                duration: 3000
+                duration: 2000
             })
         }
     })

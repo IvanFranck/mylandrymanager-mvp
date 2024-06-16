@@ -5,7 +5,7 @@ import { ServiceFormSchema } from "@/lib/api/services"
 import z from "zod"
 import { Plus } from "lucide-react"
 import { ServicesEntity } from "@/lib/types/entities"
-import { RefObject, useRef } from "react"
+import { RefObject, useEffect, useRef } from "react"
 import { useCreateService } from "@/lib/hooks/use-cases/services/useCreateService"
 import { GenericForm } from "@/components/ui/generic-form"
 
@@ -18,9 +18,11 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
 
     const { createService, isCreating, isSuccess } = useCreateService()
 
-    if(isSuccess){
-        drawerCloserBtn.current?.click()
-    }
+    useEffect(()=>{
+        if(isSuccess){
+            drawerCloserBtn.current?.click()
+        }
+    }, [isSuccess])
 
     const onSubmit = async (values: z.infer<typeof ServiceFormSchema>) => {
         const newService = await createService(values)
