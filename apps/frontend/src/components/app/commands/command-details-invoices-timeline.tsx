@@ -16,7 +16,6 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
     const { commandInvoices, isInvoicesLoading } = useGetAllCommandInvoices({commandId})
     
     const apiBaseURL = import.meta.env.VITE_API_BASE_URL
-    console.log(apiBaseURL)
     
     return (
         <div className="space-y-4">
