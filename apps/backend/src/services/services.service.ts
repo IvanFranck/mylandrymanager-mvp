@@ -101,6 +101,9 @@ export class ServicesService {
         },
         include: {
           services: {
+            orderBy: {
+              createdAt: 'desc',
+            },
             include: {
               versions: {
                 orderBy: {

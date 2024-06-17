@@ -10,6 +10,7 @@ import {
   Put,
   UseGuards,
   Req,
+  Query,
 } from '@nestjs/common';
 import { CommandsService } from './commands.service';
 import { CreateCommandDto } from './dto/create-command.dto';
@@ -24,6 +25,7 @@ import {
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { Command } from '@prisma/client';
+import { CommandQueriesType } from '@/common/queries.type';
 
 @UseGuards(AccessTokenAuthGuard)
 @Controller({
@@ -62,9 +64,10 @@ export class CommandsController {
    * @return {Promise<CustomResponseInterface<command[]>>} The list of all commands
    */
   async findAll(
+    @Query() query: CommandQueriesType,
     @Req() req: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<Command[]>> {
-    return await this.commandsService.findAll(req);
+    return await this.commandsService.findAll(req, query);
   }
 
   @Get(':id')

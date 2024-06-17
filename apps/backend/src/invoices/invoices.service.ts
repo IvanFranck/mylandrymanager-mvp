@@ -150,6 +150,9 @@ export class InvoicesService {
         where: {
           commandId,
         },
+        orderBy: {
+          createdAt: 'asc',
+        },
       });
 
       return {

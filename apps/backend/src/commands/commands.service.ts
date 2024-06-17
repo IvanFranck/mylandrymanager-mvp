@@ -14,6 +14,7 @@ import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access
 import Hashids from 'hashids';
 import { computeTotalPartial } from '../common/utils/priceProcessing';
 import { InvoicesService } from '@/invoices/invoices.service';
+import { CommandQueriesType } from '@/common/queries.type';
 
 @Injectable()
 export class CommandsService {
@@ -157,12 +158,19 @@ export class CommandsService {
    */
   async findAll(
     request: AccessTokenValidatedRequestInterface,
+    queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
     const userId = request.user.sub;
+    const { status, createdAt } = queries;
     try {
       const commands = await this.prisma.command.findMany({
         where: {
           userId,
+          status,
+          createdAt,
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
         include: {
           customer: true,
