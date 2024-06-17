@@ -36,13 +36,26 @@ export class InvoicesController {
     return await this.invoicesService.getInvoicesByCommandId(commandId);
   }
 
+  @Get(':invoiceCode')
+  async getInvoiceByCode(
+    @Res({ passthrough: true }) res: Response,
+    @Param('invoiceCode') invoiceCode: string,
+  ): Promise<StreamableFile> {
+    res.set({
+      'Content-Disposition': 'inline; filename="invoice.pdf"',
+    });
+    const invoice = await this.invoicesService.getInvoiceByCode(invoiceCode);
+
+    return new StreamableFile(invoice);
+  }
+
   @Get('file/:path')
   async getInvoice(
     @Res({ passthrough: true }) res: Response,
     @Param('path') filePath: string,
   ): Promise<StreamableFile> {
     res.set({
-      'Content-Disposition': 'attachment; filename="invoice.pdf"',
+      'Content-Disposition': 'inline; filename="invoice.pdf"',
     });
     const invoice = await this.invoicesService.getInvoice(filePath);
     return new StreamableFile(invoice);
