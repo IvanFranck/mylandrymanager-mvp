@@ -161,13 +161,21 @@ export class CommandsService {
     queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
     const userId = request.user.sub;
-    const { status, createdAt } = queries;
+    const { status, createdAt, from, to } = queries;
+    console.log('queries', queries);
     try {
       const commands = await this.prisma.command.findMany({
         where: {
           userId,
           status,
           createdAt,
+          withdrawDate:
+            from && to
+              ? {
+                  lte: new Date(from),
+                  gte: new Date(to),
+                }
+              : undefined,
         },
         orderBy: {
           createdAt: 'desc',

@@ -40,15 +40,18 @@ export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
 }
 
 
-export async function fetchAllCommandsQuery({status}: CommandQueriesType){
-    if(status){
-        return await axiosInstance
-                        .get(`${API_ROUTES.COMMANDS}?status=${status}`)
-                        .then((resp: AxiosResponse<TGenericResponse<CommandsEntity[]>>) => resp.data.details)
-    }
+export async function fetchAllCommandsQuery(query: CommandQueriesType){
+    const queryString = Object.entries(query).map(([key, value], index)=>{
+        return value ? 
+            index === 0 ? 
+                `?${key}=${value}` 
+                : `&${key}=${value}` 
+            : ''
+      }).join('')
     return await axiosInstance
-                    .get(API_ROUTES.COMMANDS)
+                    .get(`${API_ROUTES.COMMANDS}${queryString}`)
                     .then((resp: AxiosResponse<TGenericResponse<CommandsEntity[]>>) => resp.data.details)
+
 }
 
 export async function fetchCommandById(id: number) {
