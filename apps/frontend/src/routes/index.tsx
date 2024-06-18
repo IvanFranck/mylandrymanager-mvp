@@ -15,6 +15,7 @@ import RegisterView from "@/views/register-view"
 import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
+import DeliveriesOverview from "@/views/home/deliveries-overview"
 
 
 export const routes: RouteObject[] = [
@@ -44,7 +45,22 @@ export const routes: RouteObject[] = [
                     {
                         id: "home",
                         path: '/home',
-                        element: <HomeView />
+                        children: [
+                            {
+                                index: true,
+                                element: <HomeView />
+                            },
+                            {
+                                id: "deliveries overview",
+                                path: "deliveries",
+                                element: <DeliveriesOverview/>,
+                                handle: {
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Commandes à livrer" backlink='/home' />
+                                    }
+                                }
+                            }
+                        ]
                     },
                     {
                         id: 'Commandes',
