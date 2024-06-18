@@ -1,10 +1,10 @@
 import '@/bill.css'
 import { COMMANDS_QUERY_KEY, COMMAND_ID_QUERY_KEY } from '@/common/constants/query-keys'
+import { CommandDetailsInvoicesTimeline } from '@/components/app/commands/command-details-invoices-timeline'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { fetchCommandById } from '@/lib/api/commands'
 import { CommandsEntity, CustomersEntity } from '@/lib/types/entities'
-import { calculateCommandSubtotal, getInitials } from '@/lib/utils'
+import { getCommandStatusVariant, getInitials } from '@/lib/utils'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { formatDate } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -35,29 +35,29 @@ export const CommandDetailView = () => {
             {
                 isLoading
                     ? <p>loading ...</p>
-                    :
+                    : command &&
                     <div className="p-4 pt-6">
                         {/* command status */}
                         <div className='w-full flex justify-between'>
-                            <span className='border font-medium text-xs text-green-500 border-green-500 px-4 py-1 rounded-full'>
-                                Réglée
+                            <span className={`border font-medium text-xs ${getCommandStatusVariant(command.status)?.variant} px-4 py-1 rounded-full`}>
+                                {getCommandStatusVariant(command.status)?.text ?? command.status}
                             </span>
                         </div>
 
                         {/* header */}
                         <div className="w-full flex flex-col gap-4 mt-4">
                             <div className='w-full'>
-                                <h2 className="text-xl text-left font-semibold">CMD #{command && command.code ? command.code.code : 'N/A'}</h2>
+                                <h2 className="text-xl text-left font-semibold">CMD #{command.code ?? 'N/A'}</h2>
                                 <p className='text-sm text-gray-400 mt-2'>
-                                    Attendue le {command && command.withdrawDate ? formatDate((command?.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr}) : 'N/A'}
+                                    Attendue le {formatDate((command.withdrawDate as Date).toString(), "dd/MM/yyyy", {locale: fr})}
                                 </p>
                             </div>
 
-                            <CommandOwnerCard customer={command?.customer} date={command?.createdAt as Date}/>
+                            <CommandOwnerCard customer={command.customer} date={command.createdAt as Date}/>
                         </div>
 
                         {/* bill */}
-                        <div className='w-full mt-6 bg-gray-100 pt-3 rounded-lg flex flex-col gap-8'>
+                        <div className='w-full mt-6 bg-gray-100 pt-3 rounded-lg flex flex-col gap-8 mb-6'>
                             {/* services details */}
                             <CommandBillSection title='Détails des services'>
                                 <div className='w-full flex flex-col gap-4'>
@@ -78,7 +78,7 @@ export const CommandDetailView = () => {
                             <CommandBillSection title='Détails de paiement'>
                                 <div className='w-full mb-4 flex justify-between'>
                                     <p className='text-sm text-gray-400'>Total partiel</p>
-                                    <p className='text-sm font-semibold'>{calculateCommandSubtotal(command?.services ?? [])} fcfa</p>
+                                    <p className='text-sm font-semibold'>{command.price} fcfa</p>
                                 </div>
                                 <div className='w-full text-blue-500 mb-4 flex justify-between'>
                                     <p className='text-sm '>Remise</p>
@@ -89,21 +89,17 @@ export const CommandDetailView = () => {
                             <div className='w-full px-3 py-5 bg-blue-200 rounded-b-lg'>
                                 <div className='w-full flex justify-between font-semibold'>
                                     <p>Total</p>
-                                    <p>{command?.price} fcfa</p>
+                                    <p>{command.price - (command.discount ?? 0)} fcfa</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* actions*/}
-                        <div className='w-full flex flex-col gap-4 mt-6'>
-                            <Button className='w-full text-white bg-blue-500' size="lg" variant='default'>
-                                Evoyer la facture
-                            </Button>
-                            
-                            <Button  size="lg" variant='ghost'>
-                                Modifier
-                            </Button>
-                        </div>
+                        {/** command paiements timeline */}
+                        <CommandDetailsInvoicesTimeline 
+                            commandId={numericCommandId} 
+                            advance={command.advance} 
+                            price={command.price - (command.discount ?? 0)}
+                        />
                     </div>
             }
         </div>

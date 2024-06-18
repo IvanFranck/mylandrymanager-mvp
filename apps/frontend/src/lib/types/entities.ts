@@ -15,7 +15,7 @@ export type ServicesEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
-    userId: number
+    currentVersionId: number
 }
 
 export type ServiceOnCommandEntity = {
@@ -36,12 +36,18 @@ export type CommandsEntity = BaseEntity & {
     customerId: number
     userId: number
     withdrawDate: Date
-    customer: CustomersEntity
-    code: CommandCodeEntity
+    advance: number,
+    customer: CustomersEntity,
+    code: string,
+    status: CommandStatus,
     services: ServiceOnCommandEntity[]
 }
 
-export type CommandCodeEntity = Omit<BaseEntity, 'updatedAt'> & {
-    code: string,
-    commandId: number
+export type InvoiceENtity = BaseEntity & {
+    code:string,
+    fileName: string
+    commandId: number,
+    amountPaid: number
 }
+
+export type CommandStatus = 'PENDING' | 'PAID' | 'NOT_PAID'

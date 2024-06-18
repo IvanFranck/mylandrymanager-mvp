@@ -137,8 +137,8 @@ export class AuthService {
     phone: number;
   }): Promise<string[]> {
     return await Promise.all([
-      this.jwtService.signAsync(payload, { expiresIn: '4h' }),
-      this.jwtService.signAsync(payload, { expiresIn: '6h' }),
+      this.jwtService.signAsync(payload, { expiresIn: '3d' }),
+      this.jwtService.signAsync(payload, { expiresIn: '4d' }),
     ]);
   }
 }

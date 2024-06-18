@@ -27,7 +27,6 @@ export class FormatServicesResponseInterceptor implements NestInterceptor {
       map<CustomResponseInterface<T>, CustomResponseInterface<any>>(
         (data: CustomResponseInterface<T>) => {
           if (isServiceEntity(data.details)) {
-            delete data.details.currentVersion;
             delete data.details.userId;
             const { versions, ...otherInfos } = data.details;
             const version = versions[0];

@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ServiceVersion } from '@prisma/client';
 import {
   IsArray,
   IsISO8601,
@@ -8,6 +7,15 @@ import {
   IsOptional,
 } from 'class-validator';
 
+export type CreateCommand_ServiceType = {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+  label: string;
+  price: number;
+  description?: string;
+  currentVersionId: number;
+};
 export class CreateCommandDto {
   @ApiProperty({
     nullable: true,
@@ -43,7 +51,7 @@ export class CreateCommandDto {
   @IsNotEmpty()
   @IsArray()
   services: {
-    service: ServiceVersion;
+    service: CreateCommand_ServiceType;
     quantity: number;
   }[];
 }

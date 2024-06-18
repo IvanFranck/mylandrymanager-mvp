@@ -75,7 +75,9 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
   });
   doc.fillColor('#41413F').fontSize(12).font('Helvetica');
   doc.text(customerInfos.name, { width: customerWidth, align: 'left' });
-  doc.text(customerInfos.address, { width: customerWidth, align: 'left' });
+  if (customerInfos.address) {
+    doc.text(customerInfos.address, { width: customerWidth, align: 'left' });
+  }
 
   /**
    * ********* partie de droite: infos facture **********
@@ -265,7 +267,6 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
     0,
   );
   const remise = invoiceParams.invoice.command.discount; // Remise fixe pour l'exemple
-  const amountPaid = invoiceParams.invoice.amountPaid;
   const advance = invoiceParams.invoice.command.advance;
   const totalFinal = totalPartiel - remise;
 
@@ -284,15 +285,11 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
     },
     {
       text: 'Montant avancé :',
-      value: advance,
-    },
-    {
-      text: 'Montant versé :',
-      value: amountPaid,
+      value: advance ?? '0',
     },
     {
       text: 'Reste à payer :',
-      value: totalFinal - advance - amountPaid,
+      value: totalFinal - advance,
     },
   ];
 

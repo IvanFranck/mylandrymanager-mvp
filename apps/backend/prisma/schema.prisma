@@ -36,13 +36,13 @@ model Customer {
 }
 
 model Service {
-  id             Int              @id @default(autoincrement())
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  userId         Int
-  currentVersion Int              @default(1)
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  versions       ServiceVersion[]
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userId           Int
+  currentVersionId Int
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions         ServiceVersion[]
 }
 
 // ServiceVersion is the version (an update) of the service: it is created when user updates the service
@@ -64,7 +64,7 @@ model Command {
   updatedAt    DateTime      @updatedAt
   price        Int
   description  String?       @db.VarChar(255)
-  discount     Int?
+  discount     Int           @default(0)
   customerId   Int
   userId       Int
   withdrawDate DateTime
@@ -96,7 +96,7 @@ model Invoice {
   updatedAt  DateTime @updatedAt
   commandId  Int
   amountPaid Int      @default(0)
-  command    Command  @relation(fields: [commandId], references: [id])
+  command    Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
 }
 
 enum CommandStatus {

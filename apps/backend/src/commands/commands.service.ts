@@ -7,11 +7,14 @@ import {
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Command, ServiceVersion } from '@prisma/client';
+import { Command, CommandStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@/common/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@/common/interfaces/access-token-validated-request.interface';
 import Hashids from 'hashids';
+import { computeTotalPartial } from '../common/utils/priceProcessing';
+import { InvoicesService } from '@/invoices/invoices.service';
+import { CommandQueriesType } from '@/common/queries.type';
 
 @Injectable()
 export class CommandsService {
@@ -19,25 +22,8 @@ export class CommandsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly invoiceService: InvoicesService,
   ) {}
-
-  /**
-   * Compute the total price after applying a discount.
-   *
-   * @param {Array<{service: Service, quantity: number}>} services - the list of services and their quantities
-   * @param {number} discount - the discount amount to be applied
-   * @return {number} the total price after applying the discount
-   */
-  private computeTotalPrice(
-    services: { service: ServiceVersion; quantity: number }[],
-    discount: number | undefined,
-  ): number {
-    const totalServicesPrice = services.reduce(
-      (acc, { service, quantity }) => acc + service.price * quantity,
-      0,
-    );
-    return discount ? totalServicesPrice - discount : totalServicesPrice;
-  }
 
   /**
    * A function to create a command using the provided data.
@@ -49,8 +35,14 @@ export class CommandsService {
     createCommandDto: CreateCommandDto,
     request: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<Command>> {
-    const { description, discount, customerId, services, withdrawDate } =
-      createCommandDto;
+    const {
+      description,
+      discount,
+      customerId,
+      services,
+      withdrawDate,
+      advance,
+    } = createCommandDto;
     const userId = request.user.sub;
     const hashIds = new Hashids(
       this.configService.get('CODE_SALT'),
@@ -59,7 +51,19 @@ export class CommandsService {
     );
     try {
       // 1. compute the total price
-      const totalPrice = this.computeTotalPrice(services, discount);
+      const totalPrice = computeTotalPartial(services);
+
+      if (advance > totalPrice - discount) {
+        throw new BadRequestException(
+          'Le montant entré est supérieur au reste à payer',
+        );
+      }
+
+      const commandStatus = this.getCommandStatus(
+        totalPrice,
+        advance,
+        discount,
+      );
 
       // 2. create the command and connect to customer
       const command = await this.prisma.$transaction(async (tx) => {
@@ -69,6 +73,8 @@ export class CommandsService {
             description: description,
             discount: discount,
             withdrawDate: withdrawDate,
+            advance,
+            status: commandStatus,
             customer: {
               connect: {
                 id: customerId,
@@ -84,7 +90,7 @@ export class CommandsService {
               create: services.map((service) => ({
                 service: {
                   connect: {
-                    id: service.service.id,
+                    id: service.service.currentVersionId,
                   },
                 },
                 quantity: service.quantity,
@@ -128,6 +134,12 @@ export class CommandsService {
         });
       });
 
+      //generate the related invoice
+      await this.invoiceService.createInvoice({
+        commandId: command.id,
+        advance: advance,
+      });
+
       return {
         message: 'commande ajoutée',
         details: command,
@@ -146,12 +158,19 @@ export class CommandsService {
    */
   async findAll(
     request: AccessTokenValidatedRequestInterface,
+    queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
     const userId = request.user.sub;
+    const { status, createdAt } = queries;
     try {
       const commands = await this.prisma.command.findMany({
         where: {
           userId,
+          status,
+          createdAt,
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
         include: {
           customer: true,
@@ -226,45 +245,50 @@ export class CommandsService {
     id: number,
     updateCommandDto: UpdateCommandDto,
   ): Promise<{ message: string; command: any }> {
-    const { description, discount, customerId, services, advance } =
-      updateCommandDto;
+    const { description, advance } = updateCommandDto;
     try {
-      let totalPrice: number | undefined = undefined;
+      const command = await this.prisma.$transaction(async (tx) => {
+        const command = await tx.command.findUnique({
+          where: {
+            id,
+          },
+        });
 
-      if (services) {
-        totalPrice = this.computeTotalPrice(services, discount);
-      }
+        if (command.advance + advance > command.price) {
+          throw new BadRequestException(
+            'Le montant entré est supérieur au reste à payer',
+          );
+        }
+        const commandStatus = this.getCommandStatus(
+          command.price,
+          advance,
+          command.discount,
+        );
 
-      const command = await this.prisma.command.update({
-        where: {
-          id,
-        },
-        data: {
-          price: totalPrice,
-          description,
-          discount,
-          advance: {
-            increment: advance,
+        const updatedCommand = await tx.command.update({
+          where: {
+            id,
           },
-          customer: {
-            connect: { id: customerId },
+          data: {
+            description,
+            status: commandStatus,
+            advance: {
+              increment: advance,
+            },
           },
-          services: {
-            deleteMany: {},
-            create: services.map((service) => ({
-              quantity: service.quantity,
-              service: {
-                connect: {
-                  id: service.service.id,
-                },
-              },
-            })),
+          include: {
+            customer: true,
+            services: true,
           },
-        },
-        include: {
-          customer: true,
-          services: true,
-        },
+        });
+
+        return updatedCommand;
+      });
+
+      //generate the related invoice
+      await this.invoiceService.createInvoice({
+        commandId: command.id,
+        advance: advance,
       });
 
       return {
@@ -306,6 +330,20 @@ export class CommandsService {
         throw new BadRequestException("can't find any command with this id");
       }
       throw new BadRequestException(error);
+    }
+  }
+
+  private getCommandStatus(
+    totalprice: number,
+    advance: number,
+    discount: number,
+  ): CommandStatus {
+    if (advance === 0) {
+      return 'NOT_PAID';
+    } else if (totalprice - discount > advance) {
+      return 'PENDING';
+    } else {
+      return 'PAID';
     }
   }
 }

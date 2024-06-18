@@ -1,5 +1,11 @@
 import { GenerateBarcodeDTO } from './dto/generate-barcode.dto';
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { RenderOptions, toBuffer } from 'bwip-js';
 import { promises, ensureDir, createReadStream, ReadStream } from 'fs-extra';
 import { join } from 'path';
@@ -11,6 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '@/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
+import { CustomResponseInterface } from '@/common/interfaces/response.interface';
+import { Invoice } from '@prisma/client';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
@@ -25,7 +33,7 @@ export class InvoicesService {
       });
 
       if (!command) {
-        throw new Error(
+        throw new BadRequestException(
           `Command with ID ${createInvoiceDto.commandId} not found`,
         );
       }
@@ -126,12 +134,37 @@ export class InvoicesService {
       await pdfGenerator(params);
     } catch (error) {
       this.loger.error('Erreur lors de la génération du PDF:', error);
-      throw new Error('Erreur lors de la génération du PDF:');
+      throw new BadRequestException('Erreur lors de la génération du PDF');
     }
 
     return {
       message: 'Facture créée',
     };
+  }
+
+  async getInvoicesByCommandId(
+    commandId: number,
+  ): Promise<CustomResponseInterface<Invoice[]>> {
+    try {
+      const invoices = await this.prismaClient.invoice.findMany({
+        where: {
+          commandId,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      });
+
+      return {
+        message: `liste des facture de la command ${commandId}`,
+        details: invoices,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new NotFoundException(error);
+    }
   }
 
   async getInvoice(filePath: string): Promise<ReadStream> {
@@ -140,7 +173,7 @@ export class InvoicesService {
         where: { fileName: filePath },
       });
       if (!invoice) {
-        throw new Error(
+        throw new BadRequestException(
           `Facture avec le nom de fichier ${filePath} non trouvée`,
         );
       }
@@ -153,7 +186,37 @@ export class InvoicesService {
       return createReadStream(pdfFilePath);
     } catch (error) {
       this.loger.error('Erreur lors de la récupération de la facture:', error);
-      throw new Error('Erreur lors de la récupération de la facture:');
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération de la facture:',
+      );
+    }
+  }
+
+  async getInvoiceByCode(invoiceCode: string): Promise<ReadStream> {
+    try {
+      const invoice = await this.prismaClient.invoice.findUnique({
+        where: {
+          code: invoiceCode,
+        },
+      });
+      if (!invoice) {
+        throw new BadRequestException(
+          `Impossible de retouver la facture n ${invoiceCode}`,
+        );
+      }
+
+      const pdfFileRootPath = this.getFileSubPath(
+        this.configService.get('INVOICES_ROOT_PATH'),
+        invoice.createdAt,
+      );
+      const pdfFilePath = join(pdfFileRootPath, `${invoice.fileName}.pdf`);
+
+      return createReadStream(pdfFilePath);
+    } catch (error) {
+      this.loger.error('Erreur lors de la récupération de la facture:', error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération de la facture:',
+      );
     }
   }
 

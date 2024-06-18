@@ -30,28 +30,48 @@ export class ServicesService {
   ): Promise<CustomResponseInterface<ServiceVersion>> {
     const id = request.user.sub;
     try {
-      const serviceVersion = await this.prisma.service.create({
-        data: {
-          currentVersion: 1,
-          versions: {
-            create: {
-              ...createServiceDto,
+      const serviceVersion = await this.prisma.$transaction(async (tx) => {
+        // create new service row with fake currentversion id
+        const newService = await tx.service.create({
+          data: {
+            currentVersionId: 1,
+            user: {
+              connect: {
+                id: id,
+              },
             },
           },
-          user: {
-            connect: {
-              id: id,
+        });
+
+        // create a service version and connect it to the new service
+        const serviceVersion = await tx.serviceVersion.create({
+          data: {
+            ...createServiceDto,
+            service: {
+              connect: {
+                id: newService.id,
+              },
             },
           },
-        },
-        select: {
-          versions: {
-            orderBy: {
-              createdAt: 'desc',
-            },
-            take: 1,
+        });
+
+        // update the servcive created by setting the right currentversion id
+        return tx.service.update({
+          where: {
+            id: newService.id,
           },
-        },
+          data: {
+            currentVersionId: serviceVersion.id,
+          },
+          select: {
+            versions: {
+              orderBy: {
+                createdAt: 'desc',
+              },
+              take: 1,
+            },
+          },
+        });
       });
       return {
         message: 'service créé!',
@@ -81,6 +101,9 @@ export class ServicesService {
         },
         include: {
           services: {
+            orderBy: {
+              createdAt: 'desc',
+            },
             include: {
               versions: {
                 orderBy: {
@@ -177,17 +200,15 @@ export class ServicesService {
   ): Promise<CustomResponseInterface<ServiceVersion>> {
     try {
       const service = await this.prisma.$transaction(async (tx) => {
-        const lastServiceVersion = await tx.service.findUnique({
+        const service = await tx.service.findUnique({
           where: {
             id: id,
           },
-          select: {
-            versions: {
-              orderBy: {
-                createdAt: 'desc',
-              },
-              take: 1,
-            },
+        });
+
+        const lastServiceVersion = await tx.serviceVersion.findUnique({
+          where: {
+            id: service.currentVersionId,
           },
         });
 
@@ -196,25 +217,28 @@ export class ServicesService {
           id: lastServiceVersionId,
           serviceId,
           ...lastServiceVersionUsefulData
-        } = lastServiceVersion.versions[0];
+        } = lastServiceVersion;
 
         const newServiceVersion = {
           ...lastServiceVersionUsefulData,
           ...updateServiceDto,
         };
-        const service = await tx.service.update({
+        const newVersion = await tx.serviceVersion.create({
+          data: {
+            ...newServiceVersion,
+            service: {
+              connect: {
+                id: id,
+              },
+            },
+          },
+        });
+        const updatedService = await tx.service.update({
           where: {
             id: id,
           },
           data: {
-            currentVersion: {
-              increment: 1,
-            },
-            versions: {
-              create: {
-                ...newServiceVersion,
-              },
-            },
+            currentVersionId: newVersion.id,
           },
           select: {
             versions: {
@@ -225,7 +249,7 @@ export class ServicesService {
             },
           },
         });
-        return service;
+        return updatedService;
       });
 
       if (!service) {

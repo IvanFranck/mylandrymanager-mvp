@@ -1,4 +1,4 @@
-import { Params, RouteObject } from "react-router-dom"
+import { RouteObject } from "react-router-dom"
 import { Root } from "@/views/Root.tsx"
 import { CommandsListView } from "@/views/commands/CommandsListView"
 import { CommandDetailView } from "@/views/commands/CommandDetailsView"
@@ -108,9 +108,7 @@ export const routes: RouteObject[] = [
                                 path: 'edit/:serviceId',
                                 element: <ServiceEditView />,
                                 handle: {
-                                    pageTitle: (params: Params) => {
-                                        return <PageTitle pageName={`Service ${params.serviceId}`} backlink='/services' />
-                                    }
+                                    pageTitle: () => <PageTitle pageName={`Service`} backlink='/services' />
                                 }
                             }
                         ]
