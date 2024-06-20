@@ -172,8 +172,8 @@ export class CommandsService {
           withdrawDate:
             from && to
               ? {
-                  lte: new Date(from),
-                  gte: new Date(to),
+                  lte: new Date(to),
+                  gte: new Date(from),
                 }
               : undefined,
         },
