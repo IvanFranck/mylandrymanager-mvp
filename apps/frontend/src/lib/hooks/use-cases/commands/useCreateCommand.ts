@@ -4,7 +4,7 @@ import { CommandSchema, createCommandQuery } from "@/lib/api/commands";
 import { AxiosError } from "axios";
 import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
 import { CommandsEntity } from "@/lib/types/entities";
-import { COMMANDS_QUERY_KEY } from "@/common/constants/query-keys";
+import { COMMANDS_FILTER_QUERY_KEY } from "@/common/constants/query-keys";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useCreateCommand = () => {
@@ -26,7 +26,7 @@ export const useCreateCommand = () => {
             })
         },
         onSuccess: (data: TGenericResponse<CommandsEntity>) => {
-            queryClient.invalidateQueries({ queryKey: COMMANDS_QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: COMMANDS_FILTER_QUERY_KEY({}) })
             toast({
                 variant: 'success',
                 description: data.message,

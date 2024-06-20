@@ -16,6 +16,7 @@ import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
 import DeliveriesOverview from "@/views/home/deliveries-overview"
+import { WeekIncomesView } from "@/views/home/week-incomes"
 
 
 export const routes: RouteObject[] = [
@@ -57,6 +58,16 @@ export const routes: RouteObject[] = [
                                 handle: {
                                     pageTitle: () => {
                                         return <PageTitle pageName="Commandes à livrer" backlink='/home' />
+                                    }
+                                }
+                            },
+                            {
+                                id: "week incomes",
+                                path: "incomes",
+                                element: <WeekIncomesView/>,
+                                handle: {
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Entrées de la semaines" backlink='/home' />
                                     }
                                 }
                             }

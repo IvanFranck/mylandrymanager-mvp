@@ -15,21 +15,19 @@ export const HomeView = () => {
             <p className="font-light text-gray-500 text-sm">de la semaine</p>
         </div>
 
-        <div className="rounded-2xl bg-orange-100/50 shadow-xl shadow-[#68440A]/10 flex flex-col items-start justify-between px-4 py-6 gap-3">
+        <Link to="incomes" className="rounded-2xl bg-orange-100/50 shadow-xl shadow-[#68440A]/10 flex flex-col items-start justify-between px-4 py-6 gap-3">
           <BadgePercent color="#CF8815"/>
           <div>
             <h5 className="text-xs font text-gray-500">Ventes de la semaine</h5>
             <span className="text-xl font-semibold">25,000 fcfa</span>
           </div>
-        </div>
+        </Link>
 
-        <Link to="deliveries">
-          <div className="rounded-2xl bg-purple-100/50 shadow-xl shadow-[#403BB7]/15 flex flex-col items-start justify-between px-4 py-6 gap-3">
-            <CalendarClock color="#4338ca"/>
-            <div>
-              <h5 className="text-xs font text-gray-500">Commandes à livrer cette semaine</h5>
-              <span className="text-xl font-semibold">5</span>
-            </div>
+        <Link to="deliveries" className="rounded-2xl bg-purple-100/50 shadow-xl shadow-[#403BB7]/15 flex flex-col items-start justify-between px-4 py-6 gap-3">
+          <CalendarClock color="#4338ca"/>
+          <div>
+            <h5 className="text-xs font text-gray-500">Commandes à livrer cette semaine</h5>
+            <span className="text-xl font-semibold">5</span>
           </div>
         </Link>
       </section>
