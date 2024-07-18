@@ -1,85 +1,73 @@
 import { AreaChart } from '@tremor/react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 
 const chartdata = [
   {
-    date: 'Jan 22',
-    SolarPanels: 2890,
-    'Inverters': 2338,
+    date: 'Lun 15',
+    Sales: 2890,
   },
   {
-    date: 'Feb 22',
-    SolarPanels: 2756,
-    'Inverters': 2103,
+    date: 'Mar 16',
+    Sales: 2756,
   },
   {
-    date: 'Mar 22',
-    SolarPanels: 3322,
-    'Inverters': 2194,
+    date: 'Mer 17',
+    Sales: 3322,
   },
   {
-    date: 'Apr 22',
-    SolarPanels: 3470,
-    'Inverters': 2108,
+    date: 'Jeu 18',
+    Sales: 3470,
   },
   {
-    date: 'May 22',
-    SolarPanels: 3475,
-    'Inverters': 1812,
+    date: 'Ven 19',
+    Sales: 3475,
   },
   {
-    date: 'Jun 22',
-    SolarPanels: 3129,
-    'Inverters': 1726,
+    date: 'Sam 20',
+    Sales: 3129,
   },
   {
-    date: 'Jul 22',
-    SolarPanels: 3490,
-    'Inverters': 1982,
+    date: 'Dim 21',
+    Sales: 3490,
   },
-  {
-    date: 'Aug 22',
-    SolarPanels: 2903,
-    'Inverters': 2012,
-  },
-  {
-    date: 'Sep 22',
-    SolarPanels: 2643,
-    'Inverters': 2342,
-  },
-  {
-    date: 'Oct 22',
-    SolarPanels: 2837,
-    'Inverters': 2473,
-  },
-  {
-    date: 'Nov 22',
-    SolarPanels: 2954,
-    'Inverters': 3848,
-  },
-  {
-    date: 'Dec 22',
-    SolarPanels: 3239,
-    'Inverters': 3736,
-  },
+ 
 ];
 
 const dataFormatter = (number: number) =>
-  `$${Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(number).toString()}`;
+  `${Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XAF' }).format(number).toString()}`;
+
+const totalSales = chartdata.reduce((acc, cur) => acc + cur.Sales, 0);
 
 export function WeekIncomesView() {
   return (
-    <div className='px-1'>
-        <AreaChart
-          className="h-80"
-          data={chartdata}
-          index="date"
-          categories={['SolarPanels', 'Inverters']}
-          colors={['red', 'blue']}
-          valueFormatter={dataFormatter}
-          yAxisWidth={90}
-          onValueChange={(v) => console.log(v)}
-        />
-    </div>
+    <>
+      <div className='w-full px-4 flex justify-between items-start'>
+        <div className='w-1/2'>
+          <h3 className="text-gray-400 font-extralight">Revenus de la semaine Juillet 14 - 20 </h3>
+          <p className='text-2xl font-bold'>{dataFormatter(totalSales)}</p>
+          <div className='mt-2 flex items-center gap-3'>
+            <span className='w-8 h-8 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowLeft className='text-gray-400' size={20} /></span>
+            <span className='w-8 h-8 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowRight className='text-gray-400' size={20} /></span>
+
+          </div>
+        </div>
+      </div>
+      <div className='px-1'>
+          <AreaChart
+            className="h-60"
+            data={chartdata}
+            index="date"
+            showLegend={false}
+            categories={['Sales']}
+            colors={['blue']}
+            valueFormatter={dataFormatter}
+            onValueChange={(v) => console.log(v)}
+            showYAxis={false}
+            showGradient={false}
+            showGridLines={true}
+          />
+      </div>
+    </>
   );
 }
 
