@@ -50,7 +50,6 @@ export default function AdvanceStep({ setAdvance, advance, billingPrice, discoun
         }
     }, [billingPrice, discount, setAdvance, showInput])
 
-    console.log('advance', advance)
 
     return (
         <section className="w-full space-y-4 p-2">
