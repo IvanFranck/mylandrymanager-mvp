@@ -10,7 +10,7 @@ export function PagetitleLayout() {
         }, []);
 
     return (
-        <div className="w-full px-4 py-3">
+        titles && <div className="w-full px-4 py-3">
             {titles.map((title, index) => (
                 <div key={index}>{title}</div>
             ))}

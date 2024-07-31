@@ -19,12 +19,12 @@ export const CommandListItem = ({ command }: CommandListItemProps) => {
             <CardHeader>
                 <CardTitle className="text-lg flex justify-between">
                     <span>#{command.code}</span>
-                    <span>{command.price} Fcfa</span>
+                    <span>{command.price - (command.discount ?? 0) } Fcfa</span>
                 </CardTitle>
                 <CardDescription className="text-md text-gray-500">{command.customer.name}</CardDescription>
             </CardHeader>
             <CardContent className="">
-                <p className="text-gray-400 text-xs">À rétirer: {formatDate(command.withdrawDate, "dd MMM", { locale: fr })}</p>
+                <p className="text-gray-400 font-light text-xs">À rétirer le {formatDate(command.withdrawDate, "dd MMM", { locale: fr })}</p>
             </CardContent>
         </Card>
     )

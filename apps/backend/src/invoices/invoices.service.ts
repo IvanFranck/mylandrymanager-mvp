@@ -2,6 +2,7 @@ import { GenerateBarcodeDTO } from './dto/generate-barcode.dto';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -149,6 +150,9 @@ export class InvoicesService {
         where: {
           commandId,
         },
+        orderBy: {
+          createdAt: 'asc',
+        },
       });
 
       return {
@@ -169,7 +173,7 @@ export class InvoicesService {
         where: { fileName: filePath },
       });
       if (!invoice) {
-        throw new Error(
+        throw new BadRequestException(
           `Facture avec le nom de fichier ${filePath} non trouvée`,
         );
       }
@@ -182,7 +186,37 @@ export class InvoicesService {
       return createReadStream(pdfFilePath);
     } catch (error) {
       this.loger.error('Erreur lors de la récupération de la facture:', error);
-      throw new Error('Erreur lors de la récupération de la facture:');
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération de la facture:',
+      );
+    }
+  }
+
+  async getInvoiceByCode(invoiceCode: string): Promise<ReadStream> {
+    try {
+      const invoice = await this.prismaClient.invoice.findUnique({
+        where: {
+          code: invoiceCode,
+        },
+      });
+      if (!invoice) {
+        throw new BadRequestException(
+          `Impossible de retouver la facture n ${invoiceCode}`,
+        );
+      }
+
+      const pdfFileRootPath = this.getFileSubPath(
+        this.configService.get('INVOICES_ROOT_PATH'),
+        invoice.createdAt,
+      );
+      const pdfFilePath = join(pdfFileRootPath, `${invoice.fileName}.pdf`);
+
+      return createReadStream(pdfFilePath);
+    } catch (error) {
+      this.loger.error('Erreur lors de la récupération de la facture:', error);
+      throw new InternalServerErrorException(
+        'Erreur lors de la récupération de la facture:',
+      );
     }
   }
 

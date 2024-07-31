@@ -4,6 +4,7 @@ import { formatDate } from "date-fns"
 import { fr } from "date-fns/locale"
 import { BadgeInfo, Eye, Plus } from "lucide-react"
 import { CommandNewPaiementDrawer } from "./command-new-paiement-drawer"
+import { API_ROUTES } from "@/common/constants/api-routes"
 
 type CommandDetailsInvoicesTimelineProps = {
     commandId: number
@@ -13,6 +14,9 @@ type CommandDetailsInvoicesTimelineProps = {
 
 export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: CommandDetailsInvoicesTimelineProps) => {
     const { commandInvoices, isInvoicesLoading } = useGetAllCommandInvoices({commandId})
+    
+    const apiBaseURL = import.meta.env.VITE_API_BASE_URL
+    
     return (
         <div className="space-y-4">
             <h3 className="text-gray-400">Historique des paiements</h3>
@@ -28,7 +32,11 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
                                     <span className="text-sm font-normal text-gray-400 leading-none">{formatDate((invoice.createdAt as Date).toString(), "dd/MM/yyyy", {locale: fr})}</span>
                                     <p className="mt-1">Montant versé: <span className="font-semibold">{invoice.amountPaid} fcfa</span></p>
                                     <p className="mt-1">Facture n° {invoice.code}</p>
-                                    <Button variant="link" className="justify-start font-normal text-blue-400 mt-3 flex items-center gap-1 p-0 h-min"><Eye size={14} className=""/> <span className="">Afficher la facture</span></Button>
+                                    <a href={`${apiBaseURL}${API_ROUTES.INVOICES}/${invoice.code}`} target="_blank">
+                                        <Button variant="link" className="justify-start font-normal text-blue-400 mt-3 flex items-center gap-1 p-0 h-min">
+                                            <Eye size={14} className=""/> <span className="">Afficher la facture</span>
+                                        </Button>
+                                    </a>
                                 </div>
                             </li>
                         ))
