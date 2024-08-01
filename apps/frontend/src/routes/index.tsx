@@ -44,7 +44,12 @@ export const routes: RouteObject[] = [
                     {
                         id: "home",
                         path: '/home',
-                        element: <HomeView />
+                        children: [
+                            {
+                                index: true,
+                                element: <HomeView />
+                            }
+                        ]
                     },
                     {
                         id: 'Commandes',

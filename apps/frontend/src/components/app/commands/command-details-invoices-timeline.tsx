@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { useGetAllCommandInvoices } from "@/lib/hooks/use-cases/invoices/useGetCommandInvoices"
 import { formatDate } from "date-fns"
 import { fr } from "date-fns/locale"
-import { BadgeInfo, Eye, Plus } from "lucide-react"
+import { Eye, Plus } from "lucide-react"
 import { CommandNewPaiementDrawer } from "./command-new-paiement-drawer"
 import { API_ROUTES } from "@/common/constants/api-routes"
 
@@ -61,9 +61,6 @@ export const CommandDetailsInvoicesTimeline = ({commandId, price, advance}: Comm
                                 <p className="text-sm font-base ">Enregristrer un nouveau paiement</p>
                             </div>
                         </CommandNewPaiementDrawer>
-                        <div className="w-full flex justify-between border border-red-500 bg-red-200 p-4 items-center rounded-md gap-2">
-                            <BadgeInfo size={20} color="#DD1313" /> <p className="flex-1 text-center text-gray-600 text-md font-base">Reste à payer: <span className="text-lg text-black  font-bold">{price - advance} Fcfa</span></p>
-                        </div>
                     </>
                 )
             }

@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require('tailwindcss/colors');
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -160,5 +162,15 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    plugin(function ({ addComponents }) {
+      addComponents({
+        '.delivery-date': {
+          color: '#3b82f6',
+          fontWeight: '600',
+        },
+      })
+    })
+  ],
 }

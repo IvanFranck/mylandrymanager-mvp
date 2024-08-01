@@ -26,7 +26,9 @@ export const useUpdateCommand = ({commandId}: Params) => {
         },
         onSuccess: (data: TGenericResponse<CommandsEntity>) => {
             queryClient.invalidateQueries({ queryKey: COMMAND_INVOICES_ID_KEY(commandId) })
+            queryClient.refetchQueries({ queryKey: COMMAND_INVOICES_ID_KEY(commandId) })
             toast({
+                variant: "success",
                 description: data.message,
                 duration: 3000
             })

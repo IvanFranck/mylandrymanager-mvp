@@ -55,7 +55,7 @@ export class CommandsService {
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
-          'Le montant entré est supérieur au reste à payer',
+          "Le montant de l'avance est supérieur au total à payer",
         );
       }
 
@@ -161,13 +161,21 @@ export class CommandsService {
     queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
     const userId = request.user.sub;
-    const { status, createdAt } = queries;
+    const { status, createdAt, from, to } = queries;
+    console.log('queries', queries);
     try {
       const commands = await this.prisma.command.findMany({
         where: {
           userId,
           status,
           createdAt,
+          withdrawDate:
+            from && to
+              ? {
+                  lte: new Date(to),
+                  gte: new Date(from),
+                }
+              : undefined,
         },
         orderBy: {
           createdAt: 'desc',
@@ -261,7 +269,7 @@ export class CommandsService {
         }
         const commandStatus = this.getCommandStatus(
           command.price,
-          advance,
+          command.advance + advance,
           command.discount,
         );
 
@@ -292,7 +300,7 @@ export class CommandsService {
       });
 
       return {
-        message: 'command updated',
+        message: 'commande mise à jour',
         command,
       };
     } catch (error) {
@@ -338,6 +346,7 @@ export class CommandsService {
     advance: number,
     discount: number,
   ): CommandStatus {
+    console.log('getCommandStatus', totalprice, advance, discount);
     if (advance === 0) {
       return 'NOT_PAID';
     } else if (totalprice - discount > advance) {

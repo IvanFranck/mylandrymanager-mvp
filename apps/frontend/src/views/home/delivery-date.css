@@ -1,0 +1,16 @@
+.delivery-date {
+    position: relative;
+}
+/* Strikeout */
+.delivery-date::before {
+    content: "";
+    position: absolute;
+    bottom: -10%;
+    left: 50%;
+    height: 8px;
+    width: 8px;
+    border-radius: 100%;
+    transform: translateX(-50%);
+    background: currentColor;
+    z-index: 1;
+}

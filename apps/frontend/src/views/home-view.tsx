@@ -1,22 +1,17 @@
-import { Card, ProgressBar } from '@tremor/react';
+import DeliveriesOverview from "./home/deliveries-overview";
+import { WeekIncomesView } from "./home/week-incomes";
 
 export const HomeView = () => {
   return (
-    <div className='px-4'>
+    <div className='px-3'>
+      <h2 className="text-3xl font-semibold">Bienvenue</h2>
+      <p className="font-light text-gray-600 text-sm">Dev Pressing !</p>
 
-        <Card className="mx-auto max-w-md">
-        <h4 className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-            Sales
-        </h4>
-        <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-            $71,465
-        </p>
-        <p className="mt-4 flex items-center justify-between text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-            <span>32% of annual target</span>
-            <span>$225,000</span>
-        </p>
-        <ProgressBar value={32} className="mt-2" />
-        </Card>
+      {/** stats blocks */}
+      <section className="w-full mt-6 flex flex-col gap-3">
+        <WeekIncomesView/>
+        <DeliveriesOverview/>
+      </section>
     </div>
   );
 }

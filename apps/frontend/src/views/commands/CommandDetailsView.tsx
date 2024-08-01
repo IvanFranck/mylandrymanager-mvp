@@ -91,6 +91,10 @@ export const CommandDetailView = () => {
                                     <p>Total</p>
                                     <p>{command.price - (command.discount ?? 0)} fcfa</p>
                                 </div>
+                                <div className='w-full flex justify-between font-semibold mt-4 text-red-600'>
+                                    <p>Reste à payer</p>
+                                    <p>{command.price - (command.discount ?? 0) - command.advance} fcfa</p>
+                                </div>
                             </div>
                         </div>
 
