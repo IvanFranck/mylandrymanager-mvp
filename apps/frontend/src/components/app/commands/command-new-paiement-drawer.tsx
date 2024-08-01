@@ -1,10 +1,10 @@
 import { Button } from "@/components/ui/button"
-import { Drawer, DrawerContent, DrawerFooter, DrawerOverlay, DrawerPortal, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerOverlay, DrawerPortal, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer"
 import { GenericForm } from "@/components/ui/generic-form"
 import { CommandPaienmentSchema } from "@/lib/api/commands"
 import { useUpdateCommand } from "@/lib/hooks/use-cases/commands/useUpdateCommand"
 import { BadgeInfo, Loader } from "lucide-react"
-import { ReactNode } from "react"
+import { ReactNode, useRef } from "react"
 import { z } from "zod"
 
 type CommandNewPaiementDrawerProps = {
@@ -14,8 +14,14 @@ type CommandNewPaiementDrawerProps = {
 }
 
 export const CommandNewPaiementDrawer = ({rest, commandId, children, ...props}: CommandNewPaiementDrawerProps & React.HTMLProps<HTMLDivElement>) => {
-    const {isPending, mutateAsync} = useUpdateCommand({commandId})
+    const closeDrawerRef = useRef<HTMLButtonElement>(null)
     
+    const {isPending, mutateAsync, isSuccess} = useUpdateCommand({commandId})
+    
+    if(isSuccess){
+        closeDrawerRef.current?.click()
+    }
+
     async function onSubmit(values: z.infer<typeof CommandPaienmentSchema>) {
         await mutateAsync(values)
     }
@@ -49,6 +55,7 @@ export const CommandNewPaiementDrawer = ({rest, commandId, children, ...props}: 
                             />
                         </div>
                     </div>
+                    <DrawerClose className="hidden" ref={closeDrawerRef}></DrawerClose>
                 </DrawerContent>
             </DrawerPortal>
         </Drawer>

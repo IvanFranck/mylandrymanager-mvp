@@ -55,7 +55,7 @@ export class CommandsService {
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
-          'Le montant entré est supérieur au reste à payer',
+          "Le montant de l'avance est supérieur au total à payer",
         );
       }
 
@@ -269,7 +269,7 @@ export class CommandsService {
         }
         const commandStatus = this.getCommandStatus(
           command.price,
-          advance,
+          command.advance + advance,
           command.discount,
         );
 
@@ -300,7 +300,7 @@ export class CommandsService {
       });
 
       return {
-        message: 'command updated',
+        message: 'commande mise à jour',
         command,
       };
     } catch (error) {
@@ -346,6 +346,7 @@ export class CommandsService {
     advance: number,
     discount: number,
   ): CommandStatus {
+    console.log('getCommandStatus', totalprice, advance, discount);
     if (advance === 0) {
       return 'NOT_PAID';
     } else if (totalprice - discount > advance) {
