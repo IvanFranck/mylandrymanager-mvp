@@ -49,9 +49,9 @@ export default function DeliveriesOverview() {
     }
 
   return (
-    <div className="w-full flex-1 rounded-t-3xl px-4 bg-white py-8">
+    <div className="w-full flex-1 rounded-t-3xl py-8">
         <div className="w-full mb-4 flex gap-1 items-center">
-            <h3 className="text-2xl">Calendrier de livraisons</h3>
+            <h3 className="text-2xl">Calendrier des livraisons</h3>
         </div>
         <Calendar
             className="p-0"
