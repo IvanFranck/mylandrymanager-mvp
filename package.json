@@ -5,7 +5,7 @@
   "scripts": {
     "front:dev": "pnpm --filter app-frontend dev",
     "front:dev-host": "pnpm --filter app-frontend dev-host",
-    "back:dev": "pnpm --filter app-backend start:dev",
+    "back:dev": "pnpm --filter app-backend start-app-backend:dev && pnpm --filter app-backend start-incomes-stats:dev",
     "compose:up": "docker-compose -f ./apps/backend/docker-compose.yml up -d",
     "compose:down": "docker-compose -f ./apps/backend/docker-compose.yml down --volumes"
   },
