@@ -1,21 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { IncomesStatsModule } from './incomes-stats.module';
-import { RmqOptions, Transport } from '@nestjs/microservices';
-import { ConfigService } from '@nestjs/config';
+import { RmqOptions } from '@nestjs/microservices';
+import { RmqService } from '@app/rmq';
 
 async function bootstrap() {
   const app = await NestFactory.create(IncomesStatsModule);
-  const configService = app.get<ConfigService>(ConfigService);
+  const rmqService = app.get(RmqService);
 
-  app.connectMicroservice<RmqOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: [configService.get<string>('RMQ_URI')],
-      queue: configService.get<string>('RMQ_INCOMES_STATS_QUEUE'),
-      noAck: false,
-      persistent: true,
-    },
-  });
+  app.connectMicroservice<RmqOptions>(
+    rmqService.getOptions('INCOMES_STATS_SERVICE'),
+  );
   await app.startAllMicroservices();
 }
 bootstrap();

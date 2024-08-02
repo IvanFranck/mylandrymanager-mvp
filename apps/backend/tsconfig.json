@@ -18,6 +18,12 @@
       "@common-app-backend/*": [
         "./apps/app-backend/src/common/*"
       ],
+      "@app/rmq": [
+        "libs/rmq/src"
+      ],
+      "@app/rmq/*": [
+        "libs/rmq/src/*"
+      ]
     },
     "incremental": true,
     "skipLibCheck": true,

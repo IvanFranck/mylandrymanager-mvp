@@ -1,3 +1,4 @@
+import { RmqModule } from '@app/rmq';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -23,6 +24,9 @@ import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
     JwtKeysModule,
     OTPModule,
     InvoicesModule,
+    RmqModule.register({
+      name: 'INCOMES_STATS_SERVICE',
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
