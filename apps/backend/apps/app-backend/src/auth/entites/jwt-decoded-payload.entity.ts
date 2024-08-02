@@ -1,7 +1,7 @@
 export class JWTDecodedEntity {
   sub: number;
   username: string;
-  phone: number;
+  phone: string;
   signUpCompleted: boolean;
   iat: number;
   exp: number;
