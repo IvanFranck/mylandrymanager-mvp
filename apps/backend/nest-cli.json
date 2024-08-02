@@ -1,8 +1,59 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/app-backend/src",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/app-backend/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/app-backend",
+  "projects": {
+    "app-backend": {
+      "type": "application",
+      "root": "apps/app-backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/app-backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/app-backend/tsconfig.app.json"
+      }
+    },
+    "incomes-stats": {
+      "type": "application",
+      "root": "apps/incomes-stats",
+      "entryFile": "main",
+      "sourceRoot": "apps/incomes-stats/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/incomes-stats/tsconfig.app.json"
+      }
+    },
+    "rmq": {
+      "type": "library",
+      "root": "libs/rmq",
+      "entryFile": "index",
+      "sourceRoot": "libs/rmq/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/rmq/tsconfig.lib.json"
+      }
+    },
+    "prisma": {
+      "type": "library",
+      "root": "libs/prisma",
+      "entryFile": "index",
+      "sourceRoot": "libs/prisma/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/prisma/tsconfig.lib.json"
+      }
+    },
+    "event-patterns": {
+      "type": "library",
+      "root": "libs/event-patterns",
+      "entryFile": "index",
+      "sourceRoot": "libs/event-patterns/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/event-patterns/tsconfig.lib.json"
+      }
+    }
   }
 }

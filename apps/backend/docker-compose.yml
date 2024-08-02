@@ -10,6 +10,11 @@ services:
     volumes:
     - postgresql-persistance-data:/bitnami/postgresql
 
+  broker:
+    image: rabbitmq:3.13.6-management
+    ports:
+      - '5672:5672'
+
 volumes:
   postgresql-persistance-data:
   

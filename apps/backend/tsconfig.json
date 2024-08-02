@@ -6,16 +6,36 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-  "esModuleInterop": true,
+    "esModuleInterop": true,
     "target": "ES2021",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "./src/*"
+      "@app-backend/*": [
+        "./apps/app-backend/src/*"
       ],
-      "@common/*": [ "./src/common/*" ],
+      "@common-app-backend/*": [
+        "./apps/app-backend/src/common/*"
+      ],
+      "@app/rmq": [
+        "libs/rmq/src"
+      ],
+      "@app/rmq/*": [
+        "libs/rmq/src/*"
+      ],
+      "@app/prisma": [
+        "libs/prisma/src"
+      ],
+      "@app/prisma/*": [
+        "libs/prisma/src/*"
+      ],
+      "@app/event-patterns": [
+        "libs/event-patterns/src"
+      ],
+      "@app/event-patterns/*": [
+        "libs/event-patterns/src/*"
+      ]
     },
     "incremental": true,
     "skipLibCheck": true,
