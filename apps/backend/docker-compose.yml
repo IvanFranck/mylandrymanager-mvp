@@ -1,4 +1,17 @@
 services:
+  app-backend:
+    build:
+      context: .
+      dockerfile: ./apps/app-backend/Dockerfile
+      target: development
+    command: npm run start-app-backend:dev
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      - database
+      - broker
   database:
     image: bitnami/postgresql
     ports:
