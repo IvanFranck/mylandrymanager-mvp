@@ -23,6 +23,12 @@
       ],
       "@app/rmq/*": [
         "libs/rmq/src/*"
+      ],
+      "@app/prisma": [
+        "libs/prisma/src"
+      ],
+      "@app/prisma/*": [
+        "libs/prisma/src/*"
       ]
     },
     "incremental": true,

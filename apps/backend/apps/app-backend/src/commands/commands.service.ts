@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { Command, CommandStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OTPService } from './otp.service';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { OTPController } from './otp.controller';
 
 @Module({

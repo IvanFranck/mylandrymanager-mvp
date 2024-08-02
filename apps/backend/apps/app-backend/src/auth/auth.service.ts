@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ValidateUserDto } from './dto/validate-user.dto';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import bcrypt from 'bcrypt';
 import { ValidatedUserEntity } from './entites/validate-user.entity';
 import { User } from '@prisma/client';

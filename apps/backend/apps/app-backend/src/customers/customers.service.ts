@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { Customer } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';

@@ -14,7 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
 import { CreateInvoiceDTO } from './dto/create-invoice.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';

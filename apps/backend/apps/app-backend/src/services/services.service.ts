@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { Service, ServiceVersion } from '@prisma/client';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import bcrypt from 'bcrypt';
 import { CreatedUserEntity } from './entities/created-user.entity';

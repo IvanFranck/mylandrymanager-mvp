@@ -9,7 +9,7 @@ import twilio from 'twilio';
 import { ConfigService } from '@nestjs/config';
 import { VerificationInstance } from 'twilio/lib/rest/verify/v2/service/verification';
 import { VerifyOTPDto } from './dto/verify-otp.dto';
-import { PrismaService } from '@app-backend/prisma.service';
+import { PrismaService } from '@app/prisma/prisma.service';
 import { VerifyOTPEntity } from './entities/verify-otp.entity';
 import { OTP_CHANNEL } from './constants';
 
