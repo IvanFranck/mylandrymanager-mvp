@@ -46,7 +46,8 @@ export class UsersService {
           'user with this phone number already exists',
         );
       }
-      throw new BadRequestException(error);
+      console.log(error);
+      throw new BadRequestException('numéro de téléphone invalide');
     }
   }
 }

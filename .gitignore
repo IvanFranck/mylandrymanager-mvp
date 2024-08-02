@@ -10,6 +10,10 @@ node_modules
 /apps/backend/pnpm-lock.yaml
 ./pnpm-lock.yaml
 
+#files
+/apps/backend/command_barcodes/
+/apps/backend/invoices/
+
 # Compiled output
 /apps/backend/dist/
 /apps/backend/build/

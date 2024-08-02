@@ -32,7 +32,9 @@ export class CustomersService {
           'un client avec ce numéro de téléphone existe déjà, veuillez en choisir un autre',
         );
       }
-      throw new BadRequestException(error);
+      throw new BadRequestException(
+        'Les informations saisies ne sont pas valides',
+      );
     }
   }
 

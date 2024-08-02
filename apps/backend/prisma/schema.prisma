@@ -12,7 +12,7 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   username  String    @db.VarChar(255)
-  phone     Int       @unique
+  phone     String    @unique
   address   String    @db.VarChar(255)
   password  String    @db.VarChar(255)
   verified  DateTime?
@@ -28,7 +28,7 @@ model Customer {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   name      String   @db.VarChar(255)
-  phone     Int      @unique
+  phone     String   @unique
   address   String?  @db.VarChar(255)
   userId    Int
 

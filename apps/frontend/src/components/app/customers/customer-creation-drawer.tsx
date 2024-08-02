@@ -48,7 +48,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
         resolver: zodResolver(CustomerFormSchema),
         defaultValues: {
             name: '',
-            phone: 0,
+            phone: '',
             address: ''
         }
     })
@@ -102,7 +102,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
                                                 <FormItem>
                                                     <FormLabel className="text-gray-500">Téléphone</FormLabel>
                                                     <FormControl>
-                                                        <Input disabled={isCreating} className="border border-gray-400" placeholder="677889922" {...field} />
+                                                        <Input disabled={isCreating} type="tel" className="border border-gray-400" placeholder="677889922" {...field} />
                                                     </FormControl>
                                                     {
                                                         form.formState.errors.phone && <FormDescription className="text-red-500">Numéro de téléphone obligatoire ou invalide</FormDescription>

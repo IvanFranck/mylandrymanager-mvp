@@ -1,9 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 export class ValidateUserDto {
   @IsNotEmpty()
-  @IsNumber()
-  phone: number;
+  @IsPhoneNumber('CM')
+  phone: string;
 
   @IsNotEmpty()
   @IsString()

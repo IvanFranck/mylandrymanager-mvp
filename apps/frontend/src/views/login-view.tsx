@@ -11,6 +11,7 @@ export default function LoginView() {
     
     const { mutateAsync, isPending } = useLogin()
     async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
+        console.log("login",values)
         await mutateAsync(values)
     }
     return (

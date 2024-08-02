@@ -31,14 +31,24 @@ export class AuthService {
   async validateUser(
     validateUserDto: ValidateUserDto,
   ): Promise<ValidatedUserEntity | null> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        phone: validateUserDto.phone,
-      },
-    });
+    let user: User | null = null;
+    try {
+      user = await this.prisma.user.findUnique({
+        where: {
+          phone: validateUserDto.phone,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new UnauthorizedException(
+        'Mot de passe / Numéro de téléphone invalides',
+      );
+    }
 
     if (!user) {
-      throw new UnauthorizedException('invalid credentials');
+      throw new UnauthorizedException(
+        'Mot de passe / Numéro de téléphone invalides',
+      );
     }
 
     const isPaswwordValid = await bcrypt.compare(
@@ -47,7 +57,9 @@ export class AuthService {
     );
 
     if (!isPaswwordValid) {
-      throw new UnauthorizedException('invalid credentials');
+      throw new UnauthorizedException(
+        'Mot de passe / Numéro de téléphone invalides',
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -134,7 +146,7 @@ export class AuthService {
   async getTokens(payload: {
     sub: number;
     username: string;
-    phone: number;
+    phone: string;
   }): Promise<string[]> {
     return await Promise.all([
       this.jwtService.signAsync(payload, { expiresIn: '3d' }),

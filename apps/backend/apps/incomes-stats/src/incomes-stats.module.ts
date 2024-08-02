@@ -5,6 +5,7 @@ import { RmqModule } from '@app/rmq';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
+import { INCOMES_STATS_SERVICE } from '@app/event-patterns';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import Joi from 'joi';
       }),
     }),
     RmqModule.register({
-      name: 'INCOMES_STATS_SERVICE',
+      name: INCOMES_STATS_SERVICE,
     }),
   ],
   controllers: [IncomesStatsController],

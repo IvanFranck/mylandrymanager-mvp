@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { IncomesStatsService } from './incomes-stats.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { RmqService } from '@app/rmq';
@@ -11,11 +11,6 @@ export class IncomesStatsController {
     private readonly incomesStatsService: IncomesStatsService,
     private readonly rmqService: RmqService,
   ) {}
-
-  @Get()
-  getHello(): string {
-    return this.incomesStatsService.getHello();
-  }
 
   @EventPattern(HANDLE_COMMAND_EVENT)
   async handleIncomes(@Payload() data: Command, @Ctx() context: RmqContext) {
