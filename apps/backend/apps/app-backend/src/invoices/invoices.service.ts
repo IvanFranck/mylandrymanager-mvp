@@ -1,6 +1,7 @@
 import { GenerateBarcodeDTO } from './dto/generate-barcode.dto';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -19,12 +20,21 @@ import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { Invoice } from '@prisma/client';
+import {
+  SEND_WHATSAPP_MESSAGE_EVENT,
+  SendWhatsappTextMessageDto,
+  WHATSAPP_MESSAGING_SERVICE,
+} from '@app/event-patterns';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
   constructor(
-    private configService: ConfigService,
-    private prismaClient: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly prismaClient: PrismaService,
+    @Inject(WHATSAPP_MESSAGING_SERVICE)
+    private readonly whatsappMessagingService: ClientProxy,
   ) {}
   async createInvoice(createInvoiceDto: CreateInvoiceDTO) {
     try {
@@ -132,9 +142,19 @@ export class InvoicesService {
         invoice: invoice,
       };
       await pdfGenerator(params);
+
+      await lastValueFrom<SendWhatsappTextMessageDto>(
+        this.whatsappMessagingService.emit(SEND_WHATSAPP_MESSAGE_EVENT, {
+          type: 'invoice',
+          to: invoice.command.customer.phone,
+          invoiceCode: invoice.code,
+        }),
+      );
     } catch (error) {
-      this.loger.error('Erreur lors de la génération du PDF:', error);
-      throw new BadRequestException('Erreur lors de la génération du PDF');
+      this.loger.error('Erreur lors de la génération de la facture:', error);
+      throw new BadRequestException(
+        'Erreur lors de la génération de la facture',
+      );
     }
 
     return {

@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { WhatsappMessagingService } from './whatsappmessaging.service';
-import { SendWhatsappTextMessageDto } from './dto/send-message.dto';
+import { SendWhatsappTextMessageDto } from '../../libs/event-patterns/src/dto/send-message.dto';
 
 @Controller({ path: 'whatsapp-messaging', version: '1' })
 export class WhatsappMessagingController {

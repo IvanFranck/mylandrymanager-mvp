@@ -11,7 +11,6 @@ import { ConfigModule } from '@nestjs/config';
 import joi from 'joi';
 import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
-import { WhatsappMessagingModule } from './whatsapp-messaging/whatsappmessaging.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 
@@ -24,7 +23,6 @@ import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
     AuthModule,
     JwtKeysModule,
     OTPModule,
-    WhatsappMessagingModule,
     InvoicesModule,
     RmqModule.register({
       name: 'INCOMES_STATS_SERVICE',
@@ -35,11 +33,6 @@ import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
         DATABASE_URL: joi.string().required(),
         PORT: joi.number().required(),
         AXIOS_TIMEOUT: joi.number().required(),
-        TWILIO_VERIFY_API_BASE_URL: joi.string().required(),
-        TWILIO_VERIFY_API_ACCOUNT_SID: joi.string().required(),
-        TWILIO_VERIFY_API_AUTH_KEY: joi.string().required(),
-        TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
-        TWILIO_VERIFY_API_PHONE_NUMBER: joi.string().required(),
         CODE_ALPHABET: joi.string().required(),
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),

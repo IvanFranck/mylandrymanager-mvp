@@ -1,8 +1,8 @@
+import { SendWhatsappTextMessageDto } from '@app/event-patterns';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as twilio from 'twilio';
-import { SendWhatsappTextMessageDto } from '../../libs/event-patterns/src/dto/send-message.dto';
-import { MessageInstance } from 'twilio/lib/rest/api/v2010/account/message';
+import twilio from 'twilio';
+import { invoiceMessageTemplate } from './messages-templates';
 
 @Injectable()
 export class WhatsappMessagingService {
@@ -15,28 +15,50 @@ export class WhatsappMessagingService {
   );
 
   async sendMessage(sendWhatsappTextMessageDto: SendWhatsappTextMessageDto) {
+    const messagePayloadTemplate = this.getMessagePayloadTemplate(
+      sendWhatsappTextMessageDto,
+    );
+    if (!messagePayloadTemplate) {
+      throw new Error('message payload template not found');
+    }
     try {
-      let result: MessageInstance | null = null;
       await this.twilioClient.messages
         .create({
           to: `whatsapp:${sendWhatsappTextMessageDto.to}`,
           from: `whatsapp:${this.configService.get('TWILIO_VERIFY_API_PHONE_NUMBER')}`,
-          body: sendWhatsappTextMessageDto.message,
+          body: messagePayloadTemplate.message,
+          mediaUrl: messagePayloadTemplate.mediaUrl,
         })
         .then((message) => {
           console.log('message sent', message);
-          result = message;
         })
         .catch((error) => {
           throw new Error(error);
         });
-
-      if (result) {
-        return result;
-      }
     } catch (error) {
       this.logger.error(error);
       throw new Error('sending whatsapp message failed');
+    }
+  }
+
+  getMessagePayloadTemplate(
+    dto: Pick<SendWhatsappTextMessageDto, 'type' | 'invoiceCode'>,
+  ) {
+    switch (dto.type) {
+      case 'withdraw_reminder':
+        return {
+          message: invoiceMessageTemplate(
+            dto.invoiceCode,
+            this.configService.get('INVOICE_BASE_URL'),
+          ),
+          mediaUrl: [
+            `${this.configService.get('INVOICE_BASE_URL')}/${dto.invoiceCode}`,
+          ],
+        };
+      case 'invoice':
+        return null;
+      default:
+        return null;
     }
   }
 }

@@ -54,6 +54,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/event-patterns/tsconfig.lib.json"
       }
+    },
+    "whatsapp-messaging": {
+      "type": "application",
+      "root": "apps/whatsapp-messaging",
+      "entryFile": "main",
+      "sourceRoot": "apps/whatsapp-messaging/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/whatsapp-messaging/tsconfig.app.json"
+      }
     }
   }
 }
