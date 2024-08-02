@@ -1,1 +1,1 @@
-export const CREATE_COMMAND_EVENT = 'create_command_event';
+export const HANDLE_COMMAND_EVENT = 'handle_command_event';

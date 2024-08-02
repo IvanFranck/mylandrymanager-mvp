@@ -76,6 +76,7 @@ model Command {
   customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
   services ServiceOnCommand[]
   invoices Invoice[]
+  Incomes  Incomes[]
 }
 
 model ServiceOnCommand {
@@ -101,14 +102,27 @@ model Invoice {
 }
 
 model IncomesStats {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  day       DateTime
-  ammount   Int
-
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  day       String
+  amount    Int
   accountId Int
-  user      User @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  incomes   Incomes[]
+  user      User      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id(name: "incomeId", [day, accountId])
+}
+
+model Incomes {
+  id                    Int           @id @default(autoincrement())
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  commandId             Int
+  amount                Int
+  command               Command       @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  IncomesStats          IncomesStats? @relation(fields: [incomesStatsDay, incomesStatsAccountId], references: [day, accountId])
+  incomesStatsDay       String?
+  incomesStatsAccountId Int?
 }
 
 enum CommandStatus {

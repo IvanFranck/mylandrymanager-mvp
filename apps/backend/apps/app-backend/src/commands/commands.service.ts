@@ -17,8 +17,8 @@ import { computeTotalPartial } from '../common/utils/priceProcessing';
 import { InvoicesService } from '@app-backend/invoices/invoices.service';
 import { CommandQueriesType } from '@common-app-backend/queries.type';
 import {
-  CREATE_COMMAND_EVENT,
   INCOMES_STATS_SERVICE,
+  HANDLE_COMMAND_EVENT,
 } from '@app/event-patterns';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
@@ -143,9 +143,9 @@ export class CommandsService {
       });
 
       await lastValueFrom(
-        this.incomesServiceClient.emit(CREATE_COMMAND_EVENT, command),
+        this.incomesServiceClient.emit(HANDLE_COMMAND_EVENT, command),
       ).catch((error) => {
-        console.log(`error when send ${CREATE_COMMAND_EVENT}`, error);
+        console.log(`error when send ${HANDLE_COMMAND_EVENT}`, error);
       });
 
       //generate the related invoice
@@ -306,6 +306,18 @@ export class CommandsService {
 
         return updatedCommand;
       });
+
+      if (advance > 0) {
+        //send an event to the incomes service
+        await lastValueFrom(
+          this.incomesServiceClient.emit<Command>(HANDLE_COMMAND_EVENT, {
+            ...command,
+            advance,
+          }),
+        ).catch((error) => {
+          console.log(`error when send ${HANDLE_COMMAND_EVENT}`, error);
+        });
+      }
 
       //generate the related invoice
       await this.invoiceService.createInvoice({
