@@ -180,7 +180,7 @@ type ServiceOnCommandDrawerProps = {
 
 const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disbaled = false, qty = 0, ...props }: ServiceOnCommandDrawerProps & React.HTMLProps<HTMLDivElement>) => {
     const [quantity, setQuantity] = useState<number>(qty)
-    const drawerCloserBtn = useRef(null)
+    const drawerCloserBtn = useRef<HTMLButtonElement>(null)
 
     useEffect(() => {
         setQuantity(qty)
@@ -188,7 +188,7 @@ const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disbaled 
 
     const handleClick = () => {
         onQuantityChange(quantity, service)
-        drawerCloserBtn.current.click()
+        drawerCloserBtn.current?.click()
     }
 
     const handleClose = () => {

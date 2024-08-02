@@ -1,12 +1,8 @@
-je travaille sur un application de gestion d'entreprise de services de blanchisserie et de pressing (nettoyage de vêtements).
-J'en suis au développement d'un MVP (Minimum Viable Product) avec une API REST en NodeJS, une base de données Postgres et une application web en ReactJS.
-J'ai décidé de faire un MVP afin de voir le projet en action et de voir si les utilisateurs ont besoin de l'application.
+je travaille sur un MVP d'une app de gestion des services de balnchisseries et de pressing (Nettoyage de vêtements)
 
-Mon projet est divisé en 2 partie: le back end fait en NestJS/TS et le front end fait en ReactJS/TS. 
-Pour la bd j'ai choisi Postgres que je lance depuis Docker.
+Mon projet est divisé en 2 apps: 
+    - une app qui gère le front end situé dans le dossier `apps/frontend` faite en REACTJS / TS
+    - une app pour le back end, dans le dossier `apps/backend` faite en ExpressJS(NetsJS) / TS
 
-Les 2 parties de mon projet sont dans des répertoires différents.
-Le back end est dans un répertoire appelé `landry-management-app-back` et le front end est dans un répertoire appelé `landry-management-app-back`.
-
-J'utilise `pnpm` pour gérer mes dépendances.
+Pour la BD j'ai opté pour PostgreSQL que je lance dans un docker.
 

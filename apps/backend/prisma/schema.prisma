@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  username        String   @db.VarChar(255)
-  phone           Int      @unique
-  password        String   @db.VarChar(255)
-  signUpCompleted Boolean  @default(false)
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  username  String    @db.VarChar(255)
+  phone     Int       @unique
+  address   String    @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  verified  DateTime?
 
-  services Service[]
-  Command  Command[]
-  Customer Customer[]
+  services     Service[]
+  Command      Command[]
+  Customer     Customer[]
+  IncomesStats IncomesStats[]
 }
 
 model Customer {
@@ -35,33 +37,46 @@ model Customer {
 }
 
 model Service {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  label       String   @unique
+  id               Int              @id @default(autoincrement())
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  userId           Int
+  currentVersionId Int
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions         ServiceVersion[]
+}
+
+// ServiceVersion is the version (an update) of the service: it is created when user updates the service
+model ServiceVersion {
+  id          Int                @id @default(autoincrement())
+  createdAt   DateTime           @default(now())
+  label       String
   price       Int
   description String?
-  userId      Int
-
-  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commands ServiceOnCommand[]
+  serviceId   Int
+  service     Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  commands    ServiceOnCommand[]
 }
 
 model Command {
-  id           Int      @id @default(autoincrement())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id           Int           @id @default(autoincrement())
+  code         String?       @unique @db.VarChar(36)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
   price        Int
-  description  String?  @db.VarChar(255)
-  discount     Int?
+  description  String?       @db.VarChar(255)
+  discount     Int           @default(0)
   customerId   Int
   userId       Int
   withdrawDate DateTime
+  advance      Int           @default(0)
+  status       CommandStatus @default(NOT_PAID)
 
-  code     CommandsCode?
   user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
   services ServiceOnCommand[]
+  invoices Invoice[]
+  Incomes  Incomes[]
 }
 
 model ServiceOnCommand {
@@ -69,16 +84,49 @@ model ServiceOnCommand {
   serviceId Int
   commandId Int
 
-  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  command Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  service ServiceVersion @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  command Command        @relation(fields: [commandId], references: [id], onDelete: Cascade)
 
   @@id([serviceId, commandId])
 }
 
-model CommandsCode {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique @db.VarChar(8)
-  createdAt DateTime @default(now())
-  commandId Int      @unique
-  command   Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
+model Invoice {
+  id         Int      @id @default(autoincrement())
+  code       String?  @unique @db.VarChar(36)
+  fileName   String   @unique @db.VarChar(36)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  commandId  Int
+  amountPaid Int      @default(0)
+  command    Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
+}
+
+model IncomesStats {
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  day       String
+  amount    Int
+  accountId Int
+  incomes   Incomes[]
+  user      User      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@id(name: "incomeId", [day, accountId])
+}
+
+model Incomes {
+  id                    Int           @id @default(autoincrement())
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  commandId             Int
+  amount                Int
+  command               Command       @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  IncomesStats          IncomesStats? @relation(fields: [incomesStatsDay, incomesStatsAccountId], references: [day, accountId])
+  incomesStatsDay       String?
+  incomesStatsAccountId Int?
+}
+
+enum CommandStatus {
+  PENDING
+  PAID
+  NOT_PAID
 }

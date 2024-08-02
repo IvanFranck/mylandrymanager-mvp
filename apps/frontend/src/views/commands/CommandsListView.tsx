@@ -1,43 +1,39 @@
-import { COMMANDS_QUERY_KEY } from "@/common/constants/query-keys"
 import { CommandListItem } from "@/components/app/commands/CommandListItem"
 import { CommandsStatusFilter } from "@/components/app/commands/CommandsStatusFilter"
 import { CommandListSkeleton } from "@/components/app/commands/command-list-skeleton"
-import { Button } from "@/components/ui/button"
+import { NoDataIllustration } from "@/components/illustrations/no-data-illustration"
 import { Input } from "@/components/ui/input"
-import { fetchAllCommandsQuery } from "@/lib/api/commands"
-import { useQuery } from "@tanstack/react-query"
-import { Plus } from "lucide-react"
+import { useGetAllCommands } from "@/lib/hooks/use-cases/commands/useGetAllCommands"
+import { CommandStatus } from "@/lib/types/entities"
+import { useEffect, useState } from "react"
 
 
 export const CommandsListView = () => {
 
-    const { data: commands } = useQuery({
-        queryKey: COMMANDS_QUERY_KEY,
-        queryFn: fetchAllCommandsQuery,
-        staleTime: 12000
-    })
+    const [ statusFilter, setStatusFilter ] = useState<CommandStatus | undefined>(undefined)
+    const { commands, isFecthing } = useGetAllCommands({filters: {status: statusFilter}})
+
+    useEffect(()=>{
+
+    }, [statusFilter])
     return (
 
         <div className="w-full flex flex-col space-y-3 px-2 mt-2">
             <div className="w-full flex items-center space-x-2 mb-4">
-                <Input className="bg-white" type="search" placeholder="Rechercher" />
-                <Button className="flex items-center space-x-1" type="submit">
-                    <span>Nouveau</span>
-                    <Plus size={16} strokeWidth={3} />
-                </Button>
+                <Input className="bg-white" type="search" placeholder="Retrouver une facture par son code" />
             </div>
 
-            <CommandsStatusFilter />
+            <CommandsStatusFilter status={statusFilter} setStatus={setStatusFilter} />
 
             <div className="w-full grid gap-2">
-                {commands
-                    ? commands.map((command, index) => (
+                {isFecthing
+                    ? <CommandListSkeleton />
+                    : commands && commands.length ? commands.map((command, index) => (
                         <CommandListItem
                             key={index}
                             command={command}
-                        />
-                    ))
-                    : <CommandListSkeleton />
+                        /> 
+                    )) : <NoDataIllustration text={statusFilter ? "Aucune commande correspondante à ce filtre n'a été trouvée" : "Oops! Vous n'avez aucune commande enregistrée."}/>
                 }
 
             </div>
