@@ -110,7 +110,8 @@
     ],
     "moduleNameMapper": {
       "^@app/rmq(|/.*)$": "<rootDir>/libs/rmq/src/$1",
-      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1"
+      "^@app/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
+      "^@app/event-patterns(|/.*)$": "<rootDir>/libs/event-patterns/src/$1"
     }
   }
 }

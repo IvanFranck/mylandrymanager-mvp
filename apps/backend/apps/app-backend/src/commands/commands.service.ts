@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -15,6 +16,12 @@ import Hashids from 'hashids';
 import { computeTotalPartial } from '../common/utils/priceProcessing';
 import { InvoicesService } from '@app-backend/invoices/invoices.service';
 import { CommandQueriesType } from '@common-app-backend/queries.type';
+import {
+  CREATE_COMMAND_EVENT,
+  INCOMES_STATS_SERVICE,
+} from '@app/event-patterns';
+import { ClientProxy } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class CommandsService {
@@ -23,6 +30,7 @@ export class CommandsService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly invoiceService: InvoicesService,
+    @Inject(INCOMES_STATS_SERVICE) private incomesServiceClient: ClientProxy,
   ) {}
 
   /**
@@ -46,7 +54,7 @@ export class CommandsService {
     const userId = request.user.sub;
     const hashIds = new Hashids(
       this.configService.get('CODE_SALT'),
-      this.configService.get('CODE_MIN_LENGTH'),
+      Number(this.configService.get('CODE_MIN_LENGTH')),
       this.configService.get('CODE_ALPHABET'),
     );
     try {
@@ -99,6 +107,8 @@ export class CommandsService {
           },
         });
 
+        console.log('newcommand', newCommand);
+
         const code = hashIds.encode(newCommand.id);
 
         return await tx.command.update({
@@ -132,6 +142,12 @@ export class CommandsService {
             },
           },
         });
+      });
+
+      await lastValueFrom(
+        this.incomesServiceClient.emit(CREATE_COMMAND_EVENT, command),
+      ).catch((error) => {
+        console.log(`error when send ${CREATE_COMMAND_EVENT}`, error);
       });
 
       //generate the related invoice

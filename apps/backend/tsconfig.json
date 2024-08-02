@@ -29,6 +29,12 @@
       ],
       "@app/prisma/*": [
         "libs/prisma/src/*"
+      ],
+      "@app/event-patterns": [
+        "libs/event-patterns/src"
+      ],
+      "@app/event-patterns/*": [
+        "libs/event-patterns/src/*"
       ]
     },
     "incremental": true,

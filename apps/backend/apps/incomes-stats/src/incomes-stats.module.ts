@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { IncomesStatsController } from './incomes-stats.controller';
 import { IncomesStatsService } from './incomes-stats.service';
 import { RmqModule } from '@app/rmq';
+import { PrismaService } from '@app/prisma/prisma.service';
 
 @Module({
   imports: [
@@ -10,6 +11,6 @@ import { RmqModule } from '@app/rmq';
     }),
   ],
   controllers: [IncomesStatsController],
-  providers: [IncomesStatsService],
+  providers: [IncomesStatsService, PrismaService],
 })
 export class IncomesStatsModule {}

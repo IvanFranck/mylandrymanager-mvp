@@ -108,7 +108,7 @@ model IncomesStats {
   ammount   Int
 
   accountId Int
-  User      User @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 enum CommandStatus {

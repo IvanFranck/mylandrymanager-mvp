@@ -45,6 +45,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/prisma/tsconfig.lib.json"
       }
+    },
+    "event-patterns": {
+      "type": "library",
+      "root": "libs/event-patterns",
+      "entryFile": "index",
+      "sourceRoot": "libs/event-patterns/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/event-patterns/tsconfig.lib.json"
+      }
     }
   }
 }
