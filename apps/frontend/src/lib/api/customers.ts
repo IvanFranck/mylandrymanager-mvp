@@ -7,7 +7,7 @@ import z from "zod";
 
 export const CustomerFormSchema = z.object({
     name: z.string().trim().min(1, 'invalid name'),
-    phone: z.string().min(9).max(9, 'invalid phone number').transform((phone: string):number => +phone),
+    phone: z.string().min(9).max(9, 'invalid phone number'),
     address: z.string().trim().optional()
 })
 

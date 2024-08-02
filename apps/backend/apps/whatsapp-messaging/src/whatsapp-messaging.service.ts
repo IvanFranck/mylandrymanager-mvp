@@ -24,10 +24,9 @@ export class WhatsappMessagingService {
     try {
       await this.twilioClient.messages
         .create({
-          to: `whatsapp:${sendWhatsappTextMessageDto.to}`,
+          to: `whatsapp:+237${sendWhatsappTextMessageDto.to}`,
           from: `whatsapp:${this.configService.get('TWILIO_VERIFY_API_PHONE_NUMBER')}`,
           body: messagePayloadTemplate.message,
-          mediaUrl: messagePayloadTemplate.mediaUrl,
         })
         .then((message) => {
           console.log('message sent', message);
@@ -45,7 +44,7 @@ export class WhatsappMessagingService {
     dto: Pick<SendWhatsappTextMessageDto, 'type' | 'invoiceCode'>,
   ) {
     switch (dto.type) {
-      case 'withdraw_reminder':
+      case 'invoice':
         return {
           message: invoiceMessageTemplate(
             dto.invoiceCode,
@@ -55,7 +54,7 @@ export class WhatsappMessagingService {
             `${this.configService.get('INVOICE_BASE_URL')}/${dto.invoiceCode}`,
           ],
         };
-      case 'invoice':
+      case 'withdraw_reminder':
         return null;
       default:
         return null;

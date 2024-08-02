@@ -22,5 +22,5 @@ export const RegisterFormSchema = z.object({
 })
 
 export const registerQuery = async (data: z.infer<typeof RegisterFormSchema>) => {
-    return await axiosInstance.post('/users/signup', { username: data.username, password: data.password, phone: +data.phone, address: data.address })  
+    return await axiosInstance.post('/users/signup', { username: data.username, password: data.password, phone: data.phone, address: data.address })  
 }
