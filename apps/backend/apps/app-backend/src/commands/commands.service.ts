@@ -107,8 +107,6 @@ export class CommandsService {
           },
         });
 
-        console.log('newcommand', newCommand);
-
         const code = hashIds.encode(newCommand.id);
 
         return await tx.command.update({

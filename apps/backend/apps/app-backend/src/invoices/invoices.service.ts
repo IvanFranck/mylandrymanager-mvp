@@ -41,7 +41,7 @@ export class InvoicesService {
       const filePath = uuidv4();
       const hashIds = new Hashids(
         this.configService.get('CODE_SALT'),
-        this.configService.get('CODE_MIN_LENGTH'),
+        Number(this.configService.get('CODE_MIN_LENGTH')),
         this.configService.get('CODE_ALPHABET'),
       );
 
