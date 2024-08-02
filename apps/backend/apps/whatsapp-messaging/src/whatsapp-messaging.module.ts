@@ -20,6 +20,7 @@ import { WHATSAPP_MESSAGING_SERVICE } from '@app/event-patterns';
         TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
         TWILIO_VERIFY_API_PHONE_NUMBER: joi.string().required(),
         INVOICE_BASE_URL: joi.string().required(),
+        RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE: joi.string().required(),
       }),
     }),
   ],

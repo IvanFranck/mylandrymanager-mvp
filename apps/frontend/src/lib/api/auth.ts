@@ -10,7 +10,7 @@ export const LoginFormSchema = z.object({
 })
 
 export const loginQuery = async (data: z.infer<typeof LoginFormSchema>) => {
-    return await axiosInstance.post('/auth/login', { password: data.password, phone: +data.phone} )
+    return await axiosInstance.post('/auth/login', { password: data.password, phone: data.phone} )
 }
 
 // register 

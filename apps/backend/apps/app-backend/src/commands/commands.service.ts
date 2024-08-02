@@ -14,14 +14,16 @@ import { CustomResponseInterface } from '@common-app-backend/interfaces/response
 import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
 import Hashids from 'hashids';
 import { computeTotalPartial } from '../common/utils/priceProcessing';
-import { InvoicesService } from '@app-backend/invoices/invoices.service';
 import { CommandQueriesType } from '@common-app-backend/queries.type';
 import {
   INCOMES_STATS_SERVICE,
   HANDLE_COMMAND_EVENT,
+  CREATE_INVOICES_SERVICE,
+  CREATE_INVOICE_EVENT,
 } from '@app/event-patterns';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
+import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
 
 @Injectable()
 export class CommandsService {
@@ -29,8 +31,8 @@ export class CommandsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-    private readonly invoiceService: InvoicesService,
     @Inject(INCOMES_STATS_SERVICE) private incomesServiceClient: ClientProxy,
+    @Inject(CREATE_INVOICES_SERVICE) private invoiceClient: ClientProxy,
   ) {}
 
   /**
@@ -142,17 +144,20 @@ export class CommandsService {
         });
       });
 
-      await lastValueFrom(
+      //send an event to the incomes service
+      await lastValueFrom<Command>(
         this.incomesServiceClient.emit(HANDLE_COMMAND_EVENT, command),
       ).catch((error) => {
         console.log(`error when send ${HANDLE_COMMAND_EVENT}`, error);
       });
 
-      //generate the related invoice
-      await this.invoiceService.createInvoice({
-        commandId: command.id,
-        advance: advance,
-      });
+      //send an event to the invoices service
+      await lastValueFrom<CreateInvoiceEventDTO>(
+        this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
+          commandId: command.id,
+          advance: advance,
+        }),
+      );
 
       return {
         message: 'commande ajoutée',
@@ -309,7 +314,7 @@ export class CommandsService {
 
       if (advance > 0) {
         //send an event to the incomes service
-        await lastValueFrom(
+        await lastValueFrom<Command>(
           this.incomesServiceClient.emit<Command>(HANDLE_COMMAND_EVENT, {
             ...command,
             advance,
@@ -319,11 +324,13 @@ export class CommandsService {
         });
       }
 
-      //generate the related invoice
-      await this.invoiceService.createInvoice({
-        commandId: command.id,
-        advance: advance,
-      });
+      //send an event to the invoices service
+      await lastValueFrom<CreateInvoiceEventDTO>(
+        this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
+          commandId: command.id,
+          advance: advance,
+        }),
+      );
 
       return {
         message: 'commande mise à jour',

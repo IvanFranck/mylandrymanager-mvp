@@ -63,6 +63,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/whatsapp-messaging/tsconfig.app.json"
       }
+    },
+    "invoices-service": {
+      "type": "application",
+      "root": "apps/invoices-service",
+      "entryFile": "main",
+      "sourceRoot": "apps/invoices-service/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/invoices-service/tsconfig.app.json"
+      }
+    },
+    "invoices": {
+      "type": "application",
+      "root": "apps/invoices",
+      "entryFile": "main",
+      "sourceRoot": "apps/invoices/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/invoices/tsconfig.app.json"
+      }
     }
   }
 }
