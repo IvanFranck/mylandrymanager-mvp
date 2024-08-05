@@ -1,17 +1,4 @@
 services:
-  app-backend:
-    build:
-      context: .
-      dockerfile: ./apps/app-backend/Dockerfile
-      target: development
-    command: npm run start-app-backend:dev
-    ports:
-      - '3000:3000'
-    env_file:
-      - .env
-    depends_on:
-      - database
-      - broker
   database:
     image: bitnami/postgresql
     ports:
@@ -22,12 +9,20 @@ services:
       - POSTGRESQL_DATABASE=mylandryappdb
     volumes:
     - postgresql-persistance-data:/bitnami/postgresql
+    networks:
+    - myappnet
 
   broker:
     image: rabbitmq:3.13.6-management
     ports:
       - '5672:5672'
+    networks:
+    - myappnet
 
 volumes:
   postgresql-persistance-data:
+networks:
+  myappnet:
+    external: true
+      
   
