@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: ./apps/app-backend/Dockerfile
       target: development
-    command: npm run start-app-backend:dev
+    command: npx prisma migrate deploy
     ports:
       - '3000:3000'
     env_file:
@@ -35,7 +35,15 @@ services:
     - db-data:/bitnami/postgresql
     networks:
     - myappnet
-
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8888:80"
+    networks:
+      - myappnet
   broker:
     image: rabbitmq:3.13.6-management
     ports:
