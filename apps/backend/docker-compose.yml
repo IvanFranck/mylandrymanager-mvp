@@ -1,14 +1,38 @@
 services:
+  app-backend:
+    build:
+      context: .
+      dockerfile: ./apps/app-backend/Dockerfile
+      target: development
+    command: npm run start-app-backend:dev
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    depends_on:
+      database: 
+        condition: service_healthy
+      broker:
+        condition: service_started
+    networks:
+    - myappnet
   database:
     image: bitnami/postgresql
     ports:
       - '5432:5432'
+    env_file:
+      - .env
     environment:
-      - POSTGRESQL_USERNAME=ivanfranck
-      - POSTGRESQL_PASSWORD=paqssd163HZZ82sgdsiSf
-      - POSTGRESQL_DATABASE=mylandryappdb
+      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}"
+      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRESQL_USERNAME} -d ${POSTGRESQL_DATABASE}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
-    - postgresql-persistance-data:/bitnami/postgresql
+    - db-data:/bitnami/postgresql
     networks:
     - myappnet
 
@@ -20,7 +44,7 @@ services:
     - myappnet
 
 volumes:
-  postgresql-persistance-data:
+  db-data:
 networks:
   myappnet:
     external: true

@@ -3,28 +3,14 @@ FROM node:alpine AS development
 WORKDIR /usr/src/app
 
 COPY package*.json ./
+COPY entrypoint.sh ./
 
 RUN npm install
 
 COPY . .
 
-RUN npx prisma migrate dev
+RUN npx prisma generate
 
-RUN npm run build auth
+RUN npm run build app-backend
 
-FROM node:alpine AS production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm install --only=production
-
-COPY . .
-
-COPY --from=development /usr/src/app/dist ./dist
-
-CMD ["node", "dist/apps/app-backend/main.js"]
+ENTRYPOINT ["npm", "run", "start-app-backend"]
