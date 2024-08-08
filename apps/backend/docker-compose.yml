@@ -11,7 +11,7 @@ services:
     - postgresql-persistance-data:/bitnami/postgresql
 
   broker:
-    image: rabbitmq:3.13.6-management
+    image: rabbitmq
     ports:
       - '5672:5672'
 

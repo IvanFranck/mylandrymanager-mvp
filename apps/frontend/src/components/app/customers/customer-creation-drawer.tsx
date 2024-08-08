@@ -38,6 +38,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
         onSuccess: (data: TGenericResponse<CustomersEntity>) => {
             queryClient.invalidateQueries({ queryKey: CUSTOMERS_QUERY_KEY })
             toast({
+                variant: 'success',
                 description: data.message,
                 duration: 3000
             })
