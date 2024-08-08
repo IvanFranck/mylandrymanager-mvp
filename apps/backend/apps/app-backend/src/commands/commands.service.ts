@@ -157,7 +157,9 @@ export class CommandsService {
           commandId: command.id,
           advance: advance,
         }),
-      );
+      ).catch((error) => {
+        console.log(`error when send ${CREATE_INVOICE_EVENT}`, error);
+      });
 
       return {
         message: 'commande ajoutée',
