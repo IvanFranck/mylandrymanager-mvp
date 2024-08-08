@@ -70,7 +70,9 @@ export class InvoicesService {
     }
   }
 
-  async getInvoiceByCode(invoiceCode: string): Promise<ReadStream> {
+  async getInvoiceByCode(
+    invoiceCode: string,
+  ): Promise<{ stream: ReadStream; filename: string }> {
     try {
       const invoice = await this.prismaClient.invoice.findUnique({
         where: {
@@ -89,7 +91,10 @@ export class InvoicesService {
       );
       const pdfFilePath = join(pdfFileRootPath, `${invoice.fileName}.pdf`);
 
-      return createReadStream(pdfFilePath);
+      return {
+        stream: createReadStream(pdfFilePath),
+        filename: invoice.fileName,
+      };
     } catch (error) {
       this.loger.error('Erreur lors de la récupération de la facture:', error);
       throw new InternalServerErrorException(

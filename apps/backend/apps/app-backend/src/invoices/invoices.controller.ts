@@ -41,12 +41,13 @@ export class InvoicesController {
     @Res({ passthrough: true }) res: Response,
     @Param('invoiceCode') invoiceCode: string,
   ): Promise<StreamableFile> {
+    const { stream, filename } =
+      await this.invoicesService.getInvoiceByCode(invoiceCode);
     res.set({
-      'Content-Disposition': 'inline; filename="invoice.pdf"',
+      'Content-Disposition': `inline; filename="facture-${filename}.pdf"`,
     });
-    const invoice = await this.invoicesService.getInvoiceByCode(invoiceCode);
 
-    return new StreamableFile(invoice);
+    return new StreamableFile(stream);
   }
 
   @Get('file/:path')
