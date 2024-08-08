@@ -33,6 +33,7 @@ export class InvoicesService {
     private readonly whatsappMessagingService: ClientProxy,
   ) {}
   async createInvoice(createInvoiceDto: CreateInvoiceEventDTO) {
+    console.log('event payload', createInvoiceDto);
     try {
       const command = await this.prismaClient.command.findUnique({
         where: { id: createInvoiceDto.commandId },
