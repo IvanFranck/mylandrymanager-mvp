@@ -1,4 +1,4 @@
-import { CommandQueriesType } from "@/lib/types/query.filter.types"
+import { CommandQueriesType, IncomesQueriesType } from "@/lib/types/query.filter.types"
 
 // auth
 export const LOGIN_QUERY_KEY = ['login_key']
@@ -18,3 +18,6 @@ export const COMMANDS_FILTER_QUERY_KEY = (filter: CommandQueriesType) => ["comma
 
 // invoices
 export const COMMAND_INVOICES_ID_KEY = (id: number) => ["command_invoices_id_key", id]
+
+// incomes
+export const INCOMES_FILTER_QUERY_KEY = (filter: IncomesQueriesType) => ["incomes_id_key", filter]

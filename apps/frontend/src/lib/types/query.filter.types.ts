@@ -6,5 +6,10 @@ export type CommandQueriesType = {
     price?: string;
     from?: string,
     to?: string
-  };
+};
+
+export type IncomesQueriesType = {
+  from: string,
+  to: string
+};
   

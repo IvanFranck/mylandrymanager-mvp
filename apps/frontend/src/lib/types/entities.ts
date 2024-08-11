@@ -50,4 +50,10 @@ export type InvoiceENtity = BaseEntity & {
     amountPaid: number
 }
 
+export type IncomesStatsEntity = Pick<BaseEntity, 'createdAt' | 'updatedAt'> & {
+    day: string,
+    amount: number,
+    accountId: number
+}
+
 export type CommandStatus = 'PENDING' | 'PAID' | 'NOT_PAID'
