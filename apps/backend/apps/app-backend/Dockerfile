@@ -9,7 +9,3 @@ RUN npm install
 COPY . .
 
 RUN npx prisma generate
-
-RUN npm run build app-backend
-
-ENTRYPOINT ["npm", "run", "start-app-backend"]

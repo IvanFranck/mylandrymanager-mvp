@@ -13,7 +13,7 @@
     "start-incomes-stats:dev": "nest start incomes-stats --watch",
     "start-invoices:dev": "nest start invoices --watch",
     "start:whatsapp-messaging:dev": "nest start whatsapp-messaging --watch",
-    "start-app-backend": "nest start app-backend",
+    "start-app-backend:prod": "prisma migrate deploy && nest start app-backend",
     "start-incomes-stats": "nest start incomes-stats",
     "start-invoices": "nest start invoices",
     "start-whatsapp-messaging": "nest start whatsapp-messaging",
