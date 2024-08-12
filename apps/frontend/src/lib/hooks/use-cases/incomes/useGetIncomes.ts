@@ -9,14 +9,14 @@ type Params = {
 
 export const useGetIncomes = ({filters}: Params) => {
 
-    const { data: incomes, isLoading: isFecthing } = useQuery({
+    const { data, isLoading: isFecthing } = useQuery({
         queryKey: INCOMES_FILTER_QUERY_KEY({...filters}),
         queryFn: ()=>getIncomesStats({...filters}),
-        staleTime: 12000
+        staleTime: 0
     })
-
+    
     return {
-        incomes,
+        data,
         isFecthing
     }
 }

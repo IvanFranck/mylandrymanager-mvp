@@ -12,8 +12,8 @@ export async function getIncomesStats(query: IncomesQueriesType){
                 `?${key}=${value}` 
                 : `&${key}=${value}` 
             : ''
-      }).join('')
+    }).join('')
     return await axiosInstance
         .get(`${API_ROUTES.INCOMES}${queryString}`)
-        .then((resp: AxiosResponse<TGenericResponse<IncomesStatsEntity[]>>) => resp.data.details)
+        .then((resp: AxiosResponse<TGenericResponse<IncomesStatsEntity[]>>) => resp.data)
 }

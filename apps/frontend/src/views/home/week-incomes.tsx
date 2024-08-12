@@ -4,10 +4,17 @@ import { startOfWeek, format, addDays, endOfWeek } from 'date-fns'; // Ajout de 
 import { IncomesStatsEntity } from '@/lib/types/entities';
 import { useGetIncomes } from '@/lib/hooks/use-cases/incomes/useGetIncomes';
 import { useEffect, useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { API_ROUTES } from '@/common/constants/api-routes';
 
 type IncomesChartDataType = {
   date: string,
   Sales: number
+}
+
+type PaginationLinksType = {
+  prev: string,
+  next: string
 }
 
 
@@ -32,24 +39,29 @@ const dataFormatter = (number: number) =>
 
 export function WeekIncomesView() {
   const [chartData, setChartData] = useState<IncomesChartDataType[]>()
-  const {incomes, isFecthing} = useGetIncomes({
+  const [paginationLinks, setPaginationLinksLinks] = useState<PaginationLinksType>()
+  const {data: incomesData, isFecthing} = useGetIncomes({
     filters: {
       from: startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString(),
       to: endOfWeek(new Date(), { weekStartsOn: 1 }).toISOString()
     }
   })
   const totalSales = chartData ? chartData.reduce((acc, cur) => acc + cur.Sales, 0) : 0;
-
+  const apiBaseURL = import.meta.env.VITE_API_BASE_URL
   useEffect(()=>{
-    if(incomes){
-      setChartData(getCurrentWeekData(incomes))
+    if(incomesData){
+      setChartData(getCurrentWeekData(incomesData.details))
+      setPaginationLinksLinks({
+        prev: `${apiBaseURL}${API_ROUTES.INCOMES}${incomesData.meta?.prev}`,
+        next: `${apiBaseURL}${API_ROUTES.INCOMES}${incomesData.meta?.next}`
+      })
     }
-  }, [incomes])
+  }, [incomesData, apiBaseURL])
 
   return (
     <div>
       {
-        isFecthing && !chartData ?  <span>loading...</span> : (
+        isFecthing ? <Skeleton className='w-full h-60'/>  : (
           <>
             <div className='w-full flex justify-between items-start'>
               <div>
@@ -58,22 +70,21 @@ export function WeekIncomesView() {
                 <p className='text-gray-400 font-extralight'>Juillet 14 - 20 </p>
                 <p className='text-xl font-semibold'>{dataFormatter(totalSales)}</p>
                 <div className='mt-2 flex items-center gap-3'>
-                  <span className='w-6 h-6 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowLeft className='text-gray-400' size={16} /></span>
-                  <span className='w-6 h-6 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowRight className='text-gray-400' size={16} /></span>
+                  <a href={paginationLinks?.prev} className='w-6 h-6 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowLeft className='text-gray-400' size={16} /></a>
+                  <a href={paginationLinks?.next} className='w-6 h-6 rounded-full border-2 border-gray-400 grid place-content-center'><ArrowRight className='text-gray-400' size={16} /></a>
                 </div>
               </div>
             </div>
             <div>
                 <AreaChart
                   className="h-60"
-                  data={chartData}
+                  data={chartData || []}
                   index="date"
                   showLegend={false}
                   categories={['Sales']}
                   colors={['blue']}
                   valueFormatter={dataFormatter}
                   onValueChange={(v) => console.log(v)}
-                  showYAxis={false}
                   showGradient={false}
                   showGridLines={true}
                 />
