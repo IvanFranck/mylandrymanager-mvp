@@ -51,6 +51,7 @@ export class IncomesStatsService {
         }
         return await tx.incomesStats.create({
           data: {
+            createdAt: command.updatedAt,
             day: date,
             amount: command.advance,
             accountId: command.userId,

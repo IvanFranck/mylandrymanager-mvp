@@ -1,8 +1,17 @@
 import { UserEntity } from "./entities"
 
+export type TGenericResponseMetaData= {
+    total?: number;
+    lastPage?: number;
+    currentPage?: number;
+    perPage?: number;
+    prev?: string;
+    next?: string;
+  }
 export type TGenericResponse<T>  = {
     message: string
-    details: T
+    details: T,
+    meta?: TGenericResponseMetaData
 }
 export type TGenericAxiosError = {
     message: string
