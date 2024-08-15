@@ -62,7 +62,7 @@ export function WeekIncomesView() {
               <h3 className="text-2xl">Revenus de la semaine</h3>
               <p className='text-xl font-semibold'>{dataFormatter(totalSales)}</p>
               <div className='flex justify-between w-full items-center mt-2'>
-                <p className='text-gray-400 font-light'>{`${format(currentWeekStart, 'E dd', {locale: fr})} - ${format(endOfWeek(currentWeekStart, {weekStartsOn: 1}), 'dd')}`}</p>
+                <p className='text-gray-400 font-light first-letter:uppercase'>{`${format(currentWeekStart, 'LLL dd', {locale: fr})} - ${format(endOfWeek(currentWeekStart, {weekStartsOn: 1}), 'dd')}`}</p>
                 <div className='mt-2 flex items-center gap-3'>
                   <a onClick={goToPrevWeek} className=''>
                     <ChevronLeft className='text-gray-400' size={24} />
