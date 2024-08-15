@@ -16,4 +16,5 @@ export async function getIncomesStats(query: IncomesQueriesType){
     return await axiosInstance
         .get(`${API_ROUTES.INCOMES}${queryString}`)
         .then((resp: AxiosResponse<TGenericResponse<IncomesStatsEntity[]>>) => resp.data)
+        .catch(error => {throw new Error(error)})
 }

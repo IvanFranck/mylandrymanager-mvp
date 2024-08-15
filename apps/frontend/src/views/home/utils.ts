@@ -1,5 +1,6 @@
 import { IncomesStatsEntity } from "@/lib/types/entities";
 import { addDays, endOfWeek, format, nextDay, previousDay, startOfWeek } from "date-fns";
+import { fr } from "date-fns/locale";
 
 export type IncomesChartDataType = {
     date: string,
@@ -12,14 +13,14 @@ export type PaginationLinksType = {
 }
   
 
-export const getCurrentWeekData = (apiData: IncomesStatsEntity[]): IncomesChartDataType[] => {
-    const startDate = startOfWeek(new Date(), { weekStartsOn: 1 });
+export const getCurrentWeekData = (apiData: IncomesStatsEntity[], weekDay: Date): IncomesChartDataType[] => {
+    const startDate = startOfWeek(weekDay, { weekStartsOn: 1 });
     const weekData = Array.from({ length: 7 }, (_, index) => {
       const date = format(addDays(startDate, index), 'dd/MM/yyyy'); // Formatage de la date
-      const incomesData = apiData.find(item => item.day === date); // Correspondance avec les données de l'API
+      const incomesData = apiData.find(item => item.day === date);
       return {
-        date: format(addDays(startDate, index), 'E dd'), // Formatage pour l'affichage
-        Sales: incomesData ? incomesData.amount : 0, // Utilisation de amount ou 0 si pas de correspondance
+        date: format(addDays(startDate, index), 'E dd', {locale: fr}), 
+        Sales: incomesData ? incomesData.amount : 0,
       };
     });
     return weekData;
