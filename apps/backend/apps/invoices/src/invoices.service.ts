@@ -23,12 +23,14 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { pdfGenerator } from './pdfgenerator';
 import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
+import { S3Service } from './s3.service';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaClient: PrismaService,
+    private readonly storageService: S3Service,
     @Inject(WHATSAPP_MESSAGING_SERVICE)
     private readonly whatsappMessagingService: ClientProxy,
   ) {}
@@ -139,14 +141,19 @@ export class InvoicesService {
         invoice: invoice,
       };
       await pdfGenerator(params);
+      await this.storageService.uploadSIngleFile({
+        fileKey: invoice.code,
+        filePath: pdfFilePath,
+        isPublic: true,
+      });
 
-      await lastValueFrom<SendWhatsappTextMessageDto>(
+      /*await lastValueFrom<SendWhatsappTextMessageDto>(
         this.whatsappMessagingService.emit(SEND_WHATSAPP_MESSAGE_EVENT, {
           type: 'invoice',
           to: invoice.command.customer.phone,
           invoiceCode: invoice.code,
         }),
-      );
+      );*/
     } catch (error) {
       this.loger.error('Erreur lors de la génération de la facture:', error);
       throw new BadRequestException(
