@@ -1,5 +1,5 @@
 export type S3UploadSingleFileDTO = {
-  filePath: string;
+  file: Buffer;
   fileKey: string;
   isPublic: boolean;
 };

@@ -140,20 +140,20 @@ export class InvoicesService {
         barcodeFilePath,
         invoice: invoice,
       };
-      await pdfGenerator(params);
+      const pdfStream: Buffer = (await pdfGenerator(params)) as Buffer;
       await this.storageService.uploadSIngleFile({
-        fileKey: invoice.code,
-        filePath: pdfFilePath,
+        fileKey: invoice.fileName,
+        file: pdfStream,
         isPublic: true,
       });
 
-      /*await lastValueFrom<SendWhatsappTextMessageDto>(
+      await lastValueFrom<SendWhatsappTextMessageDto>(
         this.whatsappMessagingService.emit(SEND_WHATSAPP_MESSAGE_EVENT, {
           type: 'invoice',
           to: invoice.command.customer.phone,
           invoiceCode: invoice.code,
         }),
-      );*/
+      );
     } catch (error) {
       this.loger.error('Erreur lors de la génération de la facture:', error);
       throw new BadRequestException(

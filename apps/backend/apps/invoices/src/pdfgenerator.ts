@@ -1,17 +1,24 @@
 import PDFDocument from 'pdfkit';
-import { createWriteStream } from 'fs-extra';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import dayjs from 'dayjs';
+import { PassThrough } from 'stream';
 
-export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
+export const pdfGenerator = async (
+  invoiceParams: InvoicePDFParamsDto,
+): Promise<Buffer | Error> => {
   const doc: PDFKit.PDFDocument = new PDFDocument({
     margin: 50,
     size: 'A4',
   });
 
-  const pdfFilePath = invoiceParams.pdfFilePath;
-  const pdfStream = createWriteStream(pdfFilePath);
+  const pdfStream = new PassThrough();
+  const chunks: Buffer[] = [];
   const barcodeFilePath = invoiceParams.barcodeFilePath;
+
+  // Collecter les données du stream
+  pdfStream.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
 
   doc.pipe(pdfStream);
 
@@ -338,8 +345,8 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
   doc.end();
 
   return new Promise((resolve, reject) => {
-    pdfStream.on('finish', () => {
-      resolve(pdfFilePath);
+    pdfStream.on('end', () => {
+      resolve(Buffer.concat(chunks));
     });
 
     pdfStream.on('error', (err) => {
