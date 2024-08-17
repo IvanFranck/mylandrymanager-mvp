@@ -39,7 +39,6 @@ import { IncomesModule } from './incomes/incomes.module';
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),
         INVOICES_ROOT_PATH: joi.string().required(),
-        COMMAND_BARCODE_ROOT_PATH: joi.string().required(),
         JWT_ALGORITHM: joi.string().required(),
         RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE: joi.string().required(),
       }),

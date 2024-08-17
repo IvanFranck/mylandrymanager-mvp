@@ -13,7 +13,7 @@ export const pdfGenerator = async (
 
   const pdfStream = new PassThrough();
   const chunks: Buffer[] = [];
-  const barcodeFilePath = invoiceParams.barcodeFilePath;
+  const barcodeBuffer = invoiceParams.barcodeBuffer;
 
   // Collecter les données du stream
   pdfStream.on('data', (chunk) => {
@@ -338,7 +338,7 @@ export const pdfGenerator = async (
   const barcodeStartY =
     doc.page.margins.top + enterpriseIndfosHeight + bodyHeight + 40;
 
-  doc.image(barcodeFilePath, barcodeStartX, barcodeStartY, {
+  doc.image(barcodeBuffer, barcodeStartX, barcodeStartY, {
     width: barcodeWidth,
   });
 

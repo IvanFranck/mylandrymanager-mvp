@@ -23,6 +23,7 @@ export class S3Service {
         Key: `${dto.fileKey}.pdf`,
         ContentType: 'application/pdf',
         Body: dto.file,
+        Tagging: this.tagging(dto.tagList),
         ACL: dto.isPublic ? 'public-read' : 'private',
       });
 
@@ -31,5 +32,14 @@ export class S3Service {
     } catch (error) {
       console.log(error);
     }
+  }
+
+  private tagging(tagsList: Record<string, string>) {
+    return Object.entries(tagsList)
+      .map(
+        ([key, value]) =>
+          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
+      )
+      .join('&');
   }
 }

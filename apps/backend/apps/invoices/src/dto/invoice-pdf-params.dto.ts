@@ -1,6 +1,5 @@
 export class InvoicePDFParamsDto {
-  pdfFilePath: string;
-  barcodeFilePath: string;
+  barcodeBuffer: Buffer;
   invoice: {
     code: string;
     amountPaid: number;

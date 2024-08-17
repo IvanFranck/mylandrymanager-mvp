@@ -6,7 +6,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { RenderOptions, toBuffer } from 'bwip-js';
-import { promises, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
@@ -47,7 +46,7 @@ export class InvoicesService {
         );
       }
 
-      const filePath = uuidv4();
+      const fileKey = uuidv4();
       const hashIds = new Hashids(
         this.configService.get('CODE_SALT'),
         Number(this.configService.get('CODE_MIN_LENGTH')),
@@ -57,7 +56,6 @@ export class InvoicesService {
       const invoice = await this.prismaClient.$transaction(async (tx) => {
         const newInvoice = await tx.invoice.create({
           data: {
-            fileName: filePath,
             amountPaid: createInvoiceDto.advance,
             command: {
               connect: {
@@ -65,14 +63,41 @@ export class InvoicesService {
               },
             },
           },
+          select: {
+            id: true,
+            command: {
+              select: {
+                user: {
+                  select: {
+                    username: true,
+                  },
+                },
+                customer: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
         });
+        // build file path
+        const pdfDirPath = this.getFileSubPath(
+          this.configService.get('INVOICES_ROOT_PATH'),
+        );
+        const pdfFilePath = join(
+          pdfDirPath,
+          `${newInvoice.command.user.username}__${newInvoice.command.customer.name}__facture-${fileKey}.pdf`,
+        );
 
+        //generate invoice code
         const code = hashIds.encode(newInvoice.id);
         const invoice = await tx.invoice.update({
           where: {
             id: newInvoice.id,
           },
           data: {
+            fileName: pdfFilePath,
             code,
           },
           select: {
@@ -119,31 +144,22 @@ export class InvoicesService {
         return invoice;
       });
 
-      const barcodeDirPath = this.getFileSubPath(
-        this.configService.get('COMMAND_BARCODE_ROOT_PATH'),
-      );
-      const pdfDirPath = this.getFileSubPath(
-        this.configService.get('INVOICES_ROOT_PATH'),
-      );
-
-      await ensureDir(barcodeDirPath);
-      await ensureDir(pdfDirPath);
-
-      const barcodeFilePath = join(barcodeDirPath, `${invoice.fileName}.png`);
-      const pdfFilePath = join(pdfDirPath, `${invoice.fileName}.pdf`);
-      await this.generateInvoiceBarcode({
+      const barcodeBuffer = await this.generateInvoiceBarcode({
         barcodeText: invoice.code,
-        outputPath: barcodeFilePath,
       });
       const params: InvoicePDFParamsDto = {
-        pdfFilePath,
-        barcodeFilePath,
+        barcodeBuffer,
         invoice: invoice,
       };
       const pdfStream: Buffer = (await pdfGenerator(params)) as Buffer;
       await this.storageService.uploadSIngleFile({
         fileKey: invoice.fileName,
         file: pdfStream,
+        tagList: {
+          customer: invoice.command.customer.name,
+          user: invoice.command.user.username,
+          billId: fileKey,
+        },
         isPublic: true,
       });
 
@@ -173,15 +189,7 @@ export class InvoicesService {
       textxalign: 'justify',
     };
     try {
-      // Générer le code-barres
-      const png = await toBuffer(options);
-      const fullOutputPath = dto.outputPath;
-
-      await promises.writeFile(fullOutputPath, png);
-      this.loger.log(`Code-barres sauvegardé à ${fullOutputPath}`);
-      return {
-        message: 'Code-barres sauvegardé',
-      };
+      return await toBuffer(options);
     } catch (error) {
       this.loger.error('Erreur lors de la génération du code-barres:', error);
       throw new Error('Erreur lors de la génération du code-barres:');
