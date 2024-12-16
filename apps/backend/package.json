@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
+    "start:dev": "concurrently \"nest start app-backend --watch\" \"nest start incomes-stats --watch\" \"nest start invoices --watch\" --names \"main,incomes,invoices\" --prefix-colors green,magenta,yellow",
     "start-app-backend:dev": "nest start app-backend --watch",
     "start-incomes-stats:dev": "nest start incomes-stats --watch",
     "start:debug": "nest start --debug --watch",
