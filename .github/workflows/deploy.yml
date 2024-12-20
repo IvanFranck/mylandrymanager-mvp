@@ -10,7 +10,7 @@ jobs:
     defaults:
         run:
             shell: bash
-            working-directory: apps/app-backend
+            working-directory: apps/backend
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
