@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: latest  # Adaptez selon votre langage
+  pre_build:
+    commands:
+      - echo "Starting build phase"
+  build:
+    commands:
+      - echo "Build started on `date`"
+      - npm run build
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+
+artifacts:
+  files:
+    - '**/*'
+  name: mlm-codebuild-artefacts/myname-$(date +%Y-%m-%d).zip 
+
+cache:
+  paths:
+    - 'node_modules/**/*'  # Cache des dépendances
