@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build",
+    "build:all": "concurrently \"nest build app-backend\" \"nest build incomes-stats\" \"nest build invoices\"",
     "build:main": "nest build app-backend",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
