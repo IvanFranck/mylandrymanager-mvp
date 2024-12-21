@@ -14,7 +14,7 @@ phases:
 artifacts:
   files:
     - '**/*'
-  name: mlm-codebuild-artefacts/myname-$(date +%Y-%m-%d).zip 
+  name: mlmBack-$(date +%Y-%m-%d).zip 
 
 cache:
   paths:
