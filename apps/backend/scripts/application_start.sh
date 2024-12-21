@@ -1,4 +1,4 @@
-Copy#!/bin/bash
+#!/bin/bash
 
 echo 'run application_start.sh: ' >> /home/ec2-user/mlm-backend/deploy.log
 
