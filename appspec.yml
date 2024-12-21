@@ -7,10 +7,10 @@ hooks:
 # Install:
   AfterInstall:
     - location: /apps/backend/scripts/after_install.sh
-      timeout: 300
+      timeout: 30000
       runas: root
   ApplicationStart:
     - location: /apps/backend/scripts/application_start.sh
-      timeout: 300
+      timeout: 30000
       runas: root
 # ValidateService:
