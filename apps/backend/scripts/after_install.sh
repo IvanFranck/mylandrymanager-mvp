@@ -1,6 +1,10 @@
 #!/bin/bash
 echo 'run after_install.sh: ' >> /home/ec2-user/mlm-backend/deploy.log
 
+# Charger les variables d'environnement et le PATH
+source /home/ec2-user/.bashrc
+export PATH=$PATH:/home/ec2-user/.local/share/pnpm
+
 echo 'cd /home/ec2-user/mlm-backend' >> /home/ec2-user/mlm-backend/deploy.log
 cd /home/ec2-user/mlm-backend >> /home/ec2-user/mlm-backend/deploy.log
 
