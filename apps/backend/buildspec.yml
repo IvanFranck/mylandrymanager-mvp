@@ -7,7 +7,6 @@ phases:
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
-      - npm install
   post_build:
     commands:
       - echo "Build completed on `date`"
