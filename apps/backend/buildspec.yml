@@ -14,7 +14,8 @@ phases:
 artifacts:
   files:
     - '**/*'
-  name: mlmBack-$(date +%Y-%m-%d).zip 
+  name: mlmBackApp.zip 
+  # name: mlmBack-$(date +%Y-%m-%d).zip 
 
 cache:
   paths:
