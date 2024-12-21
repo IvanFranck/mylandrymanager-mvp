@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo 'Checking PATH...' >> /home/ec2-user/mlm-backend/deploy.log
+echo $PATH >> /home/ec2-user/mlm-backend/deploy.log
+which pnpm >> /home/ec2-user/mlm-backend/deploy.log
+
 echo 'run application_start.sh: ' >> /home/ec2-user/mlm-backend/deploy.log
 
 # Charger les variables d'environnement et le PATH
@@ -12,10 +16,10 @@ echo 'docker-compose up -d' >> /home/ec2-user/mlm-backend/deploy.log
 docker-compose up -d
 
 echo 'pnpm prisma migrate deploy' >> /home/ec2-user/mlm-backend/deploy.log
-npx prisma migrate deploy
+pnpm dlx prisma migrate deploy
 
 echo 'pnpm prisma generate' >> /home/ec2-user/mlm-backend/deploy.log
-npx prisma generate
+pnpm dlx prisma generate
 
 echo 'pnpm run start:dev' >> /home/ec2-user/mlm-backend/deploy.log
-npm run start:dev
+pnpm start:dev
