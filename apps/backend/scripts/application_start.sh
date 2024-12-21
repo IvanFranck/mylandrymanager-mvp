@@ -12,10 +12,10 @@ echo 'docker-compose up -d' >> /home/ec2-user/mlm-backend/deploy.log
 docker-compose up -d
 
 echo 'pnpm prisma migrate deploy' >> /home/ec2-user/mlm-backend/deploy.log
-pnpm dlx prisma migrate deploy
+npx prisma migrate deploy
 
 echo 'pnpm prisma generate' >> /home/ec2-user/mlm-backend/deploy.log
-pnpm dlx prisma generate
+npx prisma generate
 
 echo 'pnpm run start:dev' >> /home/ec2-user/mlm-backend/deploy.log
-pnpm start:dev
+npm run start:dev
