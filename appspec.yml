@@ -8,9 +8,9 @@ hooks:
   AfterInstall:
     - location: /apps/backend/scripts/after_install.sh
       timeout: 30000
-      runas: ec2-user
+      runas: root
   ApplicationStart:
     - location: /apps/backend/scripts/application_start.sh
       timeout: 30000
-      runas: ec2-user
+      runas: root
 # ValidateService:
