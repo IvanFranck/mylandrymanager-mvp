@@ -5,10 +5,14 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - npm install
+      - npm install -g pnpm
+      - pnpm install
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
+  build:
+    commands:
+      - pnpm build
   post_build:
     commands:
       - echo "Build completed on `date`"
@@ -16,8 +20,7 @@ phases:
 artifacts:
   files:
     - '**/*'
-  name: mlmBackApp.zip 
-  # name: mlmBack-$(date +%Y-%m-%d).zip 
+  name: mlmFrontApp.zip 
 
 cache:
   paths:
