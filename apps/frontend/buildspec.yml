@@ -5,14 +5,17 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - npm install -g pnpm
+      - npm i -g pnpm
+      - npm i -g typescript
       - pnpm install
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
   build:
     commands:
+      - pnpm
       - pnpm build
+
   post_build:
     commands:
       - echo "Build completed on `date`"
