@@ -6,14 +6,13 @@ phases:
       nodejs: 18
     commands:
       - npm i -g pnpm
-      - npm i -g typescript
-      - pnpm install
+      - pnpm --filter app-frontend install
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
   build:
     commands:
-      - pnpm build
+      - pnpm --filter app-frontend build
 
   post_build:
     commands:
