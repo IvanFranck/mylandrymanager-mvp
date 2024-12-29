@@ -17,11 +17,9 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
     const [inputDiscount, setInputDiscount] = useState(0)
 
     const DiscountFormSchema = z.object({
-        discount: z.string()
-            .trim()
+        discount: z.number()
             .min(0)
             .max(billingPrice, 'La valeur de la réduction ne doit pas être supérieure au montant de la facture !')
-            .transform(value => parseFloat(value))
     })
 
     useEffect(() => {

@@ -13,7 +13,6 @@ phases:
       - echo "Starting build phase install all dependencies"
   build:
     commands:
-      - pnpm
       - pnpm build
 
   post_build:

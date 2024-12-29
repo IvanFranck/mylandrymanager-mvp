@@ -28,9 +28,7 @@ export const CommandSchema = z.object({
 })
 
 export const CommandPaienmentSchema = z.object({
-    advance: z.string()
-            .trim()
-            .transform(value => parseFloat(value))
+    advance: z.coerce.number()
 })
 
 export async function createCommandQuery(data: z.infer<typeof CommandSchema>){

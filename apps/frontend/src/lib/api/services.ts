@@ -7,7 +7,7 @@ import z from "zod";
 
 export const ServiceFormSchema = z.object({
     label: z.string().trim().min(1, 'invalid label'),
-    price: z.string().trim().min(1, 'invalid price').transform((price: string):number => +price),
+    price: z.number().min(1, 'invalid price'),
     description: z.string().trim().optional()
 })
 
