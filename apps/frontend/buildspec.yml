@@ -14,15 +14,10 @@ phases:
     commands:
       - pnpm --filter app-frontend build
 
-  post_build:
-    commands:
-      - echo "Build completed on `date`"
-
 artifacts:
   files:
     - "**/*"
-  name: mlmFrontApp
-  base-directory: "apps/frontend"
+  base-directory: "apps/frontend/dist"
 
 cache:
   paths:
