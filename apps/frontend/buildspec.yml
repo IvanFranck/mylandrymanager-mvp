@@ -17,7 +17,7 @@ phases:
 artifacts:
   files:
     - "**/*"
-  base-directory: "apps/frontend/dist"
+  base-directory: "apps/frontend"
 
 cache:
   paths:
