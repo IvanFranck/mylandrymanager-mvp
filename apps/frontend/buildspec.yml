@@ -1,18 +1,9 @@
 version: 0.2
 
 phases:
-  install:
-    runtime-versions:
-      nodejs: 18
-    commands:
-      - npm i -g pnpm
-      - pnpm --filter app-frontend install
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
-  build:
-    commands:
-      - pnpm --filter app-frontend build
 
 artifacts:
   files:
