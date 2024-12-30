@@ -20,8 +20,9 @@ phases:
 
 artifacts:
   files:
-    - '**/*'
-  name: mlmFrontApp.zip 
+    - "**/*"
+  name: mlmFrontApp
+  base-directory: "apps/frontend"
 
 cache:
   paths:
