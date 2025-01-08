@@ -5,6 +5,7 @@ phases:
     runtime-versions:
       nodejs: 22
     commands:
+      - cd apps/backend
       - openssl genrsa -out ./private-key.pem 4096
       - openssl rsa -in private-key.pem -pubout -outform PEM -out public-key.pem
   pre_build:
