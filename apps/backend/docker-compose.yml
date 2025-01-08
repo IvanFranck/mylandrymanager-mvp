@@ -16,9 +16,6 @@ services:
         condition: service_started
       invoices:
         condition: service_started
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules/
     networks:
       - my-landry-network
     ports:
@@ -39,9 +36,6 @@ services:
         condition: service_started
       invoices:
         condition: service_started
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - my-landry-network
 
@@ -58,9 +52,6 @@ services:
         condition: service_healthy
       broker:
         condition: service_started
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
     networks:
       - my-landry-network
       
