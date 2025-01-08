@@ -5,7 +5,8 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
-      - npm install
+      - npm i -g pnpm
+      - pnpm --filter app-frontend install
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
@@ -16,8 +17,7 @@ phases:
 artifacts:
   files:
     - '**/*'
-  name: mlmBackApp.zip 
-  # name: mlmBack-$(date +%Y-%m-%d).zip 
+  base-directory: "apps/backend"
 
 cache:
   paths:
