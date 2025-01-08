@@ -1,4 +1,69 @@
 services:
+  app-backend:
+    build:
+      context: ./
+      dockerfile: ./apps/app-backend/Dockerfile
+      target: development
+    command: ["npm", "run", "start", "app-backend"]
+    env_file:
+      - ./.env
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+      incomes-stats:
+        condition: service_started
+      invoices:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules/
+    networks:
+      - my-landry-network
+    ports:
+      - '5500:5500'
+
+  incomes-stats:
+    build:
+      context: ./
+      dockerfile: ./apps/incomes-stats/Dockerfile
+      target: development
+    command: npm run start incomes-stats
+    env_file:
+      - ./.env
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+      invoices:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - my-landry-network
+
+  invoices:
+    build:
+      context: ./
+      dockerfile: ./apps/invoices/Dockerfile
+      target: development
+    command: ["pnpm", "start", "invoices"]
+    env_file:
+      - ./.env
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - my-landry-network
+      
   database:
     image: bitnami/postgresql
     ports:
@@ -8,13 +73,26 @@ services:
       - POSTGRESQL_PASSWORD=paqssd163HZZ82sgdsiSf
       - POSTGRESQL_DATABASE=mylandryappdb
     volumes:
-    - postgresql-persistance-data:/bitnami/postgresql
+      - postgresql-persistance-data:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ivanfranck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - my-landry-network
 
   broker:
     image: rabbitmq
     ports:
       - '5672:5672'
+    networks:
+      - my-landry-network
 
 volumes:
   postgresql-persistance-data:
+
+networks:
+  my-landry-network:
+    driver: bridge
   

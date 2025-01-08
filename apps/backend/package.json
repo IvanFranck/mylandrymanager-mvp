@@ -6,10 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "build": "nest build",
     "build:all": "concurrently \"nest build app-backend\" \"nest build incomes-stats\" \"nest build invoices\"",
     "build:main": "nest build app-backend",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start",
+    "start": "nest start --watch",
     "start:dev": "concurrently \"nest start app-backend --watch\" \"nest start incomes-stats --watch\" \"nest start invoices --watch\" --names \"main,incomes,invoices\" --prefix-colors green,magenta,yellow",
     "start-app-backend:dev": "nest start app-backend --watch",
     "start-incomes-stats:dev": "nest start incomes-stats --watch",
