@@ -5,15 +5,15 @@ phases:
     runtime-versions:
       nodejs: 22
     commands:
-      - cd apps/backend
-      - openssl genrsa -out ./private-key.pem 4096
-      - openssl rsa -in private-key.pem -pubout -outform PEM -out public-key.pem
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
   post_build:
     commands:
       - echo "Build completed on `date`"
+      - cd apps/backend
+      - openssl genrsa -out ./private-key.pem 4096
+      - openssl rsa -in private-key.pem -pubout -outform PEM -out public-key.pem
 
 artifacts:
   files:
