@@ -3,10 +3,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      nodejs: 22
     commands:
-      - npm i -g pnpm
-      - pnpm --filter app-frontend install
+      - openssl genrsa -out ./private-key.pem 4096
+      - openssl rsa -in private-key.pem -pubout -outform PEM -out public-key.pem
   pre_build:
     commands:
       - echo "Starting build phase install all dependencies"
