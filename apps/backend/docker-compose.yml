@@ -1,59 +1,59 @@
 services:
-  app-backend:
-    build:
-      context: ./
-      dockerfile: ./apps/app-backend/Dockerfile
-      target: development
-    command: ["npm", "run", "start", "app-backend"]
-    env_file:
-      - ./.env
-    depends_on:
-      database:
-        condition: service_healthy
-      broker:
-        condition: service_started
-      incomes-stats:
-        condition: service_started
-      invoices:
-        condition: service_started
-    networks:
-      - my-landry-network
-    ports:
-      - '5500:5500'
+  # app-backend:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./apps/app-backend/Dockerfile
+  #     target: development
+  #   command: ["npm", "run", "start", "app-backend"]
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     broker:
+  #       condition: service_started
+  #     incomes-stats:
+  #       condition: service_started
+  #     invoices:
+  #       condition: service_started
+  #   networks:
+  #     - my-landry-network
+  #   ports:
+  #     - '5500:5500'
 
-  incomes-stats:
-    build:
-      context: ./
-      dockerfile: ./apps/incomes-stats/Dockerfile
-      target: development
-    command: npm run start incomes-stats
-    env_file:
-      - ./.env
-    depends_on:
-      database:
-        condition: service_healthy
-      broker:
-        condition: service_started
-      invoices:
-        condition: service_started
-    networks:
-      - my-landry-network
+  # incomes-stats:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./apps/incomes-stats/Dockerfile
+  #     target: development
+  #   command: npm run start incomes-stats
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     broker:
+  #       condition: service_started
+  #     invoices:
+  #       condition: service_started
+  #   networks:
+  #     - my-landry-network
 
-  invoices:
-    build:
-      context: ./
-      dockerfile: ./apps/invoices/Dockerfile
-      target: development
-    command: ["pnpm", "start", "invoices"]
-    env_file:
-      - ./.env
-    depends_on:
-      database:
-        condition: service_healthy
-      broker:
-        condition: service_started
-    networks:
-      - my-landry-network
+  # invoices:
+  #   build:
+  #     context: ./
+  #     dockerfile: ./apps/invoices/Dockerfile
+  #     target: development
+  #   command: ["pnpm", "start", "invoices"]
+  #   env_file:
+  #     - ./.env
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     broker:
+  #       condition: service_started
+  #   networks:
+  #     - my-landry-network
       
   database:
     image: bitnami/postgresql
