@@ -9,7 +9,10 @@ phases:
       - pnpm --filter app-frontend install
   pre_build:
     commands:
-      - echo "Starting build phase install all dependencies"
+      - echo "Starting pre_build phase, get all env variables"
+      # export the env variables
+      - echo VITE_API_BASE_URL=${VITE_API_BASE_URL} >> .env
+      # install dependencies
   build:
     commands:
       - pnpm --filter app-frontend build
