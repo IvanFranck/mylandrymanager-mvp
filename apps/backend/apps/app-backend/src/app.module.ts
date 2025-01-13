@@ -34,6 +34,7 @@ import { IncomesModule } from './incomes/incomes.module';
       validationSchema: joi.object({
         DATABASE_URL: joi.string().required(),
         PORT: joi.number().required(),
+        AUTHORIZED_ORIGINS: joi.string().required(),
         CODE_ALPHABET: joi.string().required(),
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),
