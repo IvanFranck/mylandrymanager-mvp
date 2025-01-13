@@ -13,8 +13,24 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
 
+  const authorizedOriginsEnv = configService.get('AUTHORIZED_ORIGINS');
+
+  const authorizedOrigins = authorizedOriginsEnv
+    ? authorizedOriginsEnv.split(',')
+    : [];
+
   // enabling cors
-  app.enableCors();
+  app.enableCors({
+    origin: authorizedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+    ],
+  });
 
   // enabling versioning
   app.enableVersioning({

@@ -361,8 +361,6 @@ importers:
         specifier: ^5.0.8
         version: 5.2.11(@types/node@20.12.12)(terser@5.31.0)
 
-  packages/shared-types: {}
-
 packages:
 
   '@acuminous/bitsyntax@0.1.2':
