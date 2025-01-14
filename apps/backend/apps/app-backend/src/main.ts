@@ -13,7 +13,9 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
 
-  const authorizedOriginsEnv = configService.get('AUTHORIZED_ORIGINS');
+  const authorizedOriginsEnv = configService.get<string | undefined>(
+    'AUTHORIZED_ORIGINS',
+  );
 
   const authorizedOrigins = authorizedOriginsEnv
     ? authorizedOriginsEnv.split(',')
@@ -30,6 +32,7 @@ async function bootstrap() {
       'Accept',
       'Authorization',
     ],
+    credentials: true,
   });
 
   // enabling versioning
