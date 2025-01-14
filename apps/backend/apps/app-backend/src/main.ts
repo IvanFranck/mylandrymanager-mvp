@@ -32,6 +32,7 @@ async function bootstrap() {
       'Accept',
       'Authorization',
     ],
+    credentials: true,
   });
 
   // enabling versioning

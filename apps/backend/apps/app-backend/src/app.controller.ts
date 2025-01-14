@@ -9,4 +9,9 @@ export class AppController {
   async getHello() {
     return await this.appService.getHello();
   }
+
+  @Get('test-cors')
+  testCors() {
+    return { message: 'CORS is working!' };
+  }
 }
