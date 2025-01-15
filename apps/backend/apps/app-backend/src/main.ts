@@ -31,7 +31,9 @@ async function bootstrap() {
       'Content-Type',
       'Accept',
       'Authorization',
+      'Access-Control-Allow-Credentials',
     ],
+    exposedHeaders: ['Set-Cookie'],
     credentials: true,
   });
 
