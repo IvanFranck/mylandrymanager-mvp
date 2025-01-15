@@ -14,6 +14,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 import { IncomesModule } from './incomes/incomes.module';
+import { XRayMiddleware } from './middlewares/xray.middleware';
 
 @Module({
   imports: [
@@ -51,5 +52,6 @@ import { IncomesModule } from './incomes/incomes.module';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
+    consumer.apply(XRayMiddleware).forRoutes('*');
   }
 }
