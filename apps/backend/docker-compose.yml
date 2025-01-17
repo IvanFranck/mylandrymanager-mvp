@@ -20,7 +20,7 @@ services:
     networks:
       - my-landry-network
     ports:
-      - '5500:5500'  # Port exposé pour l'API
+      - '${PORT}:${PORT}'  # Port exposé pour l'API
 
   # Service de statistiques des revenus
   incomes-stats:

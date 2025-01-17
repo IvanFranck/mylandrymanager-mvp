@@ -6,24 +6,28 @@ import { CustomExptionFilter } from '@common-app-backend/filters/custom-exeption
 import { VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ACCESS_TOKEN_COOKIE_NAME } from './auth/constants';
-
+import * as AWSXRay from 'aws-xray-sdk';
+import * as express from 'express';
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
+  const app = express.default();
+  AWSXRay.express.openSegment('MyLaundryAPI');
+
+  const nestApp = await NestFactory.create(AppModule, {
     logger: ['warn', 'error', 'log'],
   });
-  const configService = app.get(ConfigService);
+  const configService = nestApp.get(ConfigService);
 
-  const authorizedOriginsEnv = configService.get<string | undefined>(
-    'AUTHORIZED_ORIGINS',
-  );
+  // const authorizedOriginsEnv = configService.get<string | undefined>(
+  //   'AUTHORIZED_ORIGINS',
+  // );
 
-  const authorizedOrigins = authorizedOriginsEnv
-    ? authorizedOriginsEnv.split(',')
-    : [];
+  // const authorizedOrigins = authorizedOriginsEnv
+  //   ? authorizedOriginsEnv.split(',')
+  //   : [];
 
   // enabling cors
-  app.enableCors({
-    origin: authorizedOrigins,
+  nestApp.enableCors({
+    origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: [
       'Origin',
@@ -32,13 +36,19 @@ async function bootstrap() {
       'Accept',
       'Authorization',
       'Access-Control-Allow-Credentials',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Allow-Headers',
     ],
     exposedHeaders: ['Set-Cookie'],
     credentials: true,
   });
 
+  // Ajouter le middleware X-Ray
+  app.use(AWSXRay.express.openSegment('MyLaundryAPI'));
+
   // enabling versioning
-  app.enableVersioning({
+  nestApp.enableVersioning({
     type: VersioningType.URI,
   });
 
@@ -50,16 +60,16 @@ async function bootstrap() {
     .addCookieAuth(ACCESS_TOKEN_COOKIE_NAME)
     .build();
 
-  const document = SwaggerModule.createDocument(app, config, {});
-  SwaggerModule.setup('api', app, document);
+  const document = SwaggerModule.createDocument(nestApp, config, {});
+  SwaggerModule.setup('api', nestApp, document);
 
   // setting up custom exception global filters
-  app.useGlobalFilters(new CustomExptionFilter());
+  nestApp.useGlobalFilters(new CustomExptionFilter());
 
   // setting up cookie parser
   // app.use(cookieParser());
 
-  app.useGlobalPipes(
+  nestApp.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       forbidUnknownValues: false,
@@ -68,6 +78,8 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(configService.get('PORT'));
+  await nestApp.listen(configService.get('PORT'));
+
+  app.use(AWSXRay.express.closeSegment());
 }
 bootstrap();
