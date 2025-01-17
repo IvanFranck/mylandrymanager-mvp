@@ -7,10 +7,7 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-RUN npm install -g pnpm
-
-# Installation de Prisma CLI
-RUN npm install -g prisma
+RUN npm install -g pnpm prisma
 
 RUN pnpm install
 
