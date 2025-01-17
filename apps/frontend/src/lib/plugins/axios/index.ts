@@ -5,7 +5,7 @@ import { AXIOS_ACCESS_TOKEN, AXIOS_REFRESH_TOKEN, STORED_USER_DATA } from "@/com
 
 export const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
-    timeout: 15000,
+    timeout: 30000,
 
     headers: {
         'Content-Type': 'application/json',
