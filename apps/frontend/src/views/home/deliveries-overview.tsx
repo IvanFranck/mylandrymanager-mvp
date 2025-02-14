@@ -51,7 +51,7 @@ export default function DeliveriesOverview() {
   return (
     <div className="w-full flex-1 rounded-t-3xl py-2">
         <div className="w-full mb-4 flex gap-1 items-center">
-            <h3 className="text-2xl">Calendrier des livraisons</h3>
+            <h3 className="text-xl font-semibold">Calendrier des livraisons</h3>
         </div>
         <div className="bg-white px-4 py-6 rounded-md shadow-sm">
             <Calendar

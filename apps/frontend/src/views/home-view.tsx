@@ -10,19 +10,19 @@ export const HomeView = () => {
 
       <section className="w-full mt-4">
         <div className="w-full flex">
-          <div className="w-1/2 pr-2">
+          <div className="w-1/2 pr-1">
             <div className="w-full bg-[#FF6968] p-4 rounded-md shadow-lg shadow-[#ff827e9e] relative overflow-hidden">
-              <span className="bg-[#FF827E] p-6 rounded-full w-max block absolute -top-2 -right-2">
+              <span className="bg-[#FF827E] p-6 rounded-full w-max block absolute -top-2 -right-2 z-10">
                 <Loader size={16} className="text-white" />
               </span>
-              <div className="mr-4">
+              <div className="mr-4 z-20 relative">
                 <h3 className="leading-tight  text-white/80 font-light mb-1">Commandes en attente</h3> 
                 <p className="text-md font-semibold text-white">03</p>
               </div>
             </div>
           </div>
 
-          <div className="w-1/2 pr-2">
+          <div className="w-1/2 pl-1">
             <div className="w-full bg-[#2AC3FF] p-4 rounded-md shadow-lg shadow-[#40d6ff86] relative overflow-hidden">
               <span className="bg-[#40D7FF] p-6 rounded-full w-max block absolute -top-2 -right-2">
                 <PackageCheck size={16} className="text-white" />
@@ -38,7 +38,7 @@ export const HomeView = () => {
       </section>
 
       {/** stats blocks */}
-      <section className="w-full mt-6 flex flex-col gap-3">
+      <section className="w-full mt-6 flex flex-col gap-6">
         <WeekIncomesView/>
         <DeliveriesOverview/>
       </section>
