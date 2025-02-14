@@ -4,9 +4,9 @@ import React, { useEffect, useState } from "react"
 import { fr } from "date-fns/locale"
 import { useGetAllCommands } from "@/lib/hooks/use-cases/commands/useGetAllCommands"
 import { DayMouseEventHandler, Matcher } from "react-day-picker"
-import './delivery-date.css'
 import { CommandDeliveryListItem } from "@/components/app/commands/command-delivery-list-item"
 import { CommandsEntity } from "@/lib/types/entities"
+import './delivery-date.css'
 
 export default function DeliveriesOverview() {
     const [date, setDate] = React.useState<Date>()
@@ -49,21 +49,23 @@ export default function DeliveriesOverview() {
     }
 
   return (
-    <div className="w-full flex-1 rounded-t-3xl py-8">
+    <div className="w-full flex-1 rounded-t-3xl py-2">
         <div className="w-full mb-4 flex gap-1 items-center">
             <h3 className="text-2xl">Calendrier des livraisons</h3>
         </div>
-        <Calendar
-            className="p-0"
-            locale={fr}
-            modifiers={{booked: deliveryDays as Matcher[]}}
-            modifiersClassNames={{booked: "delivery-date"}}
-            mode="single"
-            onMonthChange={handleMonthChange}
-            selected={date}
-            onSelect={setDate}
-            onDayClick={handleDayClick}
-        />
+        <div className="bg-white px-4 py-6 rounded-md shadow-sm">
+            <Calendar
+                className="p-0 delivery-calendar"
+                locale={fr}
+                modifiers={{booked: deliveryDays as Matcher[]}}
+                modifiersClassNames={{booked: "delivery-date"}}
+                mode="single"
+                onMonthChange={handleMonthChange}
+                selected={date}
+                onSelect={setDate}
+                onDayClick={handleDayClick}
+            />
+        </div>
         <div className="mt-8">
             <div className="flex w-full flex-col gap-3">
                 {deliveryCommands && deliveryCommands.map((command) => (

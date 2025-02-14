@@ -14,3 +14,7 @@
     background: currentColor;
     z-index: 1;
 }
+
+.delivery-calendar table thead tr, .delivery-calendar table tbody tr {
+    @apply justify-between
+}

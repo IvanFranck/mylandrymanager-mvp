@@ -7,9 +7,8 @@ WORKDIR /usr/src/app
 
 COPY package.json ./
 
-RUN npm install -g pnpm prisma
-
-RUN pnpm install
+RUN npm install -g prisma && \
+    yarn install
 
 COPY . .
 
