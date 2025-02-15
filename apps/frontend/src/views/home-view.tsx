@@ -1,6 +1,7 @@
 import { Loader, PackageCheck } from "lucide-react";
 import DeliveriesOverview from "./home/deliveries-overview";
 import { WeekIncomesView } from "./home/week-incomes";
+import KPIBlock from "./home/KPIBlock";
 
 export const HomeView = () => {
   return (
@@ -11,27 +12,23 @@ export const HomeView = () => {
       <section className="w-full mt-4">
         <div className="w-full flex">
           <div className="w-1/2 pr-1">
-            <div className="w-full bg-[#FF6968] p-4 rounded-md shadow-lg shadow-[#ff827e9e] relative overflow-hidden">
-              <span className="bg-[#FF827E] p-6 rounded-full w-max block absolute -top-2 -right-2 z-10">
-                <Loader size={16} className="text-white" />
-              </span>
-              <div className="mr-4 z-20 relative">
-                <h3 className="leading-tight  text-white/80 font-light mb-1">Commandes en attente</h3> 
-                <p className="text-md font-semibold text-white">03</p>
-              </div>
-            </div>
+            <KPIBlock 
+              title="Commandes en attente" 
+              value={3} 
+              Icon={<Loader size={16} className="text-white"/>} 
+              wrapperClassName="bg-[#FF6968] shadow-[#ff827e9e]"
+              iconClassName="bg-[#FF827E]"
+            />
           </div>
 
           <div className="w-1/2 pl-1">
-            <div className="w-full bg-[#2AC3FF] p-4 rounded-md shadow-lg shadow-[#40d6ff86] relative overflow-hidden">
-              <span className="bg-[#40D7FF] p-6 rounded-full w-max block absolute -top-2 -right-2">
-                <PackageCheck size={16} className="text-white" />
-              </span>
-              <div className="mr-8">
-                <h3 className="leading-tight  text-white/80 font-light mb-1">Commandes prêtes</h3> 
-                <p className="text-md font-semibold text-white">00</p>
-              </div>
-            </div>
+            <KPIBlock 
+              title="Commandes prêtes"
+              value={0}
+              Icon={<PackageCheck size={16} className="text-white"/>} 
+              wrapperClassName="bg-[#2AC3FF] shadow-[#40d6ff86]"
+              iconClassName="bg-[#40D7FF]"
+            />
           </div>
         </div>
         <div className="w-1/2 pl-1"></div>
