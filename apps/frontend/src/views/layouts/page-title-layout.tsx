@@ -1,14 +1,10 @@
-import { useMatches, Params } from "react-router-dom";
+import { useMatches } from "react-router-dom";
 
-interface RouteHandle {
-    pageTitle?: (params: Params) => string;
-}
 export function PagetitleLayout() {
     const titles = useMatches()
-        .reduce<string[]>((acc, match) => {
-            const route  = match.handle as RouteHandle
-            if (route.pageTitle) {
-                acc.push(route.pageTitle(match.params));
+        .reduce((acc, match) => {
+            if (match.handle?.pageTitle) {
+                acc.push(match.handle.pageTitle(match.params));
             }
             return acc;
         }, []);

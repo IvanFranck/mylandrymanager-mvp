@@ -11,7 +11,7 @@
     "build:main": "nest build app-backend",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start --watch",
-    "start:dev": "concurrently \"nest start app-backend --watch\" \"nest start incomes-stats --watch\" \"nest start invoices --watch\" --names \"main,incomes,invoices\" --prefix-colors green,magenta,yellow",
+    "start:dev": "concurrently \"nest start app-backend --watch\" \"nest start incomes-stats --watch\" \"nest start invoices --watch\" \"nest start whatsapp-messaging --watch\" --names \"main,incomes,invoices,messaging\" --prefix-colors green,magenta,yellow,purple",
     "start-app-backend:dev": "nest start app-backend --watch",
     "start-incomes-stats:dev": "nest start incomes-stats --watch",
     "start:debug": "nest start --debug --watch",
