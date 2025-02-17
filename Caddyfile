@@ -1,0 +1,3 @@
+laundry-manager.nzimaivan.com {
+    reverse_proxy frontend:80
+}

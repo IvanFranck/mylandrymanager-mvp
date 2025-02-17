@@ -1,0 +1,16 @@
+services:
+  rever-proxy:
+    image: caddy:latest
+    container_name: rever-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - mlm_network
+
+networks:
+  mlm_network:
+    external: true
