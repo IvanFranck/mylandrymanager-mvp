@@ -1,15 +1,12 @@
-FROM node:alpine AS development
-
-# Installation des outils nécessaires
-RUN apk add --no-cache netcat-openbsd dos2unix openssl
+FROM node:22.13.1-alpine
 
 WORKDIR /usr/src/app
 
-COPY package.json ./
+COPY package.json yarn.lock ./
 
-RUN npm install -g pnpm prisma
-
-RUN pnpm install
+RUN apk add --no-cache netcat-openbsd dos2unix openssl && \
+    npm install -g prisma && \
+    yarn install --frozen-lockfile
 
 COPY . .
 
@@ -23,7 +20,7 @@ EXPOSE ${PORT}
 SHELL [ "/bin/sh", "-c" ]
 ENTRYPOINT ["/bin/sh", "./scripts/start.sh"]
 
-FROM node:alpine AS production
+FROM node:22.13.1-alpine AS production
 
 # Même chose pour la production
 RUN apk add --no-cache openssl

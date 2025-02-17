@@ -1,26 +1,27 @@
-name: Deploy to AWS
+name: Deploy to VPS
 on: 
     push:
         branches:
-            - main
+            - feature/pipeline-setup
 jobs:
   Build-Backend:
     runs-on:
-      - codebuild-MLM-Build-${{ github.run_id }}-${{ github.run_attempt }}
-      - buildspec-override:true
-    defaults:
-        run:
-            shell: bash
-            working-directory: apps/backend
+      - ubuntu-latest
+    
     steps:
-      - name: Check out repository
+      - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Set up nodeJS
-        uses: actions/setup-node@v2
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.VPS_IP }} >> ~/.ssh/known_hosts
 
-        with:
-          node-version: 20.12.2
-
-      - name: Install dependencies
-        run: npm install
+      - name: Deploy on VPS
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} << 'EOF'
+            cd /home/${{ secrets.VPS_USER }}/mlm-projet
+            git pull origin feature/pipeline-setup
+          EOF

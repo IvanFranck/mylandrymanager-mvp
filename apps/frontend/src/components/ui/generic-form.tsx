@@ -35,8 +35,6 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
         defaultValues,
     });
 
-    console.log('form', form.getValues())
-
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
