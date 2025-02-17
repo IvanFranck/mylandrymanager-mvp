@@ -1,14 +1,16 @@
 # Build Stage
 FROM node:18-alpine AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm i -g pnpm
-RUN pnpm install
+COPY package.json package-lock.json ./
+RUN npm i --frozen-lockfile
 COPY . .
-RUN pnpm build
+RUN npm run build
  
 # Production Stage
 FROM nginx:stable-alpine AS production
-COPY --from=build /app/build /usr/share/nginx/html
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY --from=build /app/dist .
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

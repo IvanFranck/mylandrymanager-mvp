@@ -18,7 +18,7 @@ type GenericFormProps<T extends FieldValues> = {
         name: Path<T>; 
         label?: string; 
         type?: FormInputType; 
-        onFieldChange?: (e: React.ChangeEvent<HTMLInputElement>) => void,
+        onFieldChange?: (e: React.ChangeEvent<HTMLInputElement>, onChange: (...event: unknown[]) => void) => void,
         placeholder?: string, 
         errorMessage?: string, 
         labelStyle?: string, 
@@ -35,6 +35,8 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
         defaultValues,
     });
 
+    console.log('form', form.getValues())
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
@@ -48,7 +50,7 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
                                 <FormItem>
                                     {label && <FormLabel className={labelStyle}>{label}</FormLabel>}
                                     <FormControl onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
-                                        onFieldChange && onFieldChange(e)
+                                        onFieldChange && onFieldChange(e, field.onChange)
                                     }}>
                                         {
                                             type === 'textarea' ?

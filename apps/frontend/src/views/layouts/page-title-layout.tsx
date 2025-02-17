@@ -1,14 +1,15 @@
-import { useMatches, Params } from "react-router-dom";
+import { useMatches } from "react-router-dom";
 
 interface RouteHandle {
-    pageTitle?: (params: Params) => string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pageTitle?: (params: any) => never;
 }
 export function PagetitleLayout() {
     const titles = useMatches()
-        .reduce<string[]>((acc, match) => {
-            const route  = match.handle as RouteHandle
-            if (route.pageTitle) {
-                acc.push(route.pageTitle(match.params));
+        .reduce((acc, match) => {
+            const pageTitle = (match.handle as RouteHandle)?.pageTitle || undefined;
+            if (pageTitle) {
+                acc.push(pageTitle(match.params));
             }
             return acc;
         }, []);
