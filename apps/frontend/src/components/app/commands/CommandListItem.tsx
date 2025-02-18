@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CommandsEntity } from "@/lib/types/entities"
 import { getCommandStatusVariant } from "@/lib/utils"
 import { formatDate } from "date-fns"
@@ -34,7 +34,7 @@ export const CommandListItem = ({ command }: CommandListItemProps) => {
                         <li className="italic " key={index}>{item.quantity} x {item.service.label}</li>
                     ))}
                 </ul>
-                <p className=" mt-4">Facture <strong>N° {command.code}</strong></p>
+                <p className=" mt-4">Commande <strong>N° {command.code}</strong></p>
             </CardContent>
             <CardFooter className=""> 
                 <p className="text-sm text-gray-400">À rétirer le {formatDate(command.withdrawDate, "dd MMM", { locale: fr })}</p>
