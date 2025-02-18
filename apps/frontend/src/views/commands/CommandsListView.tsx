@@ -13,6 +13,7 @@ export const CommandsListView = () => {
     const [ statusFilter, setStatusFilter ] = useState<CommandStatus | undefined>(undefined)
     const { commands, isFecthing } = useGetAllCommands({filters: {status: statusFilter}})
 
+    console.log(commands)
     useEffect(()=>{
 
     }, [statusFilter])
