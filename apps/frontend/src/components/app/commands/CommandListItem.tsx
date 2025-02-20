@@ -1,5 +1,6 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CommandsEntity } from "@/lib/types/entities"
+import { getCommandStatusVariant } from "@/lib/utils"
 import { formatDate } from "date-fns"
 import { fr } from "date-fns/locale"
 import { useNavigate } from "react-router-dom"
@@ -16,16 +17,28 @@ export const CommandListItem = ({ command }: CommandListItemProps) => {
     return (
 
         <Card onClick={() => navigate(`/commands/${command.id}`)} className="cursor-pointer">
-            <CardHeader>
+            <CardHeader className="pb-0">
                 <CardTitle className="text-lg flex justify-between">
-                    <span>#{command.code}</span>
-                    <span>{command.price - (command.discount ?? 0) } Fcfa</span>
+                    <span>{command.customer.name}</span>
+                    <div className="flex flex-col space-y-1">
+                        <span>{command.price - (command.discount ?? 0) } Fcfa</span>
+                        <span className={`border font-medium text-xs text-center ${getCommandStatusVariant(command.status)?.variant} px-4 py-1 rounded-full`}>
+                            {getCommandStatusVariant(command.status)?.text ?? command.status}
+                        </span>
+                    </div>
                 </CardTitle>
-                <CardDescription className="text-md text-gray-500">{command.customer.name}</CardDescription>
             </CardHeader>
-            <CardContent className="">
-                <p className="text-gray-400 font-light text-xs">À rétirer le {formatDate(command.withdrawDate, "dd MMM", { locale: fr })}</p>
+            <CardContent className="px-6 -mt-6">
+                <ul className="flex flex-col space-y-1 text-sm font-light text-gray-400">
+                    { command.services.map((item, index) => (
+                        <li className="italic " key={index}>{item.quantity} x {item.service.label}</li>
+                    ))}
+                </ul>
+                <p className=" mt-4">Commande <strong>N° {command.code}</strong></p>
             </CardContent>
+            <CardFooter className=""> 
+                <p className="text-sm text-gray-400">À rétirer le {formatDate(command.withdrawDate, "dd MMM", { locale: fr })}</p>
+            </CardFooter>
         </Card>
     )
 }

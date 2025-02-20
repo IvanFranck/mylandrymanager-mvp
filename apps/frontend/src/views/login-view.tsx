@@ -11,13 +11,12 @@ export default function LoginView() {
     
     const { mutateAsync, isPending } = useLogin()
     async function onSubmit(values: z.infer<typeof LoginFormSchema>) {
-        console.log("login",values)
         await mutateAsync(values)
     }
     return (
         <div className="w-full min-h-screen flex flex-col justify-center items-center bg-black text-white">
             <div className="flex flex-col w-full px-5">
-                <h1 className="text-4xl font-medium">Connectez vous à votre compte.</h1>
+                <h1 className="text-4xl font-medium">Bon retour! Connectez vous à votre compte.</h1>
                 <div className="mt-8">
                     <GenericForm
                         schema={LoginFormSchema}
