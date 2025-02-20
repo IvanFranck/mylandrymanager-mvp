@@ -1,6 +1,5 @@
-import { useMatches } from "react-router-dom";
+import { Params, useMatches } from "react-router-dom";
 
-<<<<<<< HEAD
 interface RouteHandler {
     pageTitle?: (params: Params<string>) => string
 }
@@ -14,16 +13,6 @@ export function PagetitleLayout() {
         }
         return acc;
     }, []);
-=======
-export function PagetitleLayout() {
-    const titles = useMatches()
-        .reduce((acc, match) => {
-            if (match.handle?.pageTitle) {
-                acc.push(match.handle.pageTitle(match.params));
-            }
-            return acc;
-        }, []);
->>>>>>> feature/home-ui-refactor
 
     return (
         titles && <div className="w-full px-4 py-3">
