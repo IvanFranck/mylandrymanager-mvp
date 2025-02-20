@@ -39,6 +39,7 @@ export const CommandsListView = () => {
             }
             setFilters(newFilters);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedQuery]);
     return (
 

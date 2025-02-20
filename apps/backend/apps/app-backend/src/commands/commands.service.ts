@@ -183,7 +183,6 @@ export class CommandsService {
   ): Promise<CustomResponseInterface<Command[]>> {
     const userId = request.user.sub;
     const { status, createdAt, from, to, code } = queries;
-    console.log('queries', queries);
     try {
       const commands = await this.prisma.command.findMany({
         where: {

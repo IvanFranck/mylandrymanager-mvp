@@ -43,12 +43,9 @@ export async function fetchAllCommandsQuery(query: CommandQueriesType){
     let isFirstQueryParamSet = false
     const queryString = Object.entries(query).map(([key, value])=>{
         if (value) {
-            if (isFirstQueryParamSet) {
-                return `&${key}=${value}`
-            } else {
-                isFirstQueryParamSet = true
-                return `?${key}=${value}`
-            }
+            const prefix = isFirstQueryParamSet ? '&' : '?';
+            isFirstQueryParamSet = true;
+            return `${prefix}${key}=${value}`;
         }
       }).join('')
     return await axiosInstance
