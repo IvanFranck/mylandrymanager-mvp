@@ -9,7 +9,6 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import joi from 'joi';
-import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
@@ -24,7 +23,7 @@ import { IncomesModule } from './incomes/incomes.module';
     IncomesModule,
     AuthModule,
     JwtKeysModule,
-    OTPModule,
+    // OTPModule,
     InvoicesModule,
     RmqModule.register({
       name: 'INCOMES_STATS_SERVICE',

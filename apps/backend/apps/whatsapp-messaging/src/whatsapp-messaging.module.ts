@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import joi from 'joi';
 import { RmqModule } from '@app/rmq';
 import { WHATSAPP_MESSAGING_SERVICE } from '@app/event-patterns';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -14,14 +15,13 @@ import { WHATSAPP_MESSAGING_SERVICE } from '@app/event-patterns';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
-        TWILIO_VERIFY_API_BASE_URL: joi.string().required(),
-        TWILIO_VERIFY_API_ACCOUNT_SID: joi.string().required(),
-        TWILIO_VERIFY_API_AUTH_KEY: joi.string().required(),
-        TWILIO_VERIFY_API_SERVICE_ID: joi.string().required(),
-        TWILIO_VERIFY_API_PHONE_NUMBER: joi.string().required(),
-        INVOICE_BASE_URL: joi.string().required(),
-        RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE: joi.string().required(),
+        WHATSAPP_API_TOKEN: joi.string().required(),
+        WHATSAPP_API_BASE_URL: joi.string().required(),
       }),
+    }),
+    HttpModule.register({
+      timeout: 5000,
+      maxRedirects: 5,
     }),
   ],
   controllers: [WhatsappMessagingController],
