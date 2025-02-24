@@ -18,6 +18,7 @@ export class WhatsappMessagingService {
     const messagePayloadTemplate = this.getMessagePayloadTemplate(
       sendWhatsappTextMessageDto,
     );
+    const messageUrl = `"https://graph.facebook.com/${this.configService.get('WHATSAPP_API_VERSION')}/${this.configService.get('WHATSAPP_API_PHONE_NUMBER_ID')}"/messages`;
     if (!messagePayloadTemplate) {
       throw new Error('message payload template not found');
     }
@@ -26,7 +27,7 @@ export class WhatsappMessagingService {
       const data = await firstValueFrom(
         this.httpService
           .post(
-            `${this.configService.get('WHATSAPP_API_URL')}/messages`,
+            messageUrl,
             {
               messaging_product: 'whatsapp',
               to: '237656488116',
