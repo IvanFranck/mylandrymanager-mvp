@@ -3,6 +3,7 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import bcrypt from 'bcrypt';
 import { CreatedUserEntity } from './entities/created-user.entity';
+import { UserInfosEntity } from './entities/user-infos.entity';
 
 @Injectable()
 export class UsersService {
@@ -48,6 +49,36 @@ export class UsersService {
       }
       console.log(error);
       throw new BadRequestException('numéro de téléphone invalide');
+    }
+  }
+
+  async getUserByID(
+    id: number,
+  ): Promise<{ message: string; user: UserInfosEntity }> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          username: true,
+          phone: true,
+          address: true,
+        },
+      });
+
+      if (!user) {
+        throw new BadRequestException('user not found');
+      }
+
+      return {
+        message: 'user infos',
+        user,
+      };
+    } catch (error) {
+      this.logger.error('error: ', error);
+      throw new BadRequestException('user not found');
     }
   }
 }
