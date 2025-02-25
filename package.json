@@ -9,6 +9,11 @@
     "compose:up": "docker-compose -f ./apps/backend/docker-compose.yml up -d",
     "compose:down": "docker-compose -f ./apps/backend/docker-compose.yml down --volumes"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "bcrypt"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC"
