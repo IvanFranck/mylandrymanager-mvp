@@ -121,7 +121,10 @@ export const routes: RouteObject[] = [
                     {
                         id: "profile",
                         path: '/profile',
-                        element: <ProfileView />
+                        element: <ProfileView />,
+                        handle: {
+                            pageTitle: () => <PageTitle pageName="Profile" />
+                        }
                     },
                 ]
             }

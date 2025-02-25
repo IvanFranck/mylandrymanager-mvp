@@ -1,3 +1,7 @@
 export function ProfileView() {
-    return (<div>This is the profile view</div>)
+    return (
+        <div className="px-6">
+            
+        </div>
+    )
 }
