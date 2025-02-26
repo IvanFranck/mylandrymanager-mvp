@@ -6,5 +6,5 @@ export const API_ROUTES = {
     INVOICES: "/invoices",
     INCOMES: "/incomes",
     AUTH_REFRESH: `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
-    PROFILE: '/profile',
+    PROFILE: '/users/profile',
 }

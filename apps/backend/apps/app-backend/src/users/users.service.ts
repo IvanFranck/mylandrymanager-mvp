@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user-dto';
 import bcrypt from 'bcrypt';
 import { CreatedUserEntity } from './entities/created-user.entity';
 import { UserInfosEntity } from './entities/user-infos.entity';
+import { CustomResponseInterface } from '@app-backend/common/interfaces/response.interface';
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,7 @@ export class UsersService {
 
   async createUser(
     createUserDto: CreateUserDto,
-  ): Promise<{ message: string; user: CreatedUserEntity }> {
+  ): Promise<CustomResponseInterface<CreatedUserEntity>> {
     try {
       const encryptedPassword = await bcrypt.hash(createUserDto.password, 8);
 
@@ -38,7 +39,7 @@ export class UsersService {
       });
       return {
         message: 'user created',
-        user,
+        details: user,
       };
     } catch (error) {
       this.logger.error('error: ', error);
@@ -54,7 +55,7 @@ export class UsersService {
 
   async getUserByID(
     id: number,
-  ): Promise<{ message: string; user: UserInfosEntity }> {
+  ): Promise<CustomResponseInterface<UserInfosEntity>> {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
@@ -74,7 +75,7 @@ export class UsersService {
 
       return {
         message: 'user infos',
-        user,
+        details: user,
       };
     } catch (error) {
       this.logger.error('error: ', error);

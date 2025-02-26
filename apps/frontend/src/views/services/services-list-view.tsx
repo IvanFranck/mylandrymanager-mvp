@@ -23,6 +23,8 @@ export default function ServicesListView() {
         triggerBtn.current?.click()
     }
 
+    console.log('services', services)
+
     const handleServiceDeletion = async (id: number) => {
         if (deletingServiceId === -1) return;
         await deleteService(id)

@@ -23,4 +23,4 @@ export const COMMAND_INVOICES_ID_KEY = (id: number) => ["command_invoices_id_key
 export const INCOMES_FILTER_QUERY_KEY = (filter: IncomesQueriesType) => ["incomes_id_key", filter]
 
 //user
-export const USER_PROFILE_QUERY_KEY = (id: number) => ["user_profile_key", id]
+export const USER_PROFILE_QUERY_KEY = ["user_profile_key"]

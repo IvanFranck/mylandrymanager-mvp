@@ -2,10 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
   Post,
+  Req,
+  UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user-dto';
@@ -15,7 +15,11 @@ import {
   ApiCreatedResponse,
   ApiInternalServerErrorResponse,
 } from '@nestjs/swagger';
+import { AccessTokenAuthGuard } from '@app-backend/auth/guards/access-token-auth.guard';
+import { AccessTokenValidatedRequestInterface } from '@app-backend/common/interfaces/access-token-validated-request.interface';
+import { FormatServicesResponseInterceptor } from '@app-backend/common/interceptors/formatServicesResponse.interceptor';
 
+@UseInterceptors(new FormatServicesResponseInterceptor())
 @ApiTags('users')
 @Controller({
   path: 'users',
@@ -32,14 +36,9 @@ export class UsersController {
     return await this.usersService.createUser(createUserDto);
   }
 
-  @Get('profile/:id')
-  async getUserProfile(
-    @Param(
-      'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
-    )
-    id: number,
-  ) {
-    return await this.usersService.getUserByID(id);
+  @UseGuards(AccessTokenAuthGuard)
+  @Get('profile')
+  async getUserProfile(@Req() req: AccessTokenValidatedRequestInterface) {
+    return await this.usersService.getUserByID(req.user.sub);
   }
 }
