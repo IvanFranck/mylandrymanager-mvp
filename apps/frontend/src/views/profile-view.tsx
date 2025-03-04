@@ -1,9 +1,11 @@
 import { useGetUserProfileInfos } from "@/lib/hooks/use-cases/profile/useGetUserProfileInfos"
-import { MapPin, Phone } from "lucide-react"
+import { LogOut, MapPin, Phone } from "lucide-react"
 import UserProfileSkeleton from '../components/app/profile/user-profile-skeleton';
+import { useNavigate } from "react-router-dom";
 
 export function ProfileView() {
-    const {userProfile, isFetching} = useGetUserProfileInfos()
+    const {userProfile, isFetching} = useGetUserProfileInfos();
+    const navigate = useNavigate();
 
     return (
         <div className="px-3">
@@ -16,7 +18,12 @@ export function ProfileView() {
                         <h1 className="text-2xl font-semibold">{userProfile?.username}</h1>
 
                         <div className="mt-4">
-                            <button className="py-2 px-6 bg-purple-700 text-white tracking-wider  rounded-2xl font-light">Modifier</button>
+                            <button
+                                onClick={() => navigate('/profile/edit')}
+                                className="py-2 px-6 bg-purple-700 text-white tracking-wider rounded-2xl font-light"
+                            >
+                                Modifier
+                            </button>
                         </div>
                     </div>
 
@@ -35,6 +42,13 @@ export function ProfileView() {
                             </p>
                             <p className="text-lg font-semibold">{userProfile?.phone}</p>
                         </div>
+                    </div>
+
+                    <div className="w-full mt-8 flex flex-col gap-8 bg-white rounded-2xl p-4">
+                        <p className="text-base text-red-500 flex justify-center items-center w-max">
+                            <LogOut className="mr-2 w-4 h-5" /> 
+                            <span>Se déconnecter</span>
+                        </p>
                     </div>
                 </>
             )

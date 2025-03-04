@@ -7,4 +7,7 @@ export const API_ROUTES = {
     INCOMES: "/incomes",
     AUTH_REFRESH: `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
     PROFILE: '/users/profile',
+    USER: {
+        UPDATE: '/users/edit'
+    },
 }
