@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -18,6 +19,7 @@ import {
 import { AccessTokenAuthGuard } from '@app-backend/auth/guards/access-token-auth.guard';
 import { AccessTokenValidatedRequestInterface } from '@app-backend/common/interfaces/access-token-validated-request.interface';
 import { FormatServicesResponseInterceptor } from '@app-backend/common/interceptors/formatServicesResponse.interceptor';
+import { UpdateUserDto } from './dto/edit-user-dto';
 
 @UseInterceptors(new FormatServicesResponseInterceptor())
 @ApiTags('users')
@@ -39,6 +41,15 @@ export class UsersController {
   @UseGuards(AccessTokenAuthGuard)
   @Get('profile')
   async getUserProfile(@Req() req: AccessTokenValidatedRequestInterface) {
-    return await this.usersService.getUserByID(req.user.sub);
+    return await this.usersService.getUserInfos(req.user.sub);
+  }
+
+  @UseGuards(AccessTokenAuthGuard)
+  @Patch('edit')
+  async updateUser(
+    @Req() req: AccessTokenValidatedRequestInterface,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return await this.usersService.editUser(req.user.sub, updateUserDto);
   }
 }
