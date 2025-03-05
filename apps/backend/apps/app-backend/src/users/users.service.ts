@@ -3,6 +3,9 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import bcrypt from 'bcrypt';
 import { CreatedUserEntity } from './entities/created-user.entity';
+import { UserInfosEntity } from './entities/user-infos.entity';
+import { CustomResponseInterface } from '@app-backend/common/interfaces/response.interface';
+import { UpdateUserDto } from './dto/edit-user-dto';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +21,7 @@ export class UsersService {
 
   async createUser(
     createUserDto: CreateUserDto,
-  ): Promise<{ message: string; user: CreatedUserEntity }> {
+  ): Promise<CustomResponseInterface<CreatedUserEntity>> {
     try {
       const encryptedPassword = await bcrypt.hash(createUserDto.password, 8);
 
@@ -37,7 +40,7 @@ export class UsersService {
       });
       return {
         message: 'user created',
-        user,
+        details: user,
       };
     } catch (error) {
       this.logger.error('error: ', error);
@@ -48,6 +51,71 @@ export class UsersService {
       }
       console.log(error);
       throw new BadRequestException('numéro de téléphone invalide');
+    }
+  }
+
+  async getUserInfos(
+    id: number,
+  ): Promise<CustomResponseInterface<UserInfosEntity>> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          username: true,
+          phone: true,
+          address: true,
+        },
+      });
+
+      if (!user) {
+        throw new BadRequestException({
+          message: 'user not found',
+        });
+      }
+
+      return {
+        message: 'user infos',
+        details: user,
+      };
+    } catch (error) {
+      this.logger.error('error: ', error);
+      throw new BadRequestException({
+        message: 'an error occurred while getting user infos',
+      });
+    }
+  }
+
+  async editUser(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<CustomResponseInterface<UserInfosEntity>> {
+    this.logger.log(`user id: ${id}`);
+    try {
+      const user = await this.prisma.user.update({
+        where: {
+          id,
+        },
+        data: updateUserDto,
+        select: {
+          id: true,
+          username: true,
+          phone: true,
+          address: true,
+        },
+      });
+      if (!user) {
+        throw new BadRequestException('user not found');
+      }
+      return {
+        message: 'user updated',
+        details: user,
+      };
+    } catch (error) {
+      console.error('error: ', error);
+      throw new BadRequestException('an error occurred while updating user');
     }
   }
 }

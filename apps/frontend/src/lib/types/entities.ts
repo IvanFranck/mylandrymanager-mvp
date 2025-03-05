@@ -11,12 +11,20 @@ export type UserEntity = BaseEntity & {
     services: ServicesEntity[]
 }
 
+export type UserProfileEntity = {
+    id: number
+    username: string
+    phone: string
+    address: string
+}
+
 export type ServicesEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
     currentVersionId: number
 }
+
 
 export type ServiceOnCommandEntity = {
     service: ServicesEntity,
