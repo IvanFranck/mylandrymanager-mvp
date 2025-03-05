@@ -71,7 +71,9 @@ export class UsersService {
       });
 
       if (!user) {
-        throw new BadRequestException('user not found');
+        throw new BadRequestException({
+          message: 'user not found',
+        });
       }
 
       return {
@@ -80,7 +82,9 @@ export class UsersService {
       };
     } catch (error) {
       this.logger.error('error: ', error);
-      throw new BadRequestException('user not found');
+      throw new BadRequestException({
+        message: 'an error occurred while getting user infos',
+      });
     }
   }
 
@@ -88,6 +92,7 @@ export class UsersService {
     id: number,
     updateUserDto: UpdateUserDto,
   ): Promise<CustomResponseInterface<UserInfosEntity>> {
+    this.logger.log(`user id: ${id}`);
     try {
       const user = await this.prisma.user.update({
         where: {
@@ -101,13 +106,16 @@ export class UsersService {
           address: true,
         },
       });
+      if (!user) {
+        throw new BadRequestException('user not found');
+      }
       return {
         message: 'user updated',
         details: user,
       };
     } catch (error) {
-      this.logger.error('error: ', error);
-      throw new BadRequestException('user not found');
+      console.error('error: ', error);
+      throw new BadRequestException('an error occurred while updating user');
     }
   }
 }

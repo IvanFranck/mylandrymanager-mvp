@@ -56,7 +56,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', nestApp, document);
 
   // setting up custom exception global filters
-  nestApp.useGlobalFilters(new CustomExptionFilter());
+  // nestApp.useGlobalFilters(new CustomExptionFilter());
 
   // setting up cookie parser
   // app.use(cookieParser());

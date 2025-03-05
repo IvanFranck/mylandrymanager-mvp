@@ -8,7 +8,7 @@ import z from "zod"
 export const ProfileFormSchema = z.object({
     username: z.string().trim().min(1, 'invalid username'),
     address: z.string().trim().min(1, 'invalid address'),
-    phone: z.number().min(1, 'invalid phone')
+    phone: z.string().trim().min(1, 'invalid phone')
 })
 
 export async function fetchUserInfosQuery() {
@@ -21,7 +21,7 @@ export async function fetchUserInfosQuery() {
 
 export async function editUserQuery(data: z.infer<typeof ProfileFormSchema>) {
     return await axiosInstance
-                .put(API_ROUTES.USER.UPDATE, data)
+                .patch(API_ROUTES.USER.UPDATE, data)
                 .then((resp: AxiosResponse<TGenericResponse<UserProfileEntity>>) => {
                     console.log('resp', resp)
                     return resp.data.details

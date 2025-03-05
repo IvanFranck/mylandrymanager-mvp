@@ -14,7 +14,7 @@ export type UserEntity = BaseEntity & {
 export type UserProfileEntity = {
     id: number
     username: string
-    phone: number
+    phone: string
     address: string
 }
 

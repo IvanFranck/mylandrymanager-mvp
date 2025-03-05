@@ -29,7 +29,7 @@ export default function ProfileEditView() {
                             defaultValues={{
                                 username: userProfile?.username,
                                 address: userProfile?.address,
-                                phone: userProfile?.phone
+                                phone: `${userProfile?.phone}`
                             }}
                             fields={[
                                 { 
@@ -45,14 +45,6 @@ export default function ProfileEditView() {
                                     label: "Adresse", 
                                     type: "text", 
                                     placeholder:"décrivez brievement votre adresse", 
-                                    inputStyle:"border-0 shadow-none py-0 px-0 focus-visible:ring-0 focus-visible:border-0 text-lg font-semibold", 
-                                    labelStyle: "font-thin" 
-                                },
-                                { 
-                                    name: "phone", 
-                                    label: "Téléphone", 
-                                    type: "text", 
-                                    placeholder:"votre numéro de téléphone", 
                                     inputStyle:"border-0 shadow-none py-0 px-0 focus-visible:ring-0 focus-visible:border-0 text-lg font-semibold", 
                                     labelStyle: "font-thin" 
                                 },
