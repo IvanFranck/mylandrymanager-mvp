@@ -12,6 +12,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Install rsync
+        run: sudo apt-get update && sudo apt-get install -y rsync
+
       - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEYS }}
@@ -22,7 +25,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" | sed 's/\r$//' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $VPS_IP >> ~/.ssh/known_hosts
-          rsync -avz --delete ./ $VPS_USER@$VPS_IP:/var/www/html
+          rsync -avz --delete ./ $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project
 
       # - name: Test SSH Connection
       #   run: ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_IP }} "echo 'SSH connection successful'"
