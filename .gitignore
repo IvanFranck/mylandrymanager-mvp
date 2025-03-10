@@ -58,3 +58,7 @@ node_modules
 # JWT keys
 /apps/backend/private-key.pem
 /apps/backend/public-key.pem
+
+
+# environment variables
+/docker/*.env.front
