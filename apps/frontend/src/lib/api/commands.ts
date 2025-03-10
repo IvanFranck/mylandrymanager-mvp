@@ -39,12 +39,14 @@ export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
 
 
 export async function fetchAllCommandsQuery(query: CommandQueriesType){
-    const queryString = Object.entries(query).map(([key, value], index)=>{
-        return value ? 
-            index === 0 ? 
-                `?${key}=${value}` 
-                : `&${key}=${value}` 
-            : ''
+    console.log(query)
+    let isFirstQueryParamSet = false
+    const queryString = Object.entries(query).map(([key, value])=>{
+        if (value) {
+            const prefix = isFirstQueryParamSet ? '&' : '?';
+            isFirstQueryParamSet = true;
+            return `${prefix}${key}=${value}`;
+        }
       }).join('')
     return await axiosInstance
                     .get(`${API_ROUTES.COMMANDS}${queryString}`)

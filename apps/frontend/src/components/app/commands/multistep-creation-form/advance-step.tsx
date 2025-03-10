@@ -24,6 +24,7 @@ export default function AdvanceStep({ setAdvance, advance, billingPrice, discoun
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputAdvance(parseFloat(e.target.value));
+        return parseFloat(e.target.value);
     };
 
     const onSubmit = (values: z.infer<typeof AdvanceFormSchema>) => {

@@ -4,9 +4,8 @@ WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
 
-RUN apk add --no-cache netcat-openbsd dos2unix openssl && \
-    npm install -g prisma && \
-    yarn install --frozen-lockfile
+RUN npm install -g prisma && \
+    yarn install
 
 COPY . .
 

@@ -15,6 +15,7 @@ import RegisterView from "@/views/register-view"
 import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
+import ProfileEditView from "@/views/profile/profile-edit-view"
 
 
 export const routes: RouteObject[] = [
@@ -121,7 +122,23 @@ export const routes: RouteObject[] = [
                     {
                         id: "profile",
                         path: '/profile',
-                        element: <ProfileView />
+                        children: [
+                            {
+                                index: true,
+                                element: <ProfileView />,
+                                handle: {
+                                    pageTitle: () => <PageTitle pageName="Profile" />
+                                }
+                            },
+                            {
+                                id: 'profile edit',
+                                path: 'edit',
+                                element: <ProfileEditView />,
+                                handle: {
+                                    pageTitle: () => <PageTitle pageName="Modifier votre profile" backlink='/profile' />
+                                }
+                            }
+                        ],
                     },
                 ]
             }

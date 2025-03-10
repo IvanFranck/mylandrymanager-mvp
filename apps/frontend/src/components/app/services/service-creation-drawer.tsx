@@ -29,9 +29,8 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
         if (onServiceCreated) onServiceCreated(newService.details)
     }
 
-    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (e: number) => void) => {
-        const newPrice = parseFloat(e.target.value)
-        if (newPrice > 0) onChange(newPrice)
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        return parseFloat(e.target.value)
     }
 
     return (
@@ -56,9 +55,26 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
                                     description: ''
                                 }}
                                 fields={[
-                                    { name: "label", label: "Titre", type: "text", errorMessage: "Le titre est requis." },
-                                    { name: "price", label: "Prix du service", type: "number", errorMessage: "Le prix est requis.", onFieldChange: handlePriceChange },
-                                    { name: "description", label: "Description", type: "textarea", placeholder:"décrivez brievement ce service", inputStyle:"border border-gray-400" },
+                                    { 
+                                        name: "label", 
+                                        label: "Titre", 
+                                        type: "text", 
+                                        errorMessage: "Le titre est requis." 
+                                    },
+                                    { 
+                                        name: "price", 
+                                        label: "Prix du service", 
+                                        type: "number", 
+                                        errorMessage: "Le prix est requis.", 
+                                        onFieldChange: handlePriceChange
+                                    },
+                                    { 
+                                        name: "description", 
+                                        label: "Description", 
+                                        type: "textarea", 
+                                        placeholder:"décrivez brievement ce service", 
+                                        inputStyle:"border border-gray-400" 
+                                    },
                                 ]}
                                 isPending={isCreating}
                                 submitButton={

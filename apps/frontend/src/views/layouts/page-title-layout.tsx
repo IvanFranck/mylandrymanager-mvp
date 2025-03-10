@@ -1,18 +1,18 @@
-import { useMatches } from "react-router-dom";
+import { Params, useMatches } from "react-router-dom";
 
-interface RouteHandle {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  pageTitle?: (params: any) => never;
+interface RouteHandler {
+    pageTitle?: (params: Params<string>) => string
 }
+
 export function PagetitleLayout() {
     const titles = useMatches()
-        .reduce((acc, match) => {
-            const pageTitle = (match.handle as RouteHandle)?.pageTitle || undefined;
-            if (pageTitle) {
-                acc.push(pageTitle(match.params));
-            }
-            return acc;
-        }, []);
+    .reduce<string[]>((acc, match) => {
+        const route  = match.handle as RouteHandler
+        if (route?.pageTitle) {
+            acc.push(route.pageTitle(match.params));
+        }
+        return acc;
+    }, []);
 
     return (
         titles && <div className="w-full px-4 py-3">

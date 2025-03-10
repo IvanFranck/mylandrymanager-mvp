@@ -56,10 +56,10 @@ export function WeekIncomesView() {
   return (
     <div>
       {isLoading ? <Skeleton className='w-full h-60' /> : (
-        <>
-          <div className='w-full flex justify-between items-start'>
+        <div className='w-full bg-white rounded-md py-4'>
+          <div className='w-full flex justify-between items-start px-4'>
             <div className='w-full'>
-              <h3 className="text-2xl">Revenus de la semaine</h3>
+              <h3 className="leading-tight  text-gray-800/80 font-light mb-1">Revenus de la semaine</h3> 
               <p className='text-xl font-semibold'>{dataFormatter(totalSales)}</p>
               <div className='flex justify-between w-full items-center mt-2'>
                 <p className='text-gray-400 font-light first-letter:uppercase'>{`${format(currentWeekStart, 'LLL dd', {locale: fr})} - ${format(endOfWeek(currentWeekStart, {weekStartsOn: 1}), 'dd')}`}</p>
@@ -81,12 +81,12 @@ export function WeekIncomesView() {
               index="date"
               showLegend={false}
               categories={['Sales']}
-              colors={['blue']}
+              colors={['violet']}
               showGradient={false}
               showGridLines={true}
             />
           </div>
-        </>
+        </div>
       )}
     </div>
   );

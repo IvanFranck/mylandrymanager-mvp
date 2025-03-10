@@ -1,8 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors');
-const plugin = require('tailwindcss/plugin');
+import colors from 'tailwindcss/colors';
+import plugin from 'tailwindcss/plugin';
+import animate from "tailwindcss-animate";
 
-module.exports = {
+export default {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
@@ -163,7 +164,7 @@ module.exports = {
     },
   },
   plugins: [
-    require("tailwindcss-animate"),
+    animate,
     plugin(function ({ addComponents }) {
       addComponents({
         '.delivery-date': {

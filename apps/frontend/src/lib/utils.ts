@@ -20,23 +20,20 @@ export const getCommandStatusVariant= (status: CommandStatus): {
 } | undefined => {
   switch (status) {
     case 'PAID':
-        return {
-          variant: 'text-green-500 border-green-500',
-          text: 'Réglée'
-        }
-      break;
+      return {
+        variant: 'text-green-500 border-green-500',
+        text: 'Réglée'
+      }
     case 'NOT_PAID':
-        return {
-          variant: 'text-red-500 border-red-500',
-          text: 'Non réglée'
-        }
-      break;
+      return {
+        variant: 'text-red-500 border-red-500',
+        text: 'Non réglée'
+      }
     case 'PENDING':
-        return {
-          variant :'text-yellow-500 border-yellow-500',
-          text: 'Avancé'
-        }
-      break;
+      return {
+        variant :'text-yellow-500 border-yellow-500',
+        text: 'Avancé'
+      }
   
     default:
       break;

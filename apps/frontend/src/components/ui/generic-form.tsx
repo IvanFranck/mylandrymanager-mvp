@@ -1,4 +1,4 @@
-import { useForm, FieldValues, DefaultValues, Path } from "react-hook-form";
+import { useForm, FieldValues, DefaultValues, Path, PathValue } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ type GenericFormProps<T extends FieldValues> = {
         name: Path<T>; 
         label?: string; 
         type?: FormInputType; 
-        onFieldChange?: (e: React.ChangeEvent<HTMLInputElement>, onChange: (...event: unknown[]) => void) => void,
+        onFieldChange?: (e: React.ChangeEvent<HTMLInputElement>) => PathValue<T, Path<T>>,
         placeholder?: string, 
         errorMessage?: string, 
         labelStyle?: string, 
@@ -35,6 +35,15 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
         defaultValues,
     });
 
+    function handleFieldChange (
+        e: React.ChangeEvent<HTMLInputElement>, 
+        transformer: (e: React.ChangeEvent<HTMLInputElement>) => PathValue<T, Path<T>>,
+        fieldName: Path<T>
+    ) {
+        const newValue = transformer(e);
+        form.setValue(fieldName, newValue);
+    }
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="w-full">
@@ -48,14 +57,14 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
                                 <FormItem>
                                     {label && <FormLabel className={labelStyle}>{label}</FormLabel>}
                                     <FormControl onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
-                                        onFieldChange && onFieldChange(e, field.onChange)
+                                        onFieldChange && handleFieldChange(e, () => onFieldChange(e), name)
+                                        return;
                                     }}>
                                         {
                                             type === 'textarea' ?
                                                 <Textarea className={inputStyle} placeholder={placeholder} disabled={isPending}  {...field} />
                                                 : <Input className={inputStyle} type={type} placeholder={placeholder} disabled={isPending} {...field} />
                                         }
-                                        
                                     </FormControl>
                                     {
                                         form.formState.errors[name] && (
