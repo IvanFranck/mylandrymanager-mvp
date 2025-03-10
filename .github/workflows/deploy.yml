@@ -21,7 +21,8 @@ jobs:
           echo "$SSH_PRIVATE_KEY" | sed 's/\r$//' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $VPS_IP >> ~/.ssh/known_hosts
-          rsync -avz --delete ./docker  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project/docker
+          rsync -avz ./docker  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project/docker
+          rsync -avz ./apps/backend  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project/apps/backend
 
       - name: Login to Docker Hub
         env:
@@ -57,3 +58,6 @@ jobs:
           script: |
             docker pull fridev237/mlm-frontend:latest
             docker compose -f ./mlm-project/docker/docker-compose.yml up -d
+            cd ./mlm-project/apps/backend
+            yarn install
+            
