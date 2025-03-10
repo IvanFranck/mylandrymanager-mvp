@@ -41,6 +41,8 @@ import { IncomesModule } from './incomes/incomes.module';
         COMMAND_BARCODE_ROOT_PATH: joi.string().required(),
         JWT_ALGORITHM: joi.string().required(),
         RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE: joi.string().required(),
+        JWT_PUBLIC_KEY_PATH: joi.string().required(),
+        JWT_PRIVATE_KEY_PATH: joi.string().required(),
       }),
     }),
   ],

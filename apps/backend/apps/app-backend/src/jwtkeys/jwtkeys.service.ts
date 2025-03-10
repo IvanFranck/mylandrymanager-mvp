@@ -1,4 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { existsSync, readFileSync } from 'fs-extra';
 
 @Injectable()
@@ -6,18 +7,21 @@ export class JwtKeysService {
   privateKey: string;
   publicKey: string;
 
-  constructor() {
-    const publicKeyPath = 'public-key.pem';
-    const privateKeyPath = 'private-key.pem';
-    if (!existsSync(publicKeyPath) || !existsSync(privateKeyPath)) {
-      throw new InternalServerErrorException('JWT key files are missing');
-    }
+  constructor(private readonly confService: ConfigService) {}
 
-    this.publicKey = readFileSync(publicKeyPath, 'utf8');
-    this.privateKey = readFileSync(privateKeyPath, 'utf8');
-
-    if (!this.publicKey || !this.privateKey) {
-      throw new InternalServerErrorException('JWT key files are empty');
+  getPublicKey() {
+    const publicKeyPath = this.confService.get('JWT_PUBLIC_KEY_PATH');
+    if (!existsSync(publicKeyPath)) {
+      throw new InternalServerErrorException('JWT public key file is missing');
     }
+    return readFileSync(publicKeyPath, 'utf8');
+  }
+
+  getPrivateKey() {
+    const privateKeyPath = this.confService.get('JWT_PRIVATE_KEY_PATH');
+    if (!existsSync(privateKeyPath)) {
+      throw new InternalServerErrorException('JWT private key file is missing');
+    }
+    return readFileSync(privateKeyPath, 'utf8');
   }
 }

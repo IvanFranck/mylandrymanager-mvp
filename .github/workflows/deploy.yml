@@ -56,4 +56,4 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEYS }}
           script: |
             docker pull fridev237/mlm-frontend:latest
-            docker-compose -f ./mlm-project/docker/docker-compose.yml up -d
+            docker compose -f ./mlm-project/docker/docker-compose.yml up -d
