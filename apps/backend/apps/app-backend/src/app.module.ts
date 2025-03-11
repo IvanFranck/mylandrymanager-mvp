@@ -32,8 +32,7 @@ import { IncomesModule } from './incomes/incomes.module';
       isGlobal: true,
       validationSchema: joi.object({
         DATABASE_URL: joi.string().required(),
-        PORT: joi.number().required(),
-        AUTHORIZED_ORIGINS: joi.string().required(),
+        PORT: joi.number().required().default(5555),
         CODE_ALPHABET: joi.string().required(),
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),
