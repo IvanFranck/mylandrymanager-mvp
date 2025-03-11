@@ -1,9 +1,13 @@
 import { SendWhatsappTextMessageDto } from '@app/event-patterns';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { invoiceMessageTemplate } from './messages-templates';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
+import {
+  WHATSAPP_API_BASE_URL,
+  WHATSAPP_API_VERSION,
+  WHATSAPP_ORDER_CONFIRMATION_MESSAGE_TEMPLATE,
+} from './constants';
 
 @Injectable()
 export class WhatsappMessagingService {
@@ -14,14 +18,14 @@ export class WhatsappMessagingService {
 
   private readonly logger = new Logger(WhatsappMessagingService.name);
 
-  async sendMessage(sendWhatsappTextMessageDto: SendWhatsappTextMessageDto) {
-    const messagePayloadTemplate = this.getMessagePayloadTemplate(
-      sendWhatsappTextMessageDto,
+  async sendOrderConfirmationMessage(
+    sendWhatsappTextMessageDto: SendWhatsappTextMessageDto,
+  ) {
+    const phoneNumberId = this.configService.get(
+      'WHATSAPP_API_PHONE_NUMBER_ID',
     );
-    const messageUrl = `"https://graph.facebook.com/${this.configService.get('WHATSAPP_API_VERSION')}/${this.configService.get('WHATSAPP_API_PHONE_NUMBER_ID')}"/messages`;
-    if (!messagePayloadTemplate) {
-      throw new Error('message payload template not found');
-    }
+    const messageUrl = `${WHATSAPP_API_BASE_URL}/${WHATSAPP_API_VERSION}/${phoneNumberId}/messages`;
+
     try {
       console.log('send whatsapp message', sendWhatsappTextMessageDto);
       const data = await firstValueFrom(
@@ -32,7 +36,49 @@ export class WhatsappMessagingService {
               messaging_product: 'whatsapp',
               to: '237656488116',
               type: 'template',
-              template: { name: 'hello_world', language: { code: 'en_US' } },
+              template: {
+                name: WHATSAPP_ORDER_CONFIRMATION_MESSAGE_TEMPLATE,
+                language: { code: 'FR' },
+                components: [
+                  {
+                    type: 'body',
+                    parameters: [
+                      {
+                        type: 'text',
+                        text: 'John',
+                      },
+                      {
+                        type: 'text',
+                        text: 'CLEAN Pressing',
+                      },
+                      {
+                        type: 'text',
+                        text: '#cdy01a',
+                      },
+                      {
+                        type: 'text',
+                        text: '01 Mars 2025',
+                      },
+                      {
+                        type: 'text',
+                        text: '655663322',
+                      },
+                    ],
+                  },
+                  {
+                    type: 'button',
+                    sub_type: 'url',
+                    index: '0',
+                    parameters: [
+                      {
+                        type: 'payload',
+                        payload:
+                          'https://laundry-manager.nzimaivan.com/invoices/cdy01a',
+                      },
+                    ],
+                  },
+                ],
+              },
             },
             {
               headers: {
@@ -48,31 +94,11 @@ export class WhatsappMessagingService {
             }),
           ),
       );
+
       console.log('response', data);
     } catch (error) {
       this.logger.error(error);
       throw new Error('sending whatsapp message failed');
-    }
-  }
-
-  getMessagePayloadTemplate(
-    dto: Pick<SendWhatsappTextMessageDto, 'type' | 'invoiceCode'>,
-  ) {
-    switch (dto.type) {
-      case 'invoice':
-        return {
-          message: invoiceMessageTemplate(
-            dto.invoiceCode,
-            this.configService.get('INVOICE_BASE_URL'),
-          ),
-          mediaUrl: [
-            `${this.configService.get('INVOICE_BASE_URL')}/${dto.invoiceCode}`,
-          ],
-        };
-      case 'withdraw_reminder':
-        return null;
-      default:
-        return null;
     }
   }
 }

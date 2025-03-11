@@ -18,7 +18,7 @@ export class WhatsappMessagingController {
     @Payload() data: SendWhatsappTextMessageDto,
     @Ctx() context: RmqContext,
   ) {
-    await this.whatsappMessagingService.sendMessage(data);
+    await this.whatsappMessagingService.sendOrderConfirmationMessage(data);
     this.rmqService.ack(context);
   }
 }

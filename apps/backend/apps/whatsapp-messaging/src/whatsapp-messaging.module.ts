@@ -17,7 +17,6 @@ import { HttpModule } from '@nestjs/axios';
       validationSchema: joi.object({
         WHATSAPP_API_TOKEN: joi.string().required(),
         WHATSAPP_API_PHONE_NUMBER_ID: joi.string().required(),
-        WHATSAPP_API_VERSION: joi.string().required(),
       }),
     }),
     HttpModule.register({
