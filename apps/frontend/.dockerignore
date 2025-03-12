@@ -1,11 +1,9 @@
 node_modules
 npm-debug.log
+build
 dist
 Dockerfile
 .dockerignore
 .git
 .gitignore
-command_barcodes
-invoices
 .env
-.env.example

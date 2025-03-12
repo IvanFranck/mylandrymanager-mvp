@@ -1,0 +1,7 @@
+laundry-manager.nzimaivan.com {
+    reverse_proxy frontend:80
+
+    handle_path /api/* {
+        reverse_proxy localhost:5555
+    }
+}

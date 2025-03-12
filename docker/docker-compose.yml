@@ -1,0 +1,111 @@
+services:
+  reverse-proxy:
+    image: caddy:latest
+    container_name: reverse-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - mlm_network
+
+  # Service de base de données PostgreSQL
+  database:
+    image: bitnami/postgresql
+    environment:
+      - POSTGRESQL_USERNAME=ivanfranck
+      - POSTGRESQL_PASSWORD=paqssd163HZZ82sgdsiSf
+      - POSTGRESQL_DATABASE=mylandryappdb
+    volumes:
+      - mlm-data-volume:/bitnami/postgresql  # Volume pour la persistance des données
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ivanfranck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mlm_network
+
+  # Service de message broker RabbitMQ
+  broker:
+    image: rabbitmq
+    ports:
+      - '5672:5672'  # Port exposé pour RabbitMQ
+    networks:
+      - mlm_network
+
+
+  frontend:
+    image: fridev237/mlm-frontend:latest
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - mlm_network
+  
+  backend-main:
+    image: fridev237/mlm-main-service:latest
+    container_name: backend-main
+    command: ["yarn", "start", "app-backend"]
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+      invoices-service:
+        condition: service_started
+      stats-service:
+        condition: service_started
+    links:
+      - database
+      - broker
+    ports:
+      - "${PORT}:${PORT}"
+    env_file:
+      - ./.env
+    networks:
+      - mlm_network
+  
+  invoices-service:
+    image: fridev237/mlm-invoices-service:latest
+    container_name: invoices-service
+    command: ["yarn", "start", "invoices"]
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    links:
+      - database
+      - broker
+    env_file:
+      - ./.env
+    networks:
+      - mlm_network
+  
+  stats-service:
+    image: fridev237/mlm-stats-service:latest
+    container_name: incomes-stats
+    command: ["yarn", "start", "incomes-stats"]
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    links:
+      - database
+      - broker
+    env_file:
+      - ./.env
+    networks:
+      - mlm_network
+
+networks:
+  mlm_network:
+    external: true
+
+volumes:
+  mlm-data-volume:

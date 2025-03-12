@@ -12,14 +12,6 @@ async function bootstrap() {
   });
   const configService = nestApp.get(ConfigService);
 
-  // const authorizedOriginsEnv = configService.get<string | undefined>(
-  //   'AUTHORIZED_ORIGINS',
-  // );
-
-  // const authorizedOrigins = authorizedOriginsEnv
-  //   ? authorizedOriginsEnv.split(',')
-  //   : [];
-
   // enabling cors
   nestApp.enableCors({
     origin: '*',

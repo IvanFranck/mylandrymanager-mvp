@@ -6,18 +6,21 @@ export class JwtKeysService {
   privateKey: string;
   publicKey: string;
 
-  constructor() {
+  constructor() {}
+
+  getPublicKey() {
     const publicKeyPath = 'public-key.pem';
+    if (!existsSync(publicKeyPath)) {
+      throw new InternalServerErrorException('JWT public key file is missing');
+    }
+    return readFileSync(publicKeyPath, 'utf8');
+  }
+
+  getPrivateKey() {
     const privateKeyPath = 'private-key.pem';
-    if (!existsSync(publicKeyPath) || !existsSync(privateKeyPath)) {
-      throw new InternalServerErrorException('JWT key files are missing');
+    if (!existsSync(privateKeyPath)) {
+      throw new InternalServerErrorException('JWT private key file is missing');
     }
-
-    this.publicKey = readFileSync(publicKeyPath, 'utf8');
-    this.privateKey = readFileSync(privateKeyPath, 'utf8');
-
-    if (!this.publicKey || !this.privateKey) {
-      throw new InternalServerErrorException('JWT key files are empty');
-    }
+    return readFileSync(privateKeyPath, 'utf8');
   }
 }
