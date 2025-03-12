@@ -13,6 +13,9 @@ COPY . .
 ARG RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE
 ENV RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE=$RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE
 
+ARG RABBIT_MQ_URI
+ENV RABBIT_MQ_URI=$RABBIT_MQ_URI
+
 # Correction des fins de ligne et permissions
 RUN dos2unix ./scripts/start.sh && \
     chmod +x ./scripts/start.sh

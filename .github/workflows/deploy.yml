@@ -2,7 +2,7 @@ name: Deploy to VPS
 on: 
     push:
         branches:
-            - feature/pipeline-setup
+            - develop
 
 jobs:
   build-and-publish:
