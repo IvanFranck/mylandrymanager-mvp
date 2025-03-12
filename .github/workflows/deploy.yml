@@ -4,7 +4,7 @@ on:
         branches:
             - feature/pipeline-setup
 jobs:
-  build-and-publish:
+  push-docker-conf-and-login-to-dockerhub:
     runs-on:
       - ubuntu-latest
     steps:
@@ -21,8 +21,7 @@ jobs:
           echo "$SSH_PRIVATE_KEY" | sed 's/\r$//' > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H $VPS_IP >> ~/.ssh/known_hosts
-          rsync -avz ./docker  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project/docker
-          rsync -avz ./apps/backend  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project/apps
+          rsync -avz ./docker  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project
 
       - name: Login to Docker Hub
         env:
@@ -31,6 +30,11 @@ jobs:
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
+  deploy-frontend-image:
+    runs-on:
+      - ubuntu-latest
+    needs: push-docker-conf-and-login-to-dockerhub
+    steps:
       - name: Build and push frontend image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -39,7 +43,12 @@ jobs:
         run: |
           docker build --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL --build-arg VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT -t $DOCKER_USERNAME/mlm-frontend:latest -f ./apps/frontend/Dockerfile ./apps/frontend
           docker push $DOCKER_USERNAME/mlm-frontend:latest
-
+  
+  deploy-main-backend-image:
+    runs-on:
+      - ubuntu-latest
+    needs: push-docker-conf-and-login-to-dockerhub
+    steps:
       - name: Build and push main backend image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -50,14 +59,24 @@ jobs:
           echo "$PRIVATE_JWT_KEY" | sed 's/\r$//' > ./apps/backend/private-key.pem
           docker build --target development -t $DOCKER_USERNAME/mlm-main-service:latest -f ./apps/backend/apps/app-backend/Dockerfile ./apps/backend
           docker push $DOCKER_USERNAME/mlm-main-service:latest
-
+  
+  deploy-invoices-service-image:
+    runs-on:
+      - ubuntu-latest
+    needs: push-docker-conf-and-login-to-dockerhub
+    steps:
       - name: Build and push invoices service image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
           docker build --target development -t $DOCKER_USERNAME/mlm-invoices-service:latest -f ./apps/backend/apps/invoices/Dockerfile ./apps/backend
           docker push $DOCKER_USERNAME/mlm-invoices-service:latest
-
+  
+  deploy-stats-service-image:
+    runs-on:
+      - ubuntu-latest
+    needs: push-docker-conf-and-login-to-dockerhub
+    steps:
       - name: Build and push incomes-stats service image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -68,7 +87,12 @@ jobs:
   deploy:
     runs-on:
       - ubuntu-latest
-    needs: build-and-publish
+    needs: [
+      deploy-frontend-image,
+      deploy-main-backend-image,
+      deploy-invoices-service-image,
+      deploy-stats-service-image
+    ]
     steps:
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v0.1.7
