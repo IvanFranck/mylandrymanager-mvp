@@ -7,6 +7,5 @@ Dockerfile
 .gitignore
 command_barcodes
 invoices
-./*.pem
 .env
 .env.example

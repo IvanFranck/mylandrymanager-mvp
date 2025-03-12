@@ -4,8 +4,9 @@ WORKDIR /usr/src/app
 
 COPY package.json yarn.lock ./
 
-RUN npm install -g prisma && \
-    yarn install
+RUN apk add --no-cache netcat-openbsd dos2unix openssl && \
+    npm install -g prisma && \
+    yarn install --frozen-lockfile
 
 COPY . .
 
@@ -26,12 +27,6 @@ ENV CODE_SALT=$CODE_SALT
 
 ARG JWT_ALGORITHM
 ENV JWT_ALGORITHM=$JWT_ALGORITHM
-
-ARG JWT_PUBLIC_KEY_PATH
-ENV JWT_PUBLIC_KEY_PATH=$JWT_PUBLIC_KEY_PATH
-
-ARG JWT_PRIVATE_KEY_PATH
-ENV JWT_PRIVATE_KEY_PATH=$JWT_PRIVATE_KEY_PATH
 
 ARG INVOICES_ROOT_PATH
 ENV INVOICES_ROOT_PATH=$INVOICES_ROOT_PATH

@@ -31,7 +31,7 @@ jobs:
         run: |
           echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 
-      - name: Build and push front end image
+      - name: Build and push frontend image
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
@@ -39,6 +39,31 @@ jobs:
         run: |
           docker build --build-arg VITE_API_BASE_URL=$VITE_API_BASE_URL --build-arg VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT -t $DOCKER_USERNAME/mlm-frontend:latest -f ./apps/frontend/Dockerfile ./apps/frontend
           docker push $DOCKER_USERNAME/mlm-frontend:latest
+
+      - name: Build and push main backend image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          PUBLIC_JWT_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+          PRIVATE_JWT_KEY: ${{ secrets.JWT_PRIVATE_KEY }}
+        run: |
+          echo "$PUBLIC_JWT_KEY" | sed 's/\r$//' > ./apps/backend/public-key.pem
+          echo "$PRIVATE_JWT_KEY" | sed 's/\r$//' > ./apps/backend/private-key.pem
+          docker build --target development -t $DOCKER_USERNAME/mlm-main-service:latest -f ./apps/backend/apps/app-backend/Dockerfile ./apps/backend
+          docker push $DOCKER_USERNAME/mlm-main-service:latest
+
+      - name: Build and push invoices service image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          docker build --target development -t $DOCKER_USERNAME/mlm-invoices-service:latest -f ./apps/backend/apps/invoices/Dockerfile ./apps/backend
+          docker push $DOCKER_USERNAME/mlm-invoices-service:latest
+
+      - name: Build and push incomes-stats service image
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          docker build --target development -t $DOCKER_USERNAME/mlm-stats-service:latest -f ./apps/backend/apps/incomes-stats/Dockerfile ./apps/backend
+          docker push $DOCKER_USERNAME/mlm-stats-service:latest
 
   deploy:
     runs-on:
@@ -57,5 +82,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEYS }}
           script: |
             docker pull fridev237/mlm-frontend:latest
+            docker pull fridev237/mlm-main-service
+            docker pull fridev237/mlm-invoices-service:latest
+            docker pull fridev237/mlm-stats-service:latest
             docker compose -f ./mlm-project/docker/docker-compose.yml up -d
             

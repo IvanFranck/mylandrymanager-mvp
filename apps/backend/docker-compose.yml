@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   
   # Service de base de données PostgreSQL
@@ -29,36 +27,23 @@ services:
     networks:
       - my-landry-network
 
-  backend:
+  app-backend:
     build:
-      context: ./apps/app-backend
+      context: ./
+      dockerfile: ./apps/app-backend/Dockerfile
       target: development
-      args:
-        - DATABASE_URL=${DATABASE_URL}
-        - PORT=${PORT}
-        - WHATSAPP_API_TOKEN=${WHATSAPP_API_TOKEN}
-        - WHATSAPP_API_BASE_URL=${WHATSAPP_API_BASE_URL}
-        - WHATSAPP_API_VERSION=${WHATSAPP_API_VERSION}
-        - WHATSAPP_API_PHONE_NUMBER_ID=${WHATSAPP_API_PHONE_NUMBER_ID}
-        - CODE_ALPHABET=${CODE_ALPHABET}
-        - CODE_MIN_LENGTH=${CODE_MIN_LENGTH}
-        - CODE_SALT=${CODE_SALT}
-        - JWT_ALGORITHM=${JWT_ALGORITHM}
-        - JWT_PUBLIC_KEY_PATH=${JWT_PUBLIC_KEY_PATH}
-        - JWT_PRIVATE_KEY_PATH=${JWT_PRIVATE_KEY_PATH}
-        - INVOICES_ROOT_PATH=${INVOICES_ROOT_PATH}
-        - COMMAND_BARCODE_ROOT_PATH=${COMMAND_BARCODE_ROOT_PATH}
-        - RABBIT_MQ_URI=${RABBIT_MQ_URI}
-        - RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE=${RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE}
-        - RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE=${RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE}
-        - RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE=${RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE}
-    ports:
-      - "${PORT}:${PORT}"
-    volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
+    command: ["yarn", "start", "app-backend"]
     env_file:
-      - .env
+      - ./.env
+    depends_on:
+      database:
+        condition: service_healthy
+      broker:
+        condition: service_started
+    networks:
+      - my-landry-network
+    ports:
+      - '${PORT}:${PORT}'  # Port exposé pour l'API
 
 # Définition des volumes pour la persistance des données
 volumes:
