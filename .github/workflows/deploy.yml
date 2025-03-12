@@ -67,4 +67,8 @@ jobs:
 
             wait  # Attendre que tous les pull soient terminés
 
-            docker compose -f ./mlm-project/docker/docker-compose.yml up -d
+            # Démarrer les nouveaux conteneurs avec les nouvelles images
+            docker compose -f ./mlm-project/docker/docker-compose.yml up -d --pull always --no-deps
+
+            # Nettoyer les anciens conteneurs qui ne sont plus utilisés
+            docker image prune -f
