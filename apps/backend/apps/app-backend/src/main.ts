@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes';
-import { ConfigService } from '@nestjs/config';
 import { CustomExptionFilter } from '@common-app-backend/filters/custom-exeption.filter';
 import { VersioningType } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -10,7 +9,6 @@ async function bootstrap() {
   const nestApp = await NestFactory.create(AppModule, {
     logger: ['warn', 'error', 'log'],
   });
-  const configService = nestApp.get(ConfigService);
 
   // enabling cors
   nestApp.enableCors({
@@ -62,6 +60,6 @@ async function bootstrap() {
     }),
   );
 
-  await nestApp.listen(configService.get('PORT'));
+  await nestApp.listen(5555);
 }
 bootstrap();

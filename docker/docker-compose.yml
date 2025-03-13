@@ -41,8 +41,6 @@ services:
     image: fridev237/mlm-frontend:latest
     container_name: frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
     networks:
       - mlm_network
   
@@ -62,8 +60,6 @@ services:
     links:
       - database
       - broker
-    ports:
-      - "${PORT}:${PORT}"
     env_file:
       - ./.env
     networks:
