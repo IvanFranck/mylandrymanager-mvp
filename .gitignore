@@ -61,4 +61,4 @@ node_modules
 
 
 # environment variables
-/docker/*.env
+/docker/*.env*
