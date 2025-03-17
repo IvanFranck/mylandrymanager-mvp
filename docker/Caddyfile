@@ -1,7 +1,11 @@
-laundry-manager.nzimaivan.com {
+demo-laundry-manager.nzimaivan.com {
     reverse_proxy frontend:80
 }
 
-laundry-manager-api.nzimaivan.com {
+laundry-manager.nzimaivan.com {
+    reverse_proxy website:3000
+}
+
+api-laundry-manager.nzimaivan.com {
     reverse_proxy backend-main:5555
 }

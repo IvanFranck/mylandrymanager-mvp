@@ -36,6 +36,14 @@ services:
     networks:
       - mlm_network
 
+  website:
+    image: fridev237/mlm-website:latest
+    container_name: website
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    networks:
+      - mlm_network
 
   frontend:
     image: fridev237/mlm-frontend:latest
