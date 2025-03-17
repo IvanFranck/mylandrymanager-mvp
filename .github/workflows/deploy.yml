@@ -11,6 +11,18 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: copy docker config to vps
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEYS }}
+          VPS_IP: ${{ secrets.VPS_IP }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" | sed 's/\r$//' > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $VPS_IP >> ~/.ssh/known_hosts
+          rsync -avz ./docker  $VPS_USER@$VPS_IP:/home/$VPS_USER/mlm-project
+
       - name: Login to Docker Hub
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}

@@ -3,6 +3,14 @@ services:
     image: caddy:latest
     container_name: reverse-proxy
     restart: unless-stopped
+    depends_on:
+      - website
+      - backend-main
+      - frontend
+    links:
+      - website
+      - backend-main
+      - frontend
     ports:
       - "80:80"
       - "443:443"
