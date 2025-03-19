@@ -11,7 +11,6 @@ import { ProfileView } from "@/views/profile-view"
 import ServiceEditView from "@/views/services/service-edit-view"
 import ServiceCreationDrawer from "@/components/app/services/service-creation-drawer"
 import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
-import RegisterView from "@/views/register-view"
 import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
@@ -28,11 +27,11 @@ export const routes: RouteObject[] = [
                 index: true,
                 element: <Root />
             },
-            {
-                id: "register",
-                path: '/register',
-                element: <RegisterView/>
-            }
+            // {
+            //     id: "register",
+            //     path: '/register',
+            //     element: <RegisterView/>
+            // }
         ]
     },
 

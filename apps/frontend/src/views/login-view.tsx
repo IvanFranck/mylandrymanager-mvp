@@ -1,6 +1,5 @@
 import { z } from "zod"
 import { LoginFormSchema } from "@/lib/api/auth"
-import { Link } from "react-router-dom"
 import { GenericForm } from "@/components/ui/generic-form"
 import { Button } from "@/components/ui/button"
 import { Loader } from "lucide-react"
@@ -29,7 +28,7 @@ export default function LoginView() {
                         isPending={isPending}
                         submitButton={<SubmitButton isPending={isPending} />}
                     />
-                    <p className="text-md text-center mt-4">Vous n'avez pas de compte ? <Link className="text-blue-500" to="/register">Créer en un</Link></p>
+                    {/* <p className="text-md text-center mt-4">Vous n'avez pas de compte ? <Link className="text-blue-500" to="/register">Créer en un</Link></p> */}
                 </div>
             </div>
         </div>
