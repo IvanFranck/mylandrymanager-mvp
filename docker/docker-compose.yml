@@ -39,8 +39,6 @@ services:
   # Service de message broker RabbitMQ
   broker:
     image: rabbitmq
-    ports:
-      - '5672:5672'  # Port exposé pour RabbitMQ
     networks:
       - mlm_network
 
@@ -48,8 +46,6 @@ services:
     image: fridev237/mlm-website:latest
     container_name: website
     restart: unless-stopped
-    ports:
-      - "3000:3000"
     networks:
       - mlm_network
 
@@ -57,8 +53,6 @@ services:
     image: fridev237/mlm-frontend:latest
     container_name: frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
     env_file:
       - ./.env.front
     networks:
