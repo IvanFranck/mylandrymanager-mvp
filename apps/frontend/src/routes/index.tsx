@@ -15,6 +15,7 @@ import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
 import ProfileEditView from "@/views/profile/profile-edit-view"
+import RegisterView from "@/views/register-view"
 
 
 export const routes: RouteObject[] = [
@@ -27,11 +28,11 @@ export const routes: RouteObject[] = [
                 index: true,
                 element: <Root />
             },
-            // {
-            //     id: "register",
-            //     path: '/register',
-            //     element: <RegisterView/>
-            // }
+            {
+                id: "register",
+                path: '/register',
+                element: <RegisterView/>
+            }
         ]
     },
 

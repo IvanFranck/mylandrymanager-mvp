@@ -102,27 +102,26 @@ model Invoice {
 }
 
 model IncomesStats {
+  id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   day       String
-  amount    Int
   accountId Int
-  incomes   Incomes[]
   user      User      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  incomes   Incomes[]
 
-  @@id(name: "incomeId", [day, accountId])
+  @@unique([day, accountId])
 }
 
 model Incomes {
-  id                    Int           @id @default(autoincrement())
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  commandId             Int
-  amount                Int
-  command               Command       @relation(fields: [commandId], references: [id], onDelete: Cascade)
-  IncomesStats          IncomesStats? @relation(fields: [incomesStatsDay, incomesStatsAccountId], references: [day, accountId])
-  incomesStatsDay       String?
-  incomesStatsAccountId Int?
+  id            Int          @id @default(autoincrement())
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  commandId     Int
+  amount        Int
+  command       Command      @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  incomeStatsId Int
+  incomeStats   IncomesStats @relation(fields: [incomeStatsId], references: [id], onDelete: Cascade)
 }
 
 enum CommandStatus {

@@ -17,7 +17,7 @@ export class IncomesStatsService {
       await this.prisma.$transaction(async (tx) => {
         const incomeStat = await tx.incomesStats.findUnique({
           where: {
-            incomeId: {
+            day_accountId: {
               day: date,
               accountId: command.userId,
             },
@@ -27,15 +27,12 @@ export class IncomesStatsService {
         if (incomeStat) {
           return await tx.incomesStats.update({
             where: {
-              incomeId: {
+              day_accountId: {
                 day: date,
                 accountId: command.userId,
               },
             },
             data: {
-              amount: {
-                increment: command.advance,
-              },
               incomes: {
                 create: {
                   amount: command.advance,
@@ -53,7 +50,6 @@ export class IncomesStatsService {
           data: {
             createdAt: command.updatedAt,
             day: date,
-            amount: command.advance,
             accountId: command.userId,
             incomes: {
               create: {

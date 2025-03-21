@@ -27,6 +27,9 @@ export class IncomesService {
                 }
               : undefined,
         },
+        include: {
+          incomes: true,
+        },
       });
     });
 

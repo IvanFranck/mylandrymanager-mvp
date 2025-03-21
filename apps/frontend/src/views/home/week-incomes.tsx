@@ -22,6 +22,8 @@ export function WeekIncomesView() {
       const from = currentWeekStart.toISOString();
       const to = endOfWeek(currentWeekStart).toISOString();
       const results = await getIncomesStats({ from, to });
+
+      console.log(results);
       setChartData(getCurrentWeekData(results.details, currentWeekStart));
     } catch (error) {
       const message = (error as AxiosError<TGenericAxiosError>).response?.data?.message || 'Impossible de récupérer les entrées pour la période sélectionnée';

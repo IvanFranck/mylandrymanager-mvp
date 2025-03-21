@@ -58,9 +58,15 @@ export type InvoiceENtity = BaseEntity & {
     amountPaid: number
 }
 
+type IncomesEntity = BaseEntity & {
+    commandId: number,
+    amount: number,
+    incomeStatsId: number
+}
+
 export type IncomesStatsEntity = Pick<BaseEntity, 'createdAt' | 'updatedAt'> & {
     day: string,
-    amount: number,
+    incomes: Array<IncomesEntity>
     accountId: number
 }
 
