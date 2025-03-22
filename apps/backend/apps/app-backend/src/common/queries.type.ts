@@ -1,5 +1,5 @@
 import { CommandStatus } from '@prisma/client';
-import { IsISO8601, IsNumber } from 'class-validator';
+import { IsISO8601, IsNumber, IsString } from 'class-validator';
 
 export class GenericQueryType {
   @IsNumber()
@@ -21,4 +21,9 @@ export class IncomesQueriesType extends GenericQueryType {
 
   @IsISO8601()
   to: string;
+}
+
+export class ServiceByNameQueriesType extends GenericQueryType {
+  @IsString()
+  name: string;
 }

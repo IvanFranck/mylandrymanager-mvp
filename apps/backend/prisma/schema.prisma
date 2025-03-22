@@ -82,10 +82,11 @@ model Service {
   id               Int      @id @default(autoincrement())
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-  currentVersionId Int
+  currentVersionId Int?     @unique
 
-  Agency   Agency @relation(fields: [agencyId], references: [id])
-  agencyId Int
+  Agency         Agency          @relation(fields: [agencyId], references: [id])
+  agencyId       Int
+  currentVersion ServiceVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
 
   versions ServiceVersion[]
 }
@@ -97,9 +98,11 @@ model ServiceVersion {
   label       String
   price       Int?
   description String?
-  serviceId   Int
 
-  service  Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service          Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId        Int
+  serviceAsCurrent Service? @relation("CurrentVersion")
+
   commands ServiceOnCommand[]
 }
 

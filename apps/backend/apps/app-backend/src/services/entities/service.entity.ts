@@ -2,14 +2,14 @@ export class ServiceEntity {
   id: number;
   createdAt: Date;
   updatedAt: Date;
-  userId: number;
+  agencyId: number;
   currentVersionId: number;
-  versions: {
+  currentVersion: {
     id: number;
     createdAt: Date;
     label: string;
     price: number;
     description: string;
     serviceId: number;
-  }[];
+  };
 }

@@ -10,7 +10,6 @@ import {
   ParseIntPipe,
   HttpStatus,
   UseGuards,
-  Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
@@ -25,10 +24,13 @@ import {
   ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
-import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
 import { Service } from '@prisma/client';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { FormatServicesResponseInterceptor } from '@common-app-backend/interceptors/formatServicesResponse.interceptor';
+import {
+  GenericQueryType,
+  ServiceByNameQueriesType,
+} from '@app-backend/common/queries.type';
 
 @ApiTags('services')
 @UseGuards(AccessTokenAuthGuard)
@@ -44,11 +46,8 @@ export class ServicesController {
   @ApiCreatedResponse({ description: 'service créé!' })
   @ApiBadRequestResponse({ description: 'un service avec ce nom existe déja' }) // TODO gérer cette erreur: le cas où s=le service est créé par des comptes utilisateurs différents
   @Post()
-  async create(
-    @Body() createServiceDto: CreateServiceDto,
-    @Req() req: AccessTokenValidatedRequestInterface,
-  ) {
-    return await this.servicesService.create(createServiceDto, req);
+  async create(@Body() createServiceDto: CreateServiceDto) {
+    return await this.servicesService.create(createServiceDto);
   }
 
   /**
@@ -59,17 +58,14 @@ export class ServicesController {
   @ApiOkResponse({ description: 'liste des services' })
   @Get()
   async findAll(
-    @Req() req: AccessTokenValidatedRequestInterface,
+    @Query() query: GenericQueryType,
   ): Promise<CustomResponseInterface<Service[]>> {
-    return await this.servicesService.findAll(req);
+    return await this.servicesService.findAll(query.agencyId);
   }
 
   @Get('search')
-  async findOneByname(
-    @Query('name') name: string,
-    @Req() req: AccessTokenValidatedRequestInterface,
-  ) {
-    return await this.servicesService.findOneByName(name, req);
+  async findOneByName(@Query() query: ServiceByNameQueriesType) {
+    return await this.servicesService.findOneByName(query);
   }
 
   @ApiParam({ name: 'id', type: Number })
@@ -80,9 +76,9 @@ export class ServicesController {
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
     )
     id: number,
-    @Req() req: AccessTokenValidatedRequestInterface,
+    @Query() query: GenericQueryType,
   ) {
-    return await this.servicesService.findOneById(id, req);
+    return await this.servicesService.findOneById(id, query.agencyId);
   }
 
   @ApiBody({ type: UpdateServiceDto })
