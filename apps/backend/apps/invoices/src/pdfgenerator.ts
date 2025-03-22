@@ -28,22 +28,26 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
    * ****************************************
    */
 
-  const enterpriseIndfosStartX = doc.page.margins.left;
-  const enterpriseIndfosStartY = doc.page.margins.top;
+  const enterpriseInfosStartX = doc.page.margins.left;
+  const enterpriseInfosStartY = doc.page.margins.top;
 
-  const userInfos = invoiceParams.invoice.command.user;
+  const agencyInfos = invoiceParams.invoice.command.Agency;
+  const agentInfos = invoiceParams.invoice.command.user;
 
   doc.font('Helvetica-Bold').fontSize(20);
-  doc.text(userInfos.username, enterpriseIndfosStartX, enterpriseIndfosStartY, {
+  doc.text(agentInfos.username, enterpriseInfosStartX, enterpriseInfosStartY, {
     width: usableWidth,
     align: 'center',
   });
   doc.font('Helvetica').fontSize(12);
-  doc.text(userInfos.address, {
+  doc.text(agencyInfos.address, {
     width: usableWidth,
     align: 'center',
   });
-  doc.text(userInfos.phone.toString(), { width: usableWidth, align: 'center' });
+  doc.text(agencyInfos.phone.toString(), {
+    width: usableWidth,
+    align: 'center',
+  });
 
   const enterpriseIndfosHeight = 70;
 

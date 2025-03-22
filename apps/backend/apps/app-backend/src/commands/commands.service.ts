@@ -163,6 +163,7 @@ export class CommandsService {
         this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
           commandId: command.id,
           advance: advance,
+          agencyId: command.agencyId,
         }),
       ).catch((error) => {
         console.log(`error when send ${CREATE_INVOICE_EVENT}`, error);
@@ -319,7 +320,7 @@ export class CommandsService {
           },
         });
 
-        return updatedCommand;
+        return { ...updatedCommand, agencyId: command.agencyId };
       });
 
       if (advance > 0) {
@@ -339,6 +340,7 @@ export class CommandsService {
         this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
           commandId: command.id,
           advance: advance,
+          agencyId: command.agencyId,
         }),
       );
 
