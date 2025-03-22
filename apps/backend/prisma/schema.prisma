@@ -165,7 +165,7 @@ model IncomesStats {
 
   incomes Incomes[]
 
-  @@unique([day, accountId])
+  @@unique([day, agencyId])
 }
 
 model Incomes {
