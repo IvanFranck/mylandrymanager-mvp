@@ -1,3 +1,5 @@
+.vscode
+
 # ignore pdf and image files
 *.pdf
 *.png
