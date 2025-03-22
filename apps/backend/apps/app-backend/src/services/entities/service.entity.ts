@@ -1,9 +1,5 @@
-export class ServiceEntity {
-  id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  agencyId: number;
-  currentVersionId: number;
+import { Service } from '@prisma/client';
+export type ServiceEntity = Service & {
   currentVersion: {
     id: number;
     createdAt: Date;
@@ -12,4 +8,4 @@ export class ServiceEntity {
     description: string;
     serviceId: number;
   };
-}
+};

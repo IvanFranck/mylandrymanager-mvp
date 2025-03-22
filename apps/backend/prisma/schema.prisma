@@ -83,6 +83,7 @@ model Service {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   currentVersionId Int?     @unique
+  isDeleted        Boolean  @default(false)
 
   Agency         Agency          @relation(fields: [agencyId], references: [id])
   agencyId       Int

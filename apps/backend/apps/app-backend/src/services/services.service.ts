@@ -98,6 +98,9 @@ export class ServicesService {
         },
         include: {
           services: {
+            where: {
+              isDeleted: false,
+            },
             orderBy: {
               createdAt: 'desc',
             },
@@ -194,11 +197,16 @@ export class ServicesService {
         const service = await tx.service.findUnique({
           where: {
             id: id,
+            isDeleted: false,
           },
           select: {
             currentVersion: true,
           },
         });
+
+        if (!service) {
+          throw new NotFoundException('Service not found');
+        }
 
         const {
           createdAt,
@@ -268,9 +276,12 @@ export class ServicesService {
    */
   async remove(id: number): Promise<CustomResponseInterface<Service>> {
     try {
-      const service = await this.prisma.service.delete({
+      const service = await this.prisma.service.update({
         where: {
           id,
+        },
+        data: {
+          isDeleted: true,
         },
       });
       return {
