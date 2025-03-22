@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -15,6 +16,7 @@ import { ServiceByNameQueriesType } from '@app-backend/common/queries.type';
 
 @Injectable()
 export class ServicesService {
+  private readonly logger = new Logger(ServicesService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -73,6 +75,7 @@ export class ServicesService {
         details: service.currentVersion,
       };
     } catch (error) {
+      this.logger.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException('un service avec ce nom existe déja');
       }

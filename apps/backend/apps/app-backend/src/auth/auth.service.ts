@@ -83,7 +83,6 @@ export class AuthService {
     const payload = { sub: id, username, phone, verified };
 
     const [accessToken, refreshToken] = await this.getTokens(payload);
-    console.log('accessToken: ', accessToken);
 
     return {
       message: 'utilisateur connecté',

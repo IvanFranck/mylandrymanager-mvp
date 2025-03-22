@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -58,7 +59,7 @@ export class ServicesController {
   @ApiOkResponse({ description: 'liste des services' })
   @Get()
   async findAll(
-    @Query() query: GenericQueryType,
+    @Query(new ValidationPipe({ transform: true })) query: GenericQueryType,
   ): Promise<CustomResponseInterface<Service[]>> {
     return await this.servicesService.findAll(query.agencyId);
   }

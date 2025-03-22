@@ -1,8 +1,10 @@
 import { CommandStatus } from '@prisma/client';
+import { Type } from 'class-transformer';
 import { IsISO8601, IsNumber, IsString } from 'class-validator';
 
 export class GenericQueryType {
   @IsNumber()
+  @Type(() => Number)
   agencyId?: number;
 }
 
