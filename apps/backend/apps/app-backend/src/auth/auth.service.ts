@@ -31,40 +31,39 @@ export class AuthService {
   async validateUser(
     validateUserDto: ValidateUserDto,
   ): Promise<ValidatedUserEntity | null> {
-    let user: User | null = null;
     try {
-      user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           phone: validateUserDto.phone,
         },
+        include: {
+          agencyMemberships: true,
+        },
       });
+      if (!user) {
+        throw new UnauthorizedException(
+          'Mot de passe ou Numéro de téléphone invalide',
+        );
+      }
+      const isPasswordValid = await bcrypt.compare(
+        validateUserDto.password,
+        user.password,
+      );
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException(
+          'Mot de passe ou Numéro de téléphone invalide',
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, createdAt, updatedAt, verified, ...result } = user;
+      return result;
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
+        'Mot de passe ou Numéro de téléphone invalide',
       );
     }
-
-    if (!user) {
-      throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
-      );
-    }
-
-    const isPaswwordValid = await bcrypt.compare(
-      validateUserDto.password,
-      user.password,
-    );
-
-    if (!isPaswwordValid) {
-      throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
-      );
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
   }
 
   /**
