@@ -4,7 +4,6 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { Customer } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common/exceptions';
-import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 
 @Injectable()
@@ -12,13 +11,11 @@ export class CustomersService {
   constructor(private readonly prisma: PrismaService) {}
   async create(
     createCustomerDto: CreateCustomerDto,
-    req: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<Customer>> {
-    const userId = req.user.sub;
-    createCustomerDto.name = createCustomerDto.name.trim();
+    const { agencyId, ...payload } = createCustomerDto;
     try {
       const customer = await this.prisma.customer.create({
-        data: { ...createCustomerDto, user: { connect: { id: userId } } },
+        data: { ...payload, Agency: { connect: { id: agencyId } } },
       });
 
       return {
@@ -39,13 +36,12 @@ export class CustomersService {
   }
 
   async findAll(
-    request: AccessTokenValidatedRequestInterface,
+    agencyId: number,
   ): Promise<CustomResponseInterface<Customer[]>> {
-    const userId = request.user.sub;
     try {
       const customers = await this.prisma.customer.findMany({
         where: {
-          userId,
+          agencyId,
         },
       });
 

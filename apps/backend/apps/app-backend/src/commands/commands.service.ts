@@ -52,6 +52,7 @@ export class CommandsService {
       services,
       withdrawDate,
       advance,
+      agencyId,
     } = createCommandDto;
     const userId = request.user.sub;
     const hashIds = new Hashids(
@@ -88,6 +89,11 @@ export class CommandsService {
             customer: {
               connect: {
                 id: customerId,
+              },
+            },
+            Agency: {
+              connect: {
+                id: agencyId,
               },
             },
             user: {
@@ -132,6 +138,7 @@ export class CommandsService {
             code: true,
             advance: true,
             status: true,
+            agencyId: true,
             services: {
               select: {
                 service: true,

@@ -11,9 +11,4 @@ export class UpdateUserDto {
   @IsOptional()
   @IsPhoneNumber('CM')
   phone?: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
-  address?: string;
 }

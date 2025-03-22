@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -27,4 +28,9 @@ export class CreateCustomerDto {
   })
   @IsOptional()
   address?: string;
+
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  agencyId: number;
 }

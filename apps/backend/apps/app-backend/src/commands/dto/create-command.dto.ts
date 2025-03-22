@@ -48,6 +48,11 @@ export class CreateCommandDto {
   customerId: number;
 
   @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  agencyId: number;
+
+  @ApiProperty()
   @IsNotEmpty()
   @IsArray()
   services: {

@@ -66,7 +66,6 @@ export class UsersService {
           id: true,
           username: true,
           phone: true,
-          address: true,
         },
       });
 
@@ -103,7 +102,6 @@ export class UsersService {
           id: true,
           username: true,
           phone: true,
-          address: true,
         },
       });
       if (!user) {
