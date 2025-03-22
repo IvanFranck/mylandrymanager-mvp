@@ -65,9 +65,8 @@ export class CommandsController {
    */
   async findAll(
     @Query() query: CommandQueriesType,
-    @Req() req: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<Command[]>> {
-    return await this.commandsService.findAll(req, query);
+    return await this.commandsService.findAll(query);
   }
 
   @Get(':id')

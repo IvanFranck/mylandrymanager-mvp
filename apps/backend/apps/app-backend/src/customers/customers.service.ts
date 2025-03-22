@@ -5,6 +5,7 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { Customer } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
+import { GenericQueryType } from '@app-backend/common/queries.type';
 
 @Injectable()
 export class CustomersService {
@@ -36,12 +37,12 @@ export class CustomersService {
   }
 
   async findAll(
-    agencyId: number,
+    query: GenericQueryType,
   ): Promise<CustomResponseInterface<Customer[]>> {
     try {
       const customers = await this.prisma.customer.findMany({
         where: {
-          agencyId,
+          agencyId: query.agencyId,
         },
       });
 

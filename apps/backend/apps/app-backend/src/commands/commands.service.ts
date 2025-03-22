@@ -185,15 +185,14 @@ export class CommandsService {
    * @return {Promise<Command[]>} the found commands
    */
   async findAll(
-    request: AccessTokenValidatedRequestInterface,
     queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
-    const userId = request.user.sub;
+    const agencyId = queries.agencyId;
     const { status, createdAt, from, to, code } = queries;
     try {
       const commands = await this.prisma.command.findMany({
         where: {
-          userId,
+          agencyId,
           status,
           code: {
             contains: code,

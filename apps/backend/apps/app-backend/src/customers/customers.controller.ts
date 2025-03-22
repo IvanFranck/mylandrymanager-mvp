@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { GenericQueryType } from '@app-backend/common/queries.type';
 
 @ApiTags('customers')
 @UseGuards(AccessTokenAuthGuard)
@@ -46,14 +47,8 @@ export class CustomersController {
   @ApiOkResponse({ description: 'liste des clients' })
   @ApiNotFoundResponse()
   @Get()
-  async findAll(
-    @Param(
-      'agencyId',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
-    )
-    agencyId: number,
-  ) {
-    return await this.customersService.findAll(agencyId);
+  async findAll(@Query() query: GenericQueryType) {
+    return await this.customersService.findAll(query);
   }
 
   @Get('search')
