@@ -5,16 +5,12 @@ import bcrypt from 'bcrypt';
 import { UserInfosEntity } from './entities/user-infos.entity';
 import { CustomResponseInterface } from '@app-backend/common/interfaces/response.interface';
 import { UpdateUserDto } from './dto/edit-user-dto';
-import { AgenciesService } from '@app-backend/agencies/agencies.service';
-import { UserAgentEntity } from '@app-backend/agencies/entities/use-agent.entity';
+import { UserAgentEntity } from './entities/use-agent.entity';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly agencyService: AgenciesService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Asynchronous function to create a user.
@@ -39,7 +35,7 @@ export class UsersService {
             password: encryptedPassword,
           },
         });
-        if (user) {
+        if (newUser) {
           const newAgency = await tx.agency.create({
             data: {
               address: agency_address,
@@ -72,8 +68,19 @@ export class UsersService {
                 userId: true,
                 agencyId: true,
                 createdAt: true,
-                user: true,
-                agency: true,
+                user: {
+                  select: {
+                    username: true,
+                    phone: true,
+                  },
+                },
+                agency: {
+                  select: {
+                    name: true,
+                    address: true,
+                    phone: true,
+                  },
+                },
               },
             });
           }
@@ -84,18 +91,20 @@ export class UsersService {
         throw new BadRequestException("erreur lors de la création de l'agence");
       });
       return {
-        message: 'user created',
+        message: 'utilisateur créé avec succès',
         details: user,
       };
     } catch (error) {
       this.logger.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException(
-          'user with this phone number already exists',
+          'Un utilisateur avec ce numéro existe déjà. Veillez utiliser un autre numéro',
         );
       }
       console.log(error);
-      throw new BadRequestException('numéro de téléphone invalide');
+      throw new BadRequestException(
+        "erreur lors de la création de l'utilisateur",
+      );
     }
   }
 

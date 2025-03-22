@@ -1,7 +1,7 @@
 import { PrismaService } from '@app/prisma';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateAgencyDto } from './dto/create-agency.dto';
-import { UserAgentEntity } from './entities/use-agent.entity';
+import { UserAgentEntity } from '@app-backend/users/entities/use-agent.entity';
 
 @Injectable()
 export class AgenciesService {
@@ -41,8 +41,19 @@ export class AgenciesService {
               userId: true,
               agencyId: true,
               createdAt: true,
-              user: true,
-              agency: true,
+              user: {
+                select: {
+                  username: true,
+                  phone: true,
+                },
+              },
+              agency: {
+                select: {
+                  name: true,
+                  address: true,
+                  phone: true,
+                },
+              },
             },
           });
         }
