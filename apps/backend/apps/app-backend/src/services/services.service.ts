@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -78,6 +79,9 @@ export class ServicesService {
       this.logger.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException('un service avec ce nom existe déja');
+      }
+      if (error instanceof HttpException) {
+        throw error;
       }
       throw new BadRequestException(error);
     }
@@ -176,6 +180,9 @@ export class ServicesService {
       if (error instanceof NotFoundException) {
         throw error;
       }
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.error('error: ', error);
       throw new NotFoundException(error);
     }
@@ -205,7 +212,7 @@ export class ServicesService {
         });
 
         if (!service) {
-          throw new NotFoundException('Service not found');
+          throw new NotFoundException('Service inexistant ou supprimé');
         }
 
         const {
@@ -262,6 +269,9 @@ export class ServicesService {
     } catch (error) {
       if (error.code === 'P2025') {
         throw new BadRequestException('impossible de trouver ce service');
+      }
+      if (error instanceof HttpException) {
+        throw error;
       }
       console.error('error: ', error);
       throw new BadRequestException(error);
