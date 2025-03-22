@@ -33,7 +33,7 @@ export class ServicesService {
         // create new service version an parent service
         const serviceVersion = await tx.serviceVersion.create({
           data: {
-            ...createServiceDto,
+            ...serviceData,
             service: {
               create: {
                 Agency: {

@@ -2,15 +2,19 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import bcrypt from 'bcrypt';
-import { CreatedUserEntity } from './entities/created-user.entity';
 import { UserInfosEntity } from './entities/user-infos.entity';
 import { CustomResponseInterface } from '@app-backend/common/interfaces/response.interface';
 import { UpdateUserDto } from './dto/edit-user-dto';
+import { AgenciesService } from '@app-backend/agencies/agencies.service';
+import { UserAgentEntity } from '@app-backend/agencies/entities/use-agent.entity';
 
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly agencyService: AgenciesService,
+  ) {}
 
   /**
    * Asynchronous function to create a user.
@@ -21,22 +25,63 @@ export class UsersService {
 
   async createUser(
     createUserDto: CreateUserDto,
-  ): Promise<CustomResponseInterface<CreatedUserEntity>> {
+  ): Promise<CustomResponseInterface<UserAgentEntity>> {
     try {
       const encryptedPassword = await bcrypt.hash(createUserDto.password, 8);
 
-      const user = await this.prisma.user.create({
-        data: {
-          ...createUserDto,
-          password: encryptedPassword,
-        },
-        select: {
-          id: true,
-          username: true,
-          phone: true,
-          createdAt: true,
-          updatedAt: true,
-        },
+      const user = await this.prisma.$transaction(async (tx) => {
+        const { agency_name, agency_address, agency_contact, username, phone } =
+          createUserDto;
+        const newUser = await tx.user.create({
+          data: {
+            username,
+            phone,
+            password: encryptedPassword,
+          },
+        });
+        if (user) {
+          const newAgency = await tx.agency.create({
+            data: {
+              address: agency_address,
+              phone: agency_contact,
+              name: agency_name,
+              owner: {
+                connect: {
+                  id: newUser.id,
+                },
+              },
+            },
+          });
+
+          if (newAgency) {
+            return await tx.userAgency.create({
+              data: {
+                role: 'OWNER',
+                user: {
+                  connect: {
+                    id: newUser.id,
+                  },
+                },
+                agency: {
+                  connect: {
+                    id: newAgency.id,
+                  },
+                },
+              },
+              select: {
+                userId: true,
+                agencyId: true,
+                createdAt: true,
+                user: true,
+                agency: true,
+              },
+            });
+          }
+          throw new BadRequestException(
+            "erreur lors de la création de l'agence",
+          );
+        }
+        throw new BadRequestException("erreur lors de la création de l'agence");
       });
       return {
         message: 'user created',
