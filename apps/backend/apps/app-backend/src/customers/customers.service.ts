@@ -3,7 +3,7 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { Customer } from '@prisma/client';
-import { NotFoundException } from '@nestjs/common/exceptions';
+import { HttpException, NotFoundException } from '@nestjs/common/exceptions';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import {
   GenericQueryType,
@@ -102,7 +102,7 @@ export class CustomersService {
       });
 
       if (!customer) {
-        throw new NotFoundException();
+        throw new NotFoundException('client non trouvé');
       }
       return {
         message: 'customer updated',
@@ -110,9 +110,11 @@ export class CustomersService {
       };
     } catch (error) {
       if (error.code === 'P2025') {
-        throw new BadRequestException("can't find any customer with this id");
+        throw new BadRequestException('Client non trouvé');
       }
-      console.error('error: ', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new BadRequestException(error);
     }
   }
