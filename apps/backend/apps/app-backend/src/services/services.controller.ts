@@ -30,7 +30,7 @@ import { CustomResponseInterface } from '@common-app-backend/interfaces/response
 import { FormatServicesResponseInterceptor } from '@common-app-backend/interceptors/formatServicesResponse.interceptor';
 import {
   GenericQueryType,
-  ServiceByNameQueriesType,
+  SearchByNameQueriesType,
 } from '@app-backend/common/queries.type';
 
 @ApiTags('services')
@@ -65,7 +65,7 @@ export class ServicesController {
   }
 
   @Get('search')
-  async findOneByName(@Query() query: ServiceByNameQueriesType) {
+  async findOneByName(@Query() query: SearchByNameQueriesType) {
     return await this.servicesService.findOneByName(query);
   }
 

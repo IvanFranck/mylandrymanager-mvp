@@ -13,7 +13,7 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { Service, ServiceVersion } from '@prisma/client';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { ServiceEntity } from './entities/service.entity';
-import { ServiceByNameQueriesType } from '@app-backend/common/queries.type';
+import { SearchByNameQueriesType } from '@app-backend/common/queries.type';
 
 @Injectable()
 export class ServicesService {
@@ -133,23 +133,30 @@ export class ServicesService {
    * @return {Promise<{ message: string, service: Service }>} an object containing a message and the service found
    */
   async findOneByName(
-    query: ServiceByNameQueriesType,
+    query: SearchByNameQueriesType,
   ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     try {
-      // improve this: it make call to DB to retrieve all customers every time we call this.
-      // try to cache the response from DB at the first place
-      const services = await this.findAll(query.agencyId);
-
-      const service = services.details.filter((service) =>
-        service.currentVersion?.label
-          .trim()
-          .toLowerCase()
-          .includes(query.name.trim().toLowerCase()),
-      );
+      const services = await this.prisma.service.findMany({
+        where: {
+          agencyId: query.agencyId,
+          isDeleted: false,
+          currentVersion: {
+            label: {
+              contains: query.name,
+              mode: 'insensitive',
+            },
+          },
+        },
+        include: {
+          currentVersion: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
 
       return {
         message: 'services trouvés',
-        details: service,
+        details: services,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
