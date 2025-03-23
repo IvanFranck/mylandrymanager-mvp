@@ -8,7 +8,7 @@ import {
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
-import { Command, CommandStatus } from '@prisma/client';
+import { Command, CommandStatus, ServiceVersion } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
@@ -61,8 +61,26 @@ export class CommandsService {
       this.configService.get('CODE_ALPHABET'),
     );
     try {
+      // 1. get services current version infos
+      const servicesInfos: { service: ServiceVersion; quantity: number }[] = [];
+      services.forEach(async (service) => {
+        const serviceVersion = await this.prisma.serviceVersion.findUnique({
+          where: {
+            id: service.service.currentVersionId,
+          },
+        });
+        if (!serviceVersion) {
+          throw new BadRequestException(
+            "Impossible d'enregistrer votre commande car l'un des services sélectionnés n'existe pas",
+          );
+        }
+        servicesInfos.push({
+          service: serviceVersion,
+          quantity: service.quantity,
+        });
+      });
       // 1. compute the total price
-      const totalPrice = computeTotalPartial(services);
+      const totalPrice = computeTotalPartial(servicesInfos);
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
@@ -101,7 +119,7 @@ export class CommandsService {
                 id: userId,
               },
             },
-            // 3. create all serviceoncommands entries and connect them to the created command
+            // 3. create all serviceOnCommands entries and connect them to the created command
             services: {
               create: services.map((service) => ({
                 service: {

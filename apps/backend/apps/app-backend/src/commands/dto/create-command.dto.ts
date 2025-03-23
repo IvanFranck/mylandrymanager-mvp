@@ -9,11 +9,6 @@ import {
 
 export type CreateCommand_ServiceType = {
   id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  label: string;
-  price: number;
-  description?: string;
   currentVersionId: number;
 };
 export class CreateCommandDto {

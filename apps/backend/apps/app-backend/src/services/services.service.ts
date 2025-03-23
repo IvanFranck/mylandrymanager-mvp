@@ -280,7 +280,6 @@ export class ServicesService {
       if (error instanceof HttpException) {
         throw error;
       }
-      console.error('error: ', error);
       throw new BadRequestException(error);
     }
   }

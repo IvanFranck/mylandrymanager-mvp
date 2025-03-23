@@ -1,4 +1,4 @@
-import { CreateCommand_ServiceType } from '@app-backend/commands/dto/create-command.dto';
+import { ServiceVersion } from '@prisma/client';
 
 /**
  * Compute the partial total price after applying a discount.
@@ -7,7 +7,7 @@ import { CreateCommand_ServiceType } from '@app-backend/commands/dto/create-comm
  * @return {number} the total price after applying the discount
  */
 export function computeTotalPartial(
-  services: { service: CreateCommand_ServiceType; quantity: number }[],
+  services: { service: ServiceVersion; quantity: number }[],
 ): number {
   return services.reduce(
     (acc, { quantity, service }) => acc + service.price * quantity,
