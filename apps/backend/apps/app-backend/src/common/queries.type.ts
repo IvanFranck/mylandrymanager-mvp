@@ -25,7 +25,7 @@ export class IncomesQueriesType extends GenericQueryType {
   to: string;
 }
 
-export class ServiceByNameQueriesType extends GenericQueryType {
+export class SearchByNameQueriesType extends GenericQueryType {
   @IsString()
   name: string;
 }

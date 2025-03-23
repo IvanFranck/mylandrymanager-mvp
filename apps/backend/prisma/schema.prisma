@@ -65,12 +65,13 @@ model User {
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String   @db.VarChar(255)
-  phone     String   @unique
-  address   String?  @db.VarChar(255)
+  id                       Int      @id @default(autoincrement())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  name                     String   @db.VarChar(255)
+  phone                    String   @unique
+  address                  String?  @db.VarChar(255)
+  agreeWithMessagingPolicy Boolean  @default(false)
 
   Agency   Agency @relation(fields: [agencyId], references: [id])
   agencyId Int

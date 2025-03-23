@@ -41,8 +41,6 @@ export class CustomExptionFilter implements ExceptionFilter {
       message,
     };
 
-    console.error('Exception Filter: ', errorResponse);
-
     response.status(status).json(errorResponse);
   }
 }

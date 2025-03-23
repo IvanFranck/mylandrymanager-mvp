@@ -5,7 +5,10 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { Customer } from '@prisma/client';
 import { NotFoundException } from '@nestjs/common/exceptions';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
-import { GenericQueryType } from '@app-backend/common/queries.type';
+import {
+  GenericQueryType,
+  SearchByNameQueriesType,
+} from '@app-backend/common/queries.type';
 
 @Injectable()
 export class CustomersService {
@@ -24,7 +27,6 @@ export class CustomersService {
         details: customer,
       };
     } catch (error) {
-      console.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException(
           'un client avec ce numéro de téléphone existe déjà, veuillez en choisir un autre',
@@ -59,19 +61,25 @@ export class CustomersService {
     }
   }
 
-  async findOne(name: string): Promise<CustomResponseInterface<Customer[]>> {
+  async findOne(
+    query: SearchByNameQueriesType,
+  ): Promise<CustomResponseInterface<Customer[]>> {
     try {
-      // improve this: it make call to DB to retrieve all customers every time we call this.
-      // try to cache the response from DB at the first place
-      const customers = await this.prisma.customer.findMany();
-
-      const customer = customers.filter((customer) =>
-        customer.name.toLowerCase().includes(name.trim().toLowerCase()),
-      );
+      const customers = await this.prisma.customer.findMany({
+        where: {
+          name: {
+            contains: query.name,
+            mode: 'insensitive',
+          },
+          agencyId: query.agencyId,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
 
       return {
         message: 'clients trouvés',
-        details: customer,
+        details: customers,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {

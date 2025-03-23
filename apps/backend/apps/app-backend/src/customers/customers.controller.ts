@@ -23,7 +23,10 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { GenericQueryType } from '@app-backend/common/queries.type';
+import {
+  GenericQueryType,
+  SearchByNameQueriesType,
+} from '@app-backend/common/queries.type';
 
 @ApiTags('customers')
 @UseGuards(AccessTokenAuthGuard)
@@ -52,8 +55,8 @@ export class CustomersController {
   }
 
   @Get('search')
-  async findOne(@Query('name') name: string) {
-    return await this.customersService.findOne(name);
+  async findOne(@Query() query: SearchByNameQueriesType) {
+    return await this.customersService.findOne(query);
   }
 
   @Put(':id')
