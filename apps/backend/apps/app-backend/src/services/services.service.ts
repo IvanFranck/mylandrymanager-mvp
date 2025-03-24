@@ -137,7 +137,7 @@ export class ServicesService {
   ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     try {
       if (query.name.trim().length === 0) {
-        throw new BadRequestException('Le nom du service est obligatoire');
+        throw new BadRequestException('Veillez saisir le nom du service');
       }
       const services = await this.prisma.service.findMany({
         where: {

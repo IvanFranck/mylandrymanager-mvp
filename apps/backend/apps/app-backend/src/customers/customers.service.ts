@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
@@ -12,6 +12,7 @@ import {
 
 @Injectable()
 export class CustomersService {
+  private readonly logger = new Logger(CustomersService.name);
   constructor(private readonly prisma: PrismaService) {}
   async create(
     createCustomerDto: CreateCustomerDto,
@@ -61,10 +62,13 @@ export class CustomersService {
     }
   }
 
-  async findOne(
+  async searchByName(
     query: SearchByNameQueriesType,
   ): Promise<CustomResponseInterface<Customer[]>> {
     try {
+      if (query.name.trim().length === 0) {
+        throw new BadRequestException('Veillez renseigner un nom');
+      }
       const customers = await this.prisma.customer.findMany({
         where: {
           name: {
@@ -77,12 +81,42 @@ export class CustomersService {
         take: 10,
       });
 
+      if (!customers) {
+        throw new NotFoundException('client non trouvé');
+      }
+
       return {
         message: 'clients trouvés',
         details: customers,
       };
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      this.logger.error(error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.error('error: ', error);
+      throw new NotFoundException(error);
+    }
+  }
+
+  async findOneById(id: number): Promise<CustomResponseInterface<Customer>> {
+    try {
+      const customer = await this.prisma.customer.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!customer) {
+        throw new NotFoundException('client non trouvé');
+      }
+
+      return {
+        message: 'client trouvé',
+        details: customer,
+      };
+    } catch (error) {
+      if (error instanceof HttpException) {
         throw error;
       }
       console.error('error: ', error);

@@ -65,7 +65,10 @@ export class ServicesController {
   }
 
   @Get('search')
-  async findOneByName(@Query() query: SearchByNameQueriesType) {
+  async findOneByName(
+    @Query(new ValidationPipe({ transform: true }))
+    query: SearchByNameQueriesType,
+  ) {
     return await this.servicesService.findOneByName(query);
   }
 

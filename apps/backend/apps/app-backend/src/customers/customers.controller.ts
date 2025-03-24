@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -55,8 +56,22 @@ export class CustomersController {
   }
 
   @Get('search')
-  async findOne(@Query() query: SearchByNameQueriesType) {
-    return await this.customersService.findOne(query);
+  async searchByName(
+    @Query(new ValidationPipe({ transform: true }))
+    query: SearchByNameQueriesType,
+  ) {
+    return await this.customersService.searchByName(query);
+  }
+
+  @Get(':id')
+  async findOneById(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    id: number,
+  ) {
+    return await this.customersService.findOneById(id);
   }
 
   @Put(':id')
