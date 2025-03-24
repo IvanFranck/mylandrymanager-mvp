@@ -40,11 +40,11 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
     align: 'center',
   });
   doc.font('Helvetica').fontSize(12);
-  doc.text(agencyInfos.address, {
+  doc.text(agencyInfos.address ? agencyInfos.address : '', {
     width: usableWidth,
     align: 'center',
   });
-  doc.text(agencyInfos.phone.toString(), {
+  doc.text(agencyInfos.phone ? agencyInfos.phone.toString() : '', {
     width: usableWidth,
     align: 'center',
   });
