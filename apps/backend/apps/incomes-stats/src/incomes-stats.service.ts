@@ -8,7 +8,6 @@ export class IncomesStatsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async handleIncomes(command: Command) {
-    console.log('command payload', command);
     const date = format(command.updatedAt, 'dd/MM/yyyy');
     try {
       await this.prisma.$transaction(async (tx) => {

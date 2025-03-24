@@ -74,13 +74,16 @@ export class CommandsService {
             "Impossible d'enregistrer votre commande car l'un des services sélectionnés n'existe pas",
           );
         }
+        this.logger.log('serviceVersion', serviceVersion, service.quantity);
         servicesInfos.push({
           service: serviceVersion,
           quantity: service.quantity,
         });
       });
-      // 1. compute the total price
+      // 2. compute the total price
+      this.logger.log('totalPrice before', servicesInfos);
       const totalPrice = computeTotalPartial(servicesInfos);
+      this.logger.log('totalPrice', totalPrice);
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
@@ -94,7 +97,7 @@ export class CommandsService {
         discount,
       );
 
-      // 2. create the command and connect to customer
+      // 3. create the command and connect to customer
       const command = await this.prisma.$transaction(async (tx) => {
         const newCommand = await tx.command.create({
           data: {
@@ -119,7 +122,7 @@ export class CommandsService {
                 id: userId,
               },
             },
-            // 3. create all serviceOnCommands entries and connect them to the created command
+            // 4. create all serviceOnCommands entries and connect them to the created command
             services: {
               create: services.map((service) => ({
                 service: {
@@ -302,6 +305,7 @@ export class CommandsService {
     updateCommandDto: UpdateCommandDto,
   ): Promise<{ message: string; command: any }> {
     const { description, advance } = updateCommandDto;
+    const newAdvance = advance ? advance : 0;
     try {
       const command = await this.prisma.$transaction(async (tx) => {
         const command = await tx.command.findUnique({
@@ -310,14 +314,14 @@ export class CommandsService {
           },
         });
 
-        if (command.advance + advance > command.price) {
+        if (command.advance + newAdvance > command.price) {
           throw new BadRequestException(
             'Le montant entré est supérieur au reste à payer',
           );
         }
         const commandStatus = this.getCommandStatus(
           command.price,
-          command.advance + advance,
+          command.advance + newAdvance,
           command.discount,
         );
 
@@ -329,7 +333,7 @@ export class CommandsService {
             description,
             status: commandStatus,
             advance: {
-              increment: advance,
+              increment: newAdvance,
             },
           },
           include: {
