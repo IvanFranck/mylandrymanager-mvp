@@ -136,6 +136,9 @@ export class ServicesService {
     query: SearchByNameQueriesType,
   ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     try {
+      if (query.name.trim().length === 0) {
+        throw new BadRequestException('Le nom du service est obligatoire');
+      }
       const services = await this.prisma.service.findMany({
         where: {
           agencyId: query.agencyId,
@@ -162,6 +165,9 @@ export class ServicesService {
       if (error instanceof NotFoundException) {
         throw error;
       }
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.error('error: ', error);
       throw new NotFoundException(error);
     }
@@ -172,12 +178,18 @@ export class ServicesService {
     agencyId: number,
   ): Promise<CustomResponseInterface<Service>> {
     try {
-      const services = await this.findAll(agencyId);
-
-      const service = services.details.find((service) => service.id === id);
+      const service = await this.prisma.service.findUnique({
+        where: {
+          id: id,
+          isDeleted: false,
+        },
+        include: {
+          currentVersion: true,
+        },
+      });
 
       if (!service) {
-        throw new NotFoundException('service not found');
+        throw new NotFoundException('service inexistant ou supprimé');
       }
       return {
         message: 'service trouvé',
