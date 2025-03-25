@@ -1,12 +1,12 @@
-import { CommandQueriesType, IncomesQueriesType } from "@/lib/types/query.filter.types"
+import { CommandQueriesType, GenericQueryType, IncomesQueriesType } from "@/lib/types/query.filter.types"
 
 // auth
 export const LOGIN_QUERY_KEY = ['login_key']
 export const REGISTER_QUERY_KEY = ['login_key']
 
 // services
-export const SERVICES_QUERY_KEY = ["services_key"]
-export const SERVICE_ID_QUERY_KEY = (id: number) => ["service_id_key", id]
+export const SERVICES_QUERY_KEY = (filter: Record<string, unknown>) => ["services_key", filter]
+export const SERVICE_ID_QUERY_KEY = (id: number, query: GenericQueryType) => ["service_id_key", id, query]
 
 // customers
 export const CUSTOMERS_QUERY_KEY = ["customers_key"]

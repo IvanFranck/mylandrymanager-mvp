@@ -6,6 +6,7 @@ import { TGenericResponse } from "../types/responses";
 import { CommandsEntity } from "../types/entities";
 import { formatISO } from "date-fns";
 import { CommandQueriesType } from "../types/query.filter.types";
+import { formatRequestQuery } from "../utils";
 
 export const CommandSchema = z.object({
     description: z.string().optional(),
@@ -39,15 +40,7 @@ export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
 
 
 export async function fetchAllCommandsQuery(query: CommandQueriesType){
-    console.log(query)
-    let isFirstQueryParamSet = false
-    const queryString = Object.entries(query).map(([key, value])=>{
-        if (value) {
-            const prefix = isFirstQueryParamSet ? '&' : '?';
-            isFirstQueryParamSet = true;
-            return `${prefix}${key}=${value}`;
-        }
-      }).join('')
+    const queryString = formatRequestQuery(query)
     return await axiosInstance
                     .get(`${API_ROUTES.COMMANDS}${queryString}`)
                     .then((resp: AxiosResponse<TGenericResponse<CommandsEntity[]>>) => resp.data.details)

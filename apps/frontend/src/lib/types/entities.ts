@@ -32,11 +32,17 @@ export type UserProfileEntity = {
     address: string
 }
 
-export type ServicesEntity = BaseEntity & {
+export type ServiceVersionEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
+}
+
+export type ServicesEntity = BaseEntity & {
+    isDeleted: boolean
     currentVersionId: number
+    agencyId: number
+    currentVersion: ServiceVersionEntity
 }
 
 
