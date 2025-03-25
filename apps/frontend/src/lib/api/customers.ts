@@ -4,6 +4,8 @@ import { AxiosResponse } from "axios";
 import { TGenericResponse } from "../types/responses";
 import { CustomersEntity } from "../types/entities";
 import z from "zod";
+import { GenericQueryType } from "../types/query.filter.types";
+import { formatRequestQuery } from "../utils";
 
 export const CustomerFormSchema = z.object({
     name: z.string().trim().min(1, 'invalid name'),
@@ -11,9 +13,10 @@ export const CustomerFormSchema = z.object({
     address: z.string().trim().optional()
 })
 
-export async function fetchAllCustomersQuery() {
+export async function fetchAllCustomersQuery(query: GenericQueryType) {
+    const queryString = formatRequestQuery(query)
     return await axiosInstance
-                    .get(API_ROUTES.CUSTOMERS)
+                    .get(`${API_ROUTES.CUSTOMERS}${queryString}`)
                     .then((resp: AxiosResponse<TGenericResponse<CustomersEntity[]>>) => resp.data)
 }
 
