@@ -16,7 +16,24 @@ import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
 import ProfileEditView from "@/views/profile/profile-edit-view"
 import RegisterView from "@/views/register-view"
+import LoginView from "@/views/login-view"
+import SelectAgencyView from "@/views/select-agency-view"
+// import { useAuth } from "@/lib/hooks/use-cases/useAuth"
+// import { Navigate } from "react-router-dom"
 
+// const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+//     const { user, selectedAgency } = useAuth()
+
+//     if (!user) {
+//         return <Navigate to="/login" replace />
+//     }
+
+//     if (!selectedAgency) {
+//         return <Navigate to="/select-agency" replace />
+//     }
+
+//     return <>{children}</>
+// }
 
 export const routes: RouteObject[] = [
     {
@@ -32,7 +49,17 @@ export const routes: RouteObject[] = [
                 id: "register",
                 path: '/register',
                 element: <RegisterView/>
-            }
+            },
+            {
+                id: "login",
+                path: "/login",
+                element: <LoginView />,
+            },
+            {
+                id: "selec-aegncy",
+                path: "/select-agency",
+                element: <SelectAgencyView />,
+            },
         ]
     },
 
@@ -143,8 +170,5 @@ export const routes: RouteObject[] = [
                 ]
             }
         ]
-    }
-
-
-
+    },
 ]

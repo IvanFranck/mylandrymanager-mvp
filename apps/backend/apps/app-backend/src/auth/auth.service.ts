@@ -37,7 +37,11 @@ export class AuthService {
           phone: validateUserDto.phone,
         },
         include: {
-          agencyMemberships: true,
+          agencyMemberships: {
+            include: {
+              agency: true,
+            },
+          },
         },
       });
       if (!user) {
