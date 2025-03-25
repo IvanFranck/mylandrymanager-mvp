@@ -120,6 +120,8 @@ export class UsersService {
           id: true,
           username: true,
           phone: true,
+          ownedAgencies: true,
+          agencyMemberships: true,
         },
       });
 
