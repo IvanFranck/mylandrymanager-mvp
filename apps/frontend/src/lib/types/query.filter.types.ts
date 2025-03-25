@@ -7,6 +7,7 @@ export type CommandQueriesType = {
     price?: string;
     from?: string,
     to?: string
+    agencyId?: number
 };
 
 export type IncomesQueriesType = {

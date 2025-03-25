@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { CommandListItem } from "@/components/app/commands/CommandListItem"
 import { CommandsStatusFilter } from "@/components/app/commands/CommandsStatusFilter"
 import { CommandListSkeleton } from "@/components/app/commands/command-list-skeleton"
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration"
 import { Input } from "@/components/ui/input"
 import { useGetAllCommands } from "@/lib/hooks/use-cases/commands/useGetAllCommands"
+import { useAuth } from "@/lib/hooks/use-cases/useAuth"
 import { CommandQueriesType } from "@/lib/types/query.filter.types"
 import { useEffect, useState } from "react"
 
@@ -39,8 +41,18 @@ export const CommandsListView = () => {
             }
             setFilters(newFilters);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
     }, [debouncedQuery]);
+
+    useEffect(() => {
+        const agency = useAuth.getState().selectedAgency;
+        if (agency) {
+            setFilters({
+                ...filters,
+                agencyId: agency.id
+            })
+        }
+    }, [])
     return (
 
         <div className="w-full flex flex-col space-y-3 px-2 mt-2">
