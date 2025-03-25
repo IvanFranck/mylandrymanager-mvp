@@ -8,7 +8,7 @@ import {
 import { CreateCommandDto } from './dto/create-command.dto';
 import { UpdateCommandDto } from './dto/update-command.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
-import { Command, CommandStatus, ServiceVersion } from '@prisma/client';
+import { Command, CommandStatus } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
 import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
@@ -62,28 +62,26 @@ export class CommandsService {
     );
     try {
       // 1. get services current version infos
-      const servicesInfos: { service: ServiceVersion; quantity: number }[] = [];
-      services.forEach(async (service) => {
-        const serviceVersion = await this.prisma.serviceVersion.findUnique({
-          where: {
-            id: service.service.currentVersionId,
-          },
-        });
-        if (!serviceVersion) {
-          throw new BadRequestException(
-            "Impossible d'enregistrer votre commande car l'un des services sélectionnés n'existe pas",
-          );
-        }
-        this.logger.log('serviceVersion', serviceVersion, service.quantity);
-        servicesInfos.push({
-          service: serviceVersion,
-          quantity: service.quantity,
-        });
-      });
+      const servicesInfos = await Promise.all(
+        services.map(async (service) => {
+          const serviceVersion = await this.prisma.serviceVersion.findUnique({
+            where: {
+              id: service.service.currentVersionId,
+            },
+          });
+          if (!serviceVersion) {
+            throw new BadRequestException(
+              "Impossible d'enregistrer votre commande car l'un des services sélectionnés n'existe pas",
+            );
+          }
+          return {
+            service: serviceVersion,
+            quantity: service.quantity,
+          };
+        }),
+      );
       // 2. compute the total price
-      this.logger.log('totalPrice before', servicesInfos);
       const totalPrice = computeTotalPartial(servicesInfos);
-      this.logger.log('totalPrice', totalPrice);
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
