@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 export function useLogin() {
     const navigate = useNavigate();
-    const { setUser } = useAuth();
+    const { setUser, setTokens } = useAuth();
     const { toast } = useToast()
 
     return useMutation({
@@ -19,6 +19,7 @@ export function useLogin() {
         },
         onSuccess: (data) => {
             setUser(data.details.user);
+            setTokens(data.details.accessToken, data.details.refreshToken);
             navigate("/select-agency");
         },
         onError: (error: AxiosError<TGenericAxiosError>) => {

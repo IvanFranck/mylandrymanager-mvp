@@ -3,13 +3,27 @@ type BaseEntity = {
     createdAt: Date
     updatedAt: Date
 }
+
+
+export interface AgencyEntity {
+    id: number
+    address: string
+    name: string
+    phone: string
+}
 export type UserEntity = BaseEntity & {
     username: string
     phone: number
-    password: string
-    signUpCompleted: boolean
+    agencyMemberships: {
+        agencyId: number
+        userId: number
+        createdAt: Date
+        agency: AgencyEntity
+    }[]
     services: ServicesEntity[]
 }
+
+
 
 export type UserProfileEntity = {
     id: number

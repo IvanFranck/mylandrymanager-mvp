@@ -1,25 +1,16 @@
+import { AgencyEntity, UserEntity } from "@/lib/types/entities"
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
-interface Agency {
-    address: string,
-    name: string
-}
-interface User {
-    id: number
-    username: string
-    phone: string
-    agencyMemberships: {
-        agencyId: number
-        agency: Agency
-    }[]
-}
 
 interface AuthState {
-    user: User | null
-    selectedAgency: Agency | null
-    setUser: (user: User | null) => void
-    selectAgency: (agency: Agency) => void
+    user: UserEntity | null
+    selectedAgency: AgencyEntity | null
+    accessToken: string | null
+    refreshToken: string | null
+    setUser: (user: UserEntity | null) => void
+    selectAgency: (agency: AgencyEntity) => void
+    setTokens: (accessToken: string, refreshToken: string) => void
     logout: () => void
 }
 
@@ -28,9 +19,12 @@ export const useAuth = create<AuthState>()(
         (set) => ({
             user: null,
             selectedAgency: null,
+            accessToken: null,
+            refreshToken: null,
             setUser: (user) => set({ user }),
             selectAgency: (agency) => set({ selectedAgency: agency }),
-            logout: () => set({ user: null, selectedAgency: null }),
+            setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+            logout: () => set({ user: null, selectedAgency: null, accessToken: null, refreshToken: null }),
         }),
         {
             name: "auth-storage",
