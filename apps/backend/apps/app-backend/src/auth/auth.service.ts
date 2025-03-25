@@ -46,7 +46,7 @@ export class AuthService {
       });
       if (!user) {
         throw new UnauthorizedException(
-          'Mot de passe ou Numéro de téléphone invalide',
+          'Mot de passe ou numéro de téléphone incorrect',
         );
       }
       const isPasswordValid = await bcrypt.compare(
@@ -56,7 +56,7 @@ export class AuthService {
 
       if (!isPasswordValid) {
         throw new UnauthorizedException(
-          'Mot de passe ou Numéro de téléphone invalide',
+          'Mot de passe ou numéro de téléphone incorrect',
         );
       }
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -65,7 +65,7 @@ export class AuthService {
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException(
-        'Mot de passe ou Numéro de téléphone invalide',
+        'Mot de passe ou numéro de téléphone incorrect',
       );
     }
   }

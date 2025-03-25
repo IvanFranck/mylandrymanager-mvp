@@ -18,8 +18,8 @@ export default function LoginView() {
             <div className="flex w-full max-w-sm flex-col gap-6">
             <Card>
                 <CardHeader className="text-center">
-                    <CardTitle className="text-4xl font-medium">
-                        Bon retour! Connectez vous à votre compte.
+                    <CardTitle className="text-2xl font-bold mb-4">
+                        Content de vous revoir !
                     </CardTitle>
                     <CardDescription>
                         Connectez vous avezc votre numéro de téléphone et votre mot de passe.

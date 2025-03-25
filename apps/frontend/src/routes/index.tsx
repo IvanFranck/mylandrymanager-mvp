@@ -19,22 +19,6 @@ import LoginView from "@/views/login-view"
 import SelectAgencyView from "@/views/select-agency-view"
 import NewCommandButton from "@/components/app/commands/new-command-button"
 import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
-// import { useAuth } from "@/lib/hooks/use-cases/useAuth"
-// import { Navigate } from "react-router-dom"
-
-// const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-//     const { user, selectedAgency } = useAuth()
-
-//     if (!user) {
-//         return <Navigate to="/login" replace />
-//     }
-
-//     if (!selectedAgency) {
-//         return <Navigate to="/select-agency" replace />
-//     }
-
-//     return <>{children}</>
-// }
 
 export const routes: RouteObject[] = [
     {
@@ -57,7 +41,7 @@ export const routes: RouteObject[] = [
                 element: <LoginView />,
             },
             {
-                id: "selec-aegncy",
+                id: "select-agency",
                 path: "/select-agency",
                 element: <SelectAgencyView />,
             },
