@@ -1,6 +1,6 @@
 import { SERVICE_ID_QUERY_KEY, SERVICES_QUERY_KEY } from "@/common/constants/query-keys";
 import { useToast } from "@/components/ui/use-toast";
-import { editService, ServiceFormSchema } from "@/lib/api/services";
+import { editService, ServiceEditFormSchema } from "@/lib/api/services";
 import { GenericQueryType } from "@/lib/types/query.filter.types";
 import { TGenericAxiosError } from "@/lib/types/responses";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ export const useUpdateService = ({serviceId, query}: Params) => {
 
     const { toast } = useToast()
     const { mutateAsync: updateService, isPending: isServiceUpdating } = useMutation({
-        mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => {
+        mutationFn: async (data: z.infer<typeof ServiceEditFormSchema>) => {
             if (!serviceId) {
                 throw new Error("Service ID is undefined");
             }

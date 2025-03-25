@@ -54,7 +54,7 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
                             control={form.control}
                             name={name}
                             render={({ field }) => (
-                                <FormItem>
+                                <FormItem className={type === 'hidden' ? 'hidden' : ''}>
                                     {label && <FormLabel className={labelStyle}>{label}</FormLabel>}
                                     <FormControl onChange={(e: React.ChangeEvent<HTMLInputElement>)=>{
                                         onFieldChange && handleFieldChange(e, () => onFieldChange(e), name)
@@ -63,7 +63,7 @@ export function GenericForm<T extends FieldValues>({ schema, defaultValues, onSu
                                         {
                                             type === 'textarea' ?
                                                 <Textarea className={inputStyle} placeholder={placeholder} disabled={isPending}  {...field} />
-                                                : <Input className={inputStyle} type={type} placeholder={placeholder} disabled={isPending} {...field} />
+                                                : <Input className={inputStyle} type={type} placeholder={placeholder} disabled={isPending} hidden={type === 'hidden'} {...field} />
                                         }
                                     </FormControl>
                                     {

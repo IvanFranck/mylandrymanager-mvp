@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { GenericForm } from "@/components/ui/generic-form"
-import { ServiceFormSchema } from "@/lib/api/services"
+import { ServiceEditFormSchema } from "@/lib/api/services"
 import { useGetServiceById } from "@/lib/hooks/use-cases/services/useGetServiceById"
 import { useUpdateService } from "@/lib/hooks/use-cases/services/useUpdateService"
 import { useAuth } from "@/lib/hooks/use-cases/useAuth"
@@ -17,7 +17,7 @@ export default function ServiceEditView() {
     const {isServiceUpdating, updateService} = useUpdateService({serviceId: numericServiceId, query: {agencyId}})
     const {isServiceLoading, service: serviceData} = useGetServiceById({serviceId: numericServiceId, query: {agencyId}})
 
-    const onSubmit = async (values: z.infer<typeof ServiceFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof ServiceEditFormSchema>) => {
         await updateService(values)
     }
 
@@ -32,7 +32,7 @@ export default function ServiceEditView() {
                             <h2 className="font-medium text-lg">Modifier le service <span className="italic">"{serviceData.currentVersion.label}"</span></h2>
 
                             <GenericForm
-                                schema={ServiceFormSchema}
+                                schema={ServiceEditFormSchema}
                                 onSubmit={onSubmit}
                                 defaultValues={{
                                     label: serviceData.currentVersion.label,
