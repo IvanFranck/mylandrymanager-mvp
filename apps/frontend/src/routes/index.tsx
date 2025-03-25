@@ -10,7 +10,6 @@ import ServicesListView from "@/views/services/services-list-view"
 import { ProfileView } from "@/views/profile-view"
 import ServiceEditView from "@/views/services/service-edit-view"
 import ServiceCreationDrawer from "@/components/app/services/service-creation-drawer"
-import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
 import { ProtectedRoute } from "./protected-route"
 import { CustomerDetailView } from "@/views/customers/CustomerDetailView"
 import { CustomersListView } from "@/views/customers/CustomersListView"
@@ -18,6 +17,8 @@ import ProfileEditView from "@/views/profile/profile-edit-view"
 import RegisterView from "@/views/register-view"
 import LoginView from "@/views/login-view"
 import SelectAgencyView from "@/views/select-agency-view"
+import NewCommandButton from "@/components/app/commands/new-command-button"
+import { CommandCreationDrawer } from "@/components/app/commands/command-creation-drawer"
 // import { useAuth } from "@/lib/hooks/use-cases/useAuth"
 // import { Navigate } from "react-router-dom"
 
@@ -87,16 +88,26 @@ export const routes: RouteObject[] = [
                                 index: true,
                                 element: <CommandsListView />,
                                 handle: {
-                                    pageTitle: () => <PageTitle pageName="Commandes" creationDrawer={<CommandCreationDrawer />} />
+                                    pageTitle: () => <PageTitle pageName="Commandes" creationDrawer={<NewCommandButton/> } />
                                 }
                             },
                             {
-                                id: 'commande view',
+                                id: 'command-view',
                                 path: ':commandId',
                                 element: <CommandDetailView />,
                                 handle: {
                                     pageTitle: () => {
                                         return <PageTitle pageName="Détails de la commande" backlink='/commands' />
+                                    }
+                                }
+                            },
+                            {
+                                id: 'new-command',
+                                path: 'create',
+                                element: <CommandCreationDrawer />,
+                                handle: {
+                                    pageTitle: () => {
+                                        return <PageTitle pageName="Enregistrer une nouvelle commande" backlink='/commands' />
                                     }
                                 }
                             }

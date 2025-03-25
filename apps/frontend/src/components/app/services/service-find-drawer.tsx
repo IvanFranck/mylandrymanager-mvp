@@ -80,7 +80,6 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                     selectedServices.length > 0
                         ? <SquarePen size={24} onClick={() => setOpen(true)} className="text-blue-600 cursor-pointer" />
                         : <Input onClick={() => setOpen(true)} className="bg-inherit" type="search" placeholder="Rechercher un service" />
-
                 }
             </div>
             <AnimatePresence>

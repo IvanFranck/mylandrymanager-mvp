@@ -25,7 +25,7 @@ export default function ServiceEditView() {
     return (
         <div className="w-full flex-1 rounded-t-3xl px-2 bg-white">
             {
-                isServiceLoading ? <p> loading ...</p> : 
+                isServiceLoading ? <p className="p6"> Chargement ...</p> : 
                 serviceData 
                     ? (
                         <div className="w-full px-4 mt-8 space-y-4">
