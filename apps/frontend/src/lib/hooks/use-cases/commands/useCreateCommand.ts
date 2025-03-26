@@ -6,10 +6,12 @@ import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
 import { CommandsEntity } from "@/lib/types/entities";
 import { COMMANDS_FILTER_QUERY_KEY } from "@/common/constants/query-keys";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export const useCreateCommand = () => {
     const queryClient = useQueryClient()
     const { toast } = useToast()
+    const navigate = useNavigate()
     const { 
         mutateAsync: createCommand, 
         isPending: creatingCommand, 
@@ -32,6 +34,7 @@ export const useCreateCommand = () => {
                 description: data.message,
                 duration: 3000
             })
+            navigate('/commands')
         }
     })  
     

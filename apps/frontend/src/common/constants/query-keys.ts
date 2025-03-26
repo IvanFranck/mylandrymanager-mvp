@@ -9,7 +9,7 @@ export const SERVICES_QUERY_KEY = (filter: Record<string, unknown>) => ["service
 export const SERVICE_ID_QUERY_KEY = (id: number, query: GenericQueryType) => ["service_id_key", id, query]
 
 // customers
-export const CUSTOMERS_QUERY_KEY = ["customers_key"]
+export const CUSTOMERS_QUERY_KEY = (filter: Record<string, unknown>) => ["customers_key", filter]
 
 // commands
 export const COMMANDS_QUERY_KEY = ["commands_key"]

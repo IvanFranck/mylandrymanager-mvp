@@ -1,11 +1,17 @@
 import { CommandStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
-import { IsISO8601, IsNumber, IsString } from 'class-validator';
+import { IsISO8601, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class GenericQueryType {
   @IsNumber()
   @Type(() => Number)
+  @IsOptional()
   agencyId?: number;
+
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  limit?: number;
 }
 
 export class CommandQueriesType extends GenericQueryType {

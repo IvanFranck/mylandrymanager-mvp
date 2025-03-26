@@ -1,6 +1,6 @@
 import { CUSTOMERS_QUERY_KEY } from "@/common/constants/query-keys";
 import { Input } from "@/components/ui/input";
-import { fetchAllCustomersQuery, searchCustomerByName } from "@/lib/api/customers";
+import { fetchLatestCustomersQuery, searchCustomerByName } from "@/lib/api/customers";
 import { useQuery } from "@tanstack/react-query";
 import CustomerListItem from "../../customers/customer-list-item";
 import { useCallback, useMemo, useState } from "react";
@@ -9,6 +9,7 @@ import { CustomersEntity } from "@/lib/types/entities";
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration";
 import CustomerCreationDrawer from "../../customers/customer-creation-drawer";
 import SearchSkeleton from "../../search-skeleton";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 
 type CusrtomerStepProps = {
     selectedCustomer: CustomersEntity | undefined
@@ -19,10 +20,10 @@ export function CustomerStep({ selectedCustomer, setSelectedCustomer }: Cusrtome
 
     const [findedCustomers, setFindedCustomers] = useState<CustomersEntity[] | undefined>();
     const [searchloading, setSearchLoading] = useState(false)
-
+    const agencyId = useAuth.getState().selectedAgency?.id
     const { data: customers } = useQuery({
-        queryKey: CUSTOMERS_QUERY_KEY,
-        queryFn: fetchAllCustomersQuery,
+        queryKey: CUSTOMERS_QUERY_KEY({agencyId}),
+        queryFn: () => fetchLatestCustomersQuery({agencyId, limit: 3}),
         staleTime: 12000
     })
 

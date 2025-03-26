@@ -12,6 +12,7 @@ import { z } from "zod";
 import { CommandSchema } from "@/lib/api/commands";
 import AdvanceStep from "./multistep-creation-form/advance-step";
 import { useCreateCommand } from "@/lib/hooks/use-cases/commands/useCreateCommand";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 
 export function CommandCreationDrawer() {
 
@@ -22,6 +23,7 @@ export function CommandCreationDrawer() {
     const [advance, setAdvance] = useState(0)
     const [date, setDate] = useState<Date | undefined>(undefined)
     const [description, setDescription] = useState("")
+    const agencyId = useAuth.getState().selectedAgency?.id
 
     useEffect(() => {
         if (selectedServices.length === 0) setDiscount(0)
@@ -39,9 +41,11 @@ export function CommandCreationDrawer() {
             advance,
             customerId: selectedCustomer?.id || 0,
             withdrawDate: date ? date.toISOString() : new Date().toISOString(),
+            agencyId : agencyId as number,
             services: selectedServices.map(service => ({
                 service: {
-                    ...service.service,
+                    id: service.service.id,
+                    currentVersionId: service.service.currentVersionId
                 },
                 quantity: service.quantity
             }))

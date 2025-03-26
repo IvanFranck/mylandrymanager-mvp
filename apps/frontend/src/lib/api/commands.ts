@@ -14,15 +14,11 @@ export const CommandSchema = z.object({
     advance: z.number().optional().default(0),
     customerId: z.number(),
     withdrawDate: z.date().transform(date => formatISO(date)),
+    agencyId: z.number(),
     services: z.array(z.object({
         service: z.object({
             id: z.number(),
-            createdAt: z.date(),
-            updatedAt: z.date(),
-            label: z.string(),
-            price: z.number(),
             currentVersionId: z.number(),
-            description: z.string().optional(),
         }),
         quantity: z.number()
     }))

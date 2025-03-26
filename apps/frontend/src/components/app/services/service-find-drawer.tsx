@@ -100,7 +100,7 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                                     {/* modal close btn */}
                                     <div className="grow-0">
                                         <Button variant='ghost' onClick={() => setOpen(false)}>
-                                            <span className="text-blue-600">Terminer</span>
+                                            <span className="text-blue-600">Suivant</span>
                                         </Button>
                                     </div>
                                 </div>

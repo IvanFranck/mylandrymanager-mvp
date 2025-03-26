@@ -16,4 +16,5 @@ export type IncomesQueriesType = {
 
 export type GenericQueryType = {
   agencyId?: number
+  limit?: number
 }

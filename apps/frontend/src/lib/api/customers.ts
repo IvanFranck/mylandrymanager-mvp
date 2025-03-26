@@ -10,10 +10,12 @@ import { formatRequestQuery } from "../utils";
 export const CustomerFormSchema = z.object({
     name: z.string().trim().min(1, 'invalid name'),
     phone: z.string().min(9).max(9, 'invalid phone number'),
-    address: z.string().trim().optional()
+    address: z.string().trim().optional(),
+    agencyId: z.number(),
+    agreeWithMessagingPolicy: z.boolean()
 })
 
-export async function fetchAllCustomersQuery(query: GenericQueryType) {
+export async function fetchLatestCustomersQuery(query: GenericQueryType) {
     const queryString = formatRequestQuery(query)
     return await axiosInstance
                     .get(`${API_ROUTES.CUSTOMERS}${queryString}`)

@@ -47,6 +47,8 @@ export class CustomersService {
         where: {
           agencyId: query.agencyId,
         },
+        take: query.limit,
+        orderBy: { createdAt: 'desc' },
       });
 
       return {
