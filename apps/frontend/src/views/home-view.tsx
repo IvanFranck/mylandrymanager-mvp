@@ -1,8 +1,8 @@
 import { Loader, PackageCheck } from "lucide-react";
-import DeliveriesOverview from "./home/deliveries-overview";
-import { WeekIncomesView } from "./home/week-incomes";
-import KPIBlock from "./home/KPIBlock";
 import { useAuth } from "@/lib/hooks/use-cases/useAuth";
+import KPIBlock from "@/components/app/home/KPIBlock";
+import { WeekIncomesView } from "@/components/app/home/week-incomes";
+import DeliveriesOverview from "@/components/app/home/deliveries-overview";
 
 export const HomeView = () => {
   const connectedUser = useAuth().user
