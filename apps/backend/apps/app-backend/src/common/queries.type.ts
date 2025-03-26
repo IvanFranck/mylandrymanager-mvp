@@ -5,8 +5,7 @@ import { IsISO8601, IsNumber, IsOptional, IsString } from 'class-validator';
 export class GenericQueryType {
   @IsNumber()
   @Type(() => Number)
-  @IsOptional()
-  agencyId?: number;
+  agencyId: number;
 
   @IsNumber()
   @Type(() => Number)

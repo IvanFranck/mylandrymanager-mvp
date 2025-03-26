@@ -9,7 +9,7 @@ export type CommandQueriesType = GenericQueryType & {
     to?: string
 };
 
-export type IncomesQueriesType = {
+export type IncomesQueriesType = GenericQueryType & {
   from: string,
   to: string
 };

@@ -7,6 +7,7 @@ import { DayMouseEventHandler, Matcher } from "react-day-picker"
 import { CommandDeliveryListItem } from "@/components/app/commands/command-delivery-list-item"
 import { CommandsEntity } from "@/lib/types/entities"
 import './delivery-date.css'
+import { useAuth } from "@/lib/hooks/use-cases/useAuth"
 
 export default function DeliveriesOverview() {
     const [date, setDate] = React.useState<Date>()
@@ -19,7 +20,8 @@ export default function DeliveriesOverview() {
     const {commands} = useGetAllCommands({
         filters: {
             from: month.from, 
-            to: month.to
+            to: month.to,
+            agencyId: useAuth().selectedAgency?.id
         }
     })
     useEffect(()=>{
