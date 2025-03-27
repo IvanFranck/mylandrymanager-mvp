@@ -2,13 +2,13 @@ import UserProfileSkeleton from "@/components/app/profile/user-profile-skeleton"
 import { Button } from "@/components/ui/button";
 import { GenericForm } from "@/components/ui/generic-form";
 import { ProfileFormSchema } from "@/lib/api/profile";
-import { useGetUserProfileInfos } from "@/lib/hooks/use-cases/profile/useGetUserProfileInfos";
 import { useUpdateUser } from "@/lib/hooks/use-cases/profile/useUpdateUser";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 import { Loader } from "lucide-react";
 import z from "zod";
 
 export default function ProfileEditView() {
-    const {userProfile, isFetching} = useGetUserProfileInfos();
+    const userProfile = useAuth().user;
 
     const { updateUser, isUserUpdating } = useUpdateUser();
     const onSubmit = async (values: z.infer<typeof ProfileFormSchema>) => {
@@ -19,7 +19,7 @@ export default function ProfileEditView() {
     return (
         <div className="px-3">
         {
-            isFetching ? <UserProfileSkeleton/> : 
+            !userProfile ? <UserProfileSkeleton/> : 
             (
                 <>
                     <div className="w-full mt-8 flex flex-col gap-8 bg-white rounded-2xl p-4 shadow-lg">
@@ -28,7 +28,6 @@ export default function ProfileEditView() {
                             onSubmit={onSubmit}
                             defaultValues={{
                                 username: userProfile?.username,
-                                address: userProfile?.address,
                                 phone: `${userProfile?.phone}`
                             }}
                             fields={[
@@ -39,14 +38,6 @@ export default function ProfileEditView() {
                                     errorMessage: "Le nom d'utilisateur est requis.", 
                                     inputStyle:"border-0 shadow-none py-0 px-0 focus-visible:ring-0 focus-visible:border-0 text-lg font-semibold", 
                                     labelStyle: "font-thin"
-                                },
-                                { 
-                                    name: "address", 
-                                    label: "Adresse", 
-                                    type: "text", 
-                                    placeholder:"décrivez brievement votre adresse", 
-                                    inputStyle:"border-0 shadow-none py-0 px-0 focus-visible:ring-0 focus-visible:border-0 text-lg font-semibold", 
-                                    labelStyle: "font-thin" 
                                 },
                             ]}
                             submitButton={

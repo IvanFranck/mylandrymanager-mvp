@@ -158,6 +158,7 @@ export class UsersService {
           id: true,
           username: true,
           phone: true,
+          agencyMemberships: true,
         },
       });
       if (!user) {
