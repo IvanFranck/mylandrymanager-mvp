@@ -1,12 +1,13 @@
 import { useToast } from "@/components/ui/use-toast";
 import { editUserQuery, ProfileFormSchema } from "@/lib/api/profile";
-import { TGenericAxiosError } from "@/lib/types/responses";
+import { UserEntity } from "@/lib/types/entities";
+import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
 import { useMutation } from "@tanstack/react-query"
 import { AxiosError } from "axios";
 import { z } from "zod";
+import { useAuth } from "../useAuth";
 
 export const useUpdateUser = () => {
-
     const { toast } = useToast();
     const { mutateAsync: updateUser, isPending: isUserUpdating } = useMutation({
         mutationFn: async (data: z.infer<typeof ProfileFormSchema>) => {
@@ -21,7 +22,8 @@ export const useUpdateUser = () => {
                 description: message,
             })
         },
-        onSuccess: () => {
+        onSuccess: (response: TGenericResponse<UserEntity>) => {
+            useAuth().setUser(response.details)
             toast({
                 variant: "success",
                 description: 'Votre profil a été modifié avec succès',
