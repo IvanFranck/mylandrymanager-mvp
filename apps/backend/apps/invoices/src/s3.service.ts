@@ -12,6 +12,10 @@ export class S3Service {
 
     this.client = new S3Client({
       region: s3Region,
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
     });
   }
 
@@ -51,8 +55,10 @@ export class S3Service {
       });
 
       const result = await this.client.send(command);
-      this.loger.error('result', result);
-      return result;
+      if (result.$metadata.httpStatusCode !== 200) {
+        throw new Error("Erreur lors de l'upload du fichier dans le bucket s3");
+      }
+      return s3Key;
     } catch (error) {
       throw error;
     }

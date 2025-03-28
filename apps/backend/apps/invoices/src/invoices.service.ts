@@ -27,6 +27,7 @@ import { S3Service } from './s3.service';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
+  private invoiceId: number;
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaClient: PrismaService,
@@ -67,7 +68,7 @@ export class InvoicesService {
           },
           Agency: {
             connect: {
-              id: 1,
+              id: createInvoiceDto.agencyId,
             },
           },
         },
@@ -123,64 +124,11 @@ export class InvoicesService {
 
       if (!invoice) {
         throw new InternalServerErrorException(
-          'Erreur lors de la création de la facture',
+          "Erreur lors de l'enregistrement de la facture",
         );
       }
 
-      // const invoice = await tx.invoice.update({
-      //   where: {
-      //     id: newInvoice.id,
-      //   },
-      //   data: {
-      //     code,
-      //   },
-      //   select: {
-      //     id: true,
-      //     code: true,
-      //     amountPaid: true,
-      //     createdAt: true,
-      //     command: {
-      //       select: {
-      //         withdrawDate: true,
-      //         code: true,
-      //         discount: true,
-      //         advance: true,
-      //         user: {
-      //           select: {
-      //             username: true,
-      //             phone: true,
-      //           },
-      //         },
-      //         Agency: {
-      //           select: {
-      //             name: true,
-      //             phone: true,
-      //             address: true,
-      //           },
-      //         },
-      //         services: {
-      //           select: {
-      //             quantity: true,
-      //             service: {
-      //               select: {
-      //                 label: true,
-      //                 price: true,
-      //               },
-      //             },
-      //           },
-      //         },
-      //         customer: {
-      //           select: {
-      //             id: true,
-      //             name: true,
-      //             phone: true,
-      //             address: true,
-      //           },
-      //         },
-      //       },
-      //     },
-      //   },
-      // });
+      this.invoiceId = invoice.id;
 
       //generate invoice code and ensure it is unique
       let code = hashIds.encode(invoice.id);
@@ -192,10 +140,12 @@ export class InvoicesService {
             code,
           },
         });
+        this.loger.log('invoice', invoice);
         if (invoice === null) {
-          isCodeUnique = true;
+          isCodeUnique = false;
+        } else {
+          code = hashIds.encode(invoice.id);
         }
-        code = hashIds.encode(invoice.id);
       } while (isCodeUnique);
 
       const barcodeBuffer = await this.generateInvoiceBarcode({
@@ -212,7 +162,7 @@ export class InvoicesService {
           'Erreur lors de la génération du pdf',
         );
       }
-      await this.storageService.uploadSIngleFile({
+      const s3Key = await this.storageService.uploadSIngleFile({
         file: pdfStream,
         invoiceCode: code,
         invoiceId: invoice.id,
@@ -220,6 +170,17 @@ export class InvoicesService {
         agencyId: invoice.command.Agency.id,
         customerId: invoice.command.customer.id,
         commandId: invoice.command.id,
+      });
+
+      await this.prismaClient.invoice.update({
+        where: {
+          id: invoice.id,
+        },
+        data: {
+          code,
+          s3key: s3Key,
+          storageStatus: 'UPLOADED',
+        },
       });
 
       await lastValueFrom<SendWhatsappTextMessageDto>(
@@ -230,6 +191,7 @@ export class InvoicesService {
         }),
       );
     } catch (error) {
+      this.handleErrorWhenGeneratingInvoice(this.invoiceId);
       this.loger.error('Erreur lors de la génération de la facture:', error);
       if (error instanceof HttpException) {
         throw error;
@@ -238,6 +200,17 @@ export class InvoicesService {
         'Une erreur est survenue lors de la génération de la facture',
       );
     }
+  }
+
+  private async handleErrorWhenGeneratingInvoice(invoiceId: number) {
+    await this.prismaClient.invoice.update({
+      where: {
+        id: invoiceId,
+      },
+      data: {
+        storageStatus: 'ERROR',
+      },
+    });
   }
 
   private async generateInvoiceBarcode(dto: GenerateBarcodeDTO) {
