@@ -9,11 +9,11 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import joi from 'joi';
-import { OTPModule } from './otp/otp.module';
 import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 import { IncomesModule } from './incomes/incomes.module';
+import { AgenciesModule } from './agencies/agencies.module';
 
 @Module({
   imports: [
@@ -21,10 +21,10 @@ import { IncomesModule } from './incomes/incomes.module';
     ServicesModule,
     CommandsModule,
     UsersModule,
+    AgenciesModule,
     IncomesModule,
     AuthModule,
     JwtKeysModule,
-    OTPModule,
     InvoicesModule,
     RmqModule.register({
       name: 'INCOMES_STATS_SERVICE',
@@ -33,8 +33,6 @@ import { IncomesModule } from './incomes/incomes.module';
       isGlobal: true,
       validationSchema: joi.object({
         DATABASE_URL: joi.string().required(),
-        PORT: joi.number().required(),
-        AXIOS_TIMEOUT: joi.number().required(),
         CODE_ALPHABET: joi.string().required(),
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),

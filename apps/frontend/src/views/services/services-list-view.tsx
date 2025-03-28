@@ -9,6 +9,7 @@ import { Loader } from "lucide-react"
 import { useDeleteService } from "@/lib/hooks/use-cases/services/useDeleteService"
 import { useGetAllServices } from "@/lib/hooks/use-cases/services/useGetAllServices"
 import { NoDataIllustration } from "@/components/illustrations/no-data-illustration"
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 
 
 export default function ServicesListView() {
@@ -17,11 +18,14 @@ export default function ServicesListView() {
     const triggerBtn = useRef<HTMLButtonElement>(null)
     const {deleteService, isDeleting} = useDeleteService()
 
-    const { services, isFetching } = useGetAllServices()
+    const agencyId = useAuth.getState().selectedAgency?.id
+    const { services, isFetching } = useGetAllServices({agencyId})
     const triggerServiceDeletion = (id: number) => {
         setDeletingServiceId(id)
         triggerBtn.current?.click()
     }
+
+    console.log('services', services)
 
     const handleServiceDeletion = async (id: number) => {
         if (deletingServiceId === -1) return;
@@ -55,7 +59,7 @@ export default function ServicesListView() {
                                 <DialogHeader>
                                     <DialogTitle className="text-lg font-medium">Attention</DialogTitle>
                                     <DialogDescription>
-                                        Voulez-vous vraiment supprimer ce service "<strong>{services?.find((service) => service.id === deletingServiceId)?.label}</strong>" ?
+                                        Voulez-vous vraiment supprimer ce service "<strong>{services?.find((service) => service.id === deletingServiceId)?.currentVersion.label}</strong>" ?
                                     </DialogDescription>
                                 </DialogHeader>
                                 <DialogFooter className="w-full flex justify-between flex-row">

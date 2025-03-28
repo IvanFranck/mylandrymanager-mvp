@@ -1,8 +1,7 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { IncomesService } from './incomes.service';
-import { IncomesQueriesDTO } from './dto/incomes-params.dto';
-import { AccessTokenValidatedRequestInterface } from '@app-backend/common/interfaces/access-token-validated-request.interface';
 import { AccessTokenAuthGuard } from '@app-backend/auth/guards/access-token-auth.guard';
+import { IncomesQueriesType } from '@app-backend/common/queries.type';
 
 @UseGuards(AccessTokenAuthGuard)
 @Controller({
@@ -13,10 +12,7 @@ export class IncomesController {
   constructor(private incomesService: IncomesService) {}
 
   @Get('/')
-  async getIncomes(
-    @Query() query: IncomesQueriesDTO,
-    @Req() req: AccessTokenValidatedRequestInterface,
-  ) {
-    return await this.incomesService.getIncomes(query, req);
+  async getIncomes(@Query() query: IncomesQueriesType) {
+    return await this.incomesService.getIncomes(query);
   }
 }

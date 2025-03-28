@@ -1,3 +1,5 @@
+.vscode
+
 # ignore pdf and image files
 *.pdf
 *.png
@@ -58,3 +60,7 @@ node_modules
 # JWT keys
 /apps/backend/private-key.pem
 /apps/backend/public-key.pem
+
+
+# environment variables
+/docker/*.env*

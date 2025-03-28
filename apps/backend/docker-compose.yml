@@ -1,20 +1,38 @@
 services:
+  
+  # Service de base de données PostgreSQL
   database:
     image: bitnami/postgresql
     ports:
-      - '5432:5432'
+      - '5432:5432'  # Port exposé pour PostgreSQL
     environment:
       - POSTGRESQL_USERNAME=ivanfranck
       - POSTGRESQL_PASSWORD=paqssd163HZZ82sgdsiSf
       - POSTGRESQL_DATABASE=mylandryappdb
     volumes:
-    - postgresql-persistance-data:/bitnami/postgresql
+      - postgresql-persistance-data:/bitnami/postgresql  # Volume pour la persistance des données
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ivanfranck"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - my-landry-network
 
+  # Service de message broker RabbitMQ
   broker:
     image: rabbitmq
     ports:
-      - '5672:5672'
+      - '5672:5672'  # Port exposé pour RabbitMQ
+    networks:
+      - my-landry-network
 
+# Définition des volumes pour la persistance des données
 volumes:
   postgresql-persistance-data:
+
+# Configuration du réseau pour la communication inter-services
+networks:
+  my-landry-network:
+    driver: bridge
   

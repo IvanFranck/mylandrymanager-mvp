@@ -17,15 +17,14 @@ export default function AdvanceStep({ setAdvance, advance, billingPrice, discoun
     const [showInput, setShowInput] = useState(false)
 
     const AdvanceFormSchema = z.object({
-        advance: z.string()
-            .trim()
+        advance: z.number()
             .min(0)
             .max(billingPrice, "le montant de l'avance ne doit pas être supérieur au montant de la facture!")
-            .transform(value => parseFloat(value))
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputAdvance(parseFloat(e.target.value));
+        return parseFloat(e.target.value);
     };
 
     const onSubmit = (values: z.infer<typeof AdvanceFormSchema>) => {

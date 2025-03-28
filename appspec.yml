@@ -1,0 +1,16 @@
+version: 0.0
+os: linux
+files:
+  - source: /apps/backend/
+    destination: /home/ec2-user/mlm-backend
+hooks:
+# Install:
+  AfterInstall:
+    - location: /apps/backend/scripts/after_install.sh
+      timeout: 30000
+      runas: root
+  ApplicationStart:
+    - location: /apps/backend/scripts/application_start.sh
+      timeout: 30000
+      runas: root
+# ValidateService:

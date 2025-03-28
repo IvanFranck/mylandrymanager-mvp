@@ -6,6 +6,7 @@ import { TGenericResponse } from "../types/responses";
 import { CommandsEntity } from "../types/entities";
 import { formatISO } from "date-fns";
 import { CommandQueriesType } from "../types/query.filter.types";
+import { formatRequestQuery } from "../utils";
 
 export const CommandSchema = z.object({
     description: z.string().optional(),
@@ -13,24 +14,18 @@ export const CommandSchema = z.object({
     advance: z.number().optional().default(0),
     customerId: z.number(),
     withdrawDate: z.date().transform(date => formatISO(date)),
+    agencyId: z.number(),
     services: z.array(z.object({
         service: z.object({
             id: z.number(),
-            createdAt: z.date(),
-            updatedAt: z.date(),
-            label: z.string(),
-            price: z.number(),
             currentVersionId: z.number(),
-            description: z.string().optional(),
         }),
         quantity: z.number()
     }))
 })
 
 export const CommandPaienmentSchema = z.object({
-    advance: z.string()
-            .trim()
-            .transform(value => parseFloat(value))
+    advance: z.coerce.number()
 })
 
 export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
@@ -41,13 +36,7 @@ export async function createCommandQuery(data: z.infer<typeof CommandSchema>){
 
 
 export async function fetchAllCommandsQuery(query: CommandQueriesType){
-    const queryString = Object.entries(query).map(([key, value], index)=>{
-        return value ? 
-            index === 0 ? 
-                `?${key}=${value}` 
-                : `&${key}=${value}` 
-            : ''
-      }).join('')
+    const queryString = formatRequestQuery(query)
     return await axiosInstance
                     .get(`${API_ROUTES.COMMANDS}${queryString}`)
                     .then((resp: AxiosResponse<TGenericResponse<CommandsEntity[]>>) => resp.data.details)

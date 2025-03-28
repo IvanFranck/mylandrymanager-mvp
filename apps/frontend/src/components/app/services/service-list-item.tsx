@@ -24,9 +24,9 @@ export function ServiceListItem({ service, onDelete, simple, ...props }: ServSer
                     !simple && onDelete
                         ? <CardTitle className=" flex justify-between items-start">
                             <div className="w-full">
-                                <h2 className="text-xl font-medium">{service.label}</h2>
-                                <span className="text-base font-medium text-blue-400">{service.price} fcfa</span>
-                                {service.description && <p className="text-gray-500 font-normal mt-4">{service.description}</p>}
+                                <h2 className="text-xl font-medium">{service.currentVersion.label}</h2>
+                                <span className="text-base font-medium text-blue-400">{service.currentVersion.price} fcfa</span>
+                                {service.currentVersion.description && <p className="text-gray-500 font-normal mt-4">{service.currentVersion.description}</p>}
                             </div>
 
                             <DropdownMenu>
@@ -51,7 +51,7 @@ export function ServiceListItem({ service, onDelete, simple, ...props }: ServSer
 
                         </CardTitle>
                         : <CardTitle className="font-normal">
-                            {service.label}
+                            {service.currentVersion.label}
                         </CardTitle>
 
                 }

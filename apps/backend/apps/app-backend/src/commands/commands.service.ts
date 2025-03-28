@@ -52,6 +52,7 @@ export class CommandsService {
       services,
       withdrawDate,
       advance,
+      agencyId,
     } = createCommandDto;
     const userId = request.user.sub;
     const hashIds = new Hashids(
@@ -60,8 +61,27 @@ export class CommandsService {
       this.configService.get('CODE_ALPHABET'),
     );
     try {
-      // 1. compute the total price
-      const totalPrice = computeTotalPartial(services);
+      // 1. get services current version infos
+      const servicesInfos = await Promise.all(
+        services.map(async (service) => {
+          const serviceVersion = await this.prisma.serviceVersion.findUnique({
+            where: {
+              id: service.service.currentVersionId,
+            },
+          });
+          if (!serviceVersion) {
+            throw new BadRequestException(
+              "Impossible d'enregistrer votre commande car l'un des services sélectionnés n'existe pas",
+            );
+          }
+          return {
+            service: serviceVersion,
+            quantity: service.quantity,
+          };
+        }),
+      );
+      // 2. compute the total price
+      const totalPrice = computeTotalPartial(servicesInfos);
 
       if (advance > totalPrice - discount) {
         throw new BadRequestException(
@@ -75,7 +95,7 @@ export class CommandsService {
         discount,
       );
 
-      // 2. create the command and connect to customer
+      // 3. create the command and connect to customer
       const command = await this.prisma.$transaction(async (tx) => {
         const newCommand = await tx.command.create({
           data: {
@@ -90,12 +110,17 @@ export class CommandsService {
                 id: customerId,
               },
             },
+            Agency: {
+              connect: {
+                id: agencyId,
+              },
+            },
             user: {
               connect: {
                 id: userId,
               },
             },
-            // 3. create all serviceoncommands entries and connect them to the created command
+            // 4. create all serviceOnCommands entries and connect them to the created command
             services: {
               create: services.map((service) => ({
                 service: {
@@ -132,6 +157,7 @@ export class CommandsService {
             code: true,
             advance: true,
             status: true,
+            agencyId: true,
             services: {
               select: {
                 service: true,
@@ -156,6 +182,7 @@ export class CommandsService {
         this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
           commandId: command.id,
           advance: advance,
+          agencyId: command.agencyId,
         }),
       ).catch((error) => {
         console.log(`error when send ${CREATE_INVOICE_EVENT}`, error);
@@ -178,17 +205,18 @@ export class CommandsService {
    * @return {Promise<Command[]>} the found commands
    */
   async findAll(
-    request: AccessTokenValidatedRequestInterface,
     queries: CommandQueriesType,
   ): Promise<CustomResponseInterface<Command[]>> {
-    const userId = request.user.sub;
-    const { status, createdAt, from, to } = queries;
-    console.log('queries', queries);
+    const agencyId = queries.agencyId;
+    const { status, createdAt, from, to, code } = queries;
     try {
       const commands = await this.prisma.command.findMany({
         where: {
-          userId,
+          agencyId,
           status,
+          code: {
+            contains: code,
+          },
           createdAt,
           withdrawDate:
             from && to
@@ -275,6 +303,7 @@ export class CommandsService {
     updateCommandDto: UpdateCommandDto,
   ): Promise<{ message: string; command: any }> {
     const { description, advance } = updateCommandDto;
+    const newAdvance = advance ? advance : 0;
     try {
       const command = await this.prisma.$transaction(async (tx) => {
         const command = await tx.command.findUnique({
@@ -283,14 +312,14 @@ export class CommandsService {
           },
         });
 
-        if (command.advance + advance > command.price) {
+        if (command.advance + newAdvance > command.price) {
           throw new BadRequestException(
             'Le montant entré est supérieur au reste à payer',
           );
         }
         const commandStatus = this.getCommandStatus(
           command.price,
-          command.advance + advance,
+          command.advance + newAdvance,
           command.discount,
         );
 
@@ -302,7 +331,7 @@ export class CommandsService {
             description,
             status: commandStatus,
             advance: {
-              increment: advance,
+              increment: newAdvance,
             },
           },
           include: {
@@ -311,7 +340,7 @@ export class CommandsService {
           },
         });
 
-        return updatedCommand;
+        return { ...updatedCommand, agencyId: command.agencyId };
       });
 
       if (advance > 0) {
@@ -331,6 +360,7 @@ export class CommandsService {
         this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
           commandId: command.id,
           advance: advance,
+          agencyId: command.agencyId,
         }),
       );
 

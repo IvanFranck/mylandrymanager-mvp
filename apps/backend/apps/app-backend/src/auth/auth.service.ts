@@ -31,40 +31,43 @@ export class AuthService {
   async validateUser(
     validateUserDto: ValidateUserDto,
   ): Promise<ValidatedUserEntity | null> {
-    let user: User | null = null;
     try {
-      user = await this.prisma.user.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: {
           phone: validateUserDto.phone,
         },
+        include: {
+          agencyMemberships: {
+            include: {
+              agency: true,
+            },
+          },
+        },
       });
+      if (!user) {
+        throw new UnauthorizedException(
+          'Mot de passe ou numéro de téléphone incorrect',
+        );
+      }
+      const isPasswordValid = await bcrypt.compare(
+        validateUserDto.password,
+        user.password,
+      );
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException(
+          'Mot de passe ou numéro de téléphone incorrect',
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { password, createdAt, updatedAt, verified, ...result } = user;
+      return result;
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
+        'Mot de passe ou numéro de téléphone incorrect',
       );
     }
-
-    if (!user) {
-      throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
-      );
-    }
-
-    const isPaswwordValid = await bcrypt.compare(
-      validateUserDto.password,
-      user.password,
-    );
-
-    if (!isPaswwordValid) {
-      throw new UnauthorizedException(
-        'Mot de passe / Numéro de téléphone invalides',
-      );
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...result } = user;
-    return result;
   }
 
   /**
@@ -84,7 +87,6 @@ export class AuthService {
     const payload = { sub: id, username, phone, verified };
 
     const [accessToken, refreshToken] = await this.getTokens(payload);
-    console.log('accessToken: ', accessToken);
 
     return {
       message: 'utilisateur connecté',

@@ -6,11 +6,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { AxiosError } from "axios";
 import { SERVICES_QUERY_KEY } from "@/common/constants/query-keys";
 import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
+import { useAuth } from "../useAuth";
 
 
 export const useCreateService = () => {
     const { toast } = useToast()
     const queryClient = useQueryClient()
+    const agencyId = useAuth.getState().selectedAgency?.id
 
     const { mutateAsync, isPending, isSuccess } = useMutation({
         mutationFn: async (data: z.infer<typeof ServiceFormSchema>) => await createService(data),
@@ -23,7 +25,7 @@ export const useCreateService = () => {
             })
         },
         onSuccess: (data: TGenericResponse<ServicesEntity>) => {
-            queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: SERVICES_QUERY_KEY({agencyId}) })
             toast({
                 variant: 'success',
                 description: data.message,

@@ -1,23 +1,26 @@
 import { useMutation } from "@tanstack/react-query";
-import { LoginFormSchema, loginQuery } from "../../api/auth";
-import { z } from "zod"
-import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../useAuth";
-import { LOGIN_QUERY_KEY } from "@/common/constants/query-keys";
-import { AxiosError, AxiosResponse } from "axios";
-import { TGenericAxiosError, TGenericResponse, TLoginResponseDetails } from "../../types/responses";
-import { AXIOS_ACCESS_TOKEN, AXIOS_REFRESH_TOKEN, STORED_USER_DATA } from "@/common/constants/local-storage-keys";
+import { useAuth } from "./useAuth";
+import { LoginFormSchema, loginQuery } from "@/lib/api/auth";
+import { z } from "zod"
+import { AxiosError } from "axios";
+import { TGenericAxiosError } from "@/lib/types/responses";
+import { useToast } from "@/components/ui/use-toast";
 
-export const useLogin = () => {
+export function useLogin() {
+    const navigate = useNavigate();
+    const { setUser, setTokens } = useAuth();
     const { toast } = useToast()
-    const navigate = useNavigate()
-    const auth = useAuth()
-    const queryKey = LOGIN_QUERY_KEY
-    const { mutateAsync, isPending } = useMutation({
-        mutationKey: queryKey,
+
+    return useMutation({
         mutationFn: async (data: z.infer<typeof LoginFormSchema>) => {
-            return await loginQuery(data);
+            const response = await loginQuery(data);
+            return response.data;
+        },
+        onSuccess: (data) => {
+            setUser(data.details.user);
+            setTokens(data.details.accessToken, data.details.refreshToken);
+            navigate("/select-agency");
         },
         onError: (error: AxiosError<TGenericAxiosError>) => {
             const message = error.response?.data?.message || 'Une erreur est survenue'
@@ -26,23 +29,6 @@ export const useLogin = () => {
                 description: message,
             })
         },
-        onSuccess: (data: AxiosResponse<TGenericResponse<TLoginResponseDetails>>) => {
-            const authDetails = data.data.details
-            auth?.login(authDetails.user)
-            localStorage.setItem(AXIOS_ACCESS_TOKEN, authDetails.accessToken)
-            localStorage.setItem(AXIOS_REFRESH_TOKEN, authDetails.refreshToken)
-            localStorage.setItem(STORED_USER_DATA, JSON.stringify(authDetails.user))
-            toast({
-                variant: 'success',
-                description: 'Vous êtes connecté!'
-            })
-            navigate('/commands')
-        }
-    })
-
-    return {
-        mutateAsync,
-        isPending
-    }
-};
+    });
+}
 

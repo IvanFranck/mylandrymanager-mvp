@@ -1,0 +1,76 @@
+FROM node:22.13.1-alpine AS development
+
+WORKDIR /usr/src/app
+
+COPY package.json yarn.lock ./
+
+RUN apk add --no-cache netcat-openbsd dos2unix openssl && \
+    npm install -g prisma && \
+    yarn install --frozen-lockfile
+
+COPY . .
+
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+ARG CODE_ALPHABET
+ENV CODE_ALPHABET=$CODE_ALPHABET
+
+ARG CODE_MIN_LENGTH
+ENV CODE_MIN_LENGTH=$CODE_MIN_LENGTH
+
+ARG CODE_SALT
+ENV CODE_SALT=$CODE_SALT
+
+ARG JWT_ALGORITHM
+ENV JWT_ALGORITHM=$JWT_ALGORITHM
+
+ARG INVOICES_ROOT_PATH
+ENV INVOICES_ROOT_PATH=$INVOICES_ROOT_PATH
+
+ARG COMMAND_BARCODE_ROOT_PATH
+ENV COMMAND_BARCODE_ROOT_PATH=$COMMAND_BARCODE_ROOT_PATH
+
+ARG RABBIT_MQ_URI
+ENV RABBIT_MQ_URI=$RABBIT_MQ_URI
+
+ARG RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE
+ENV RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE=$RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE
+
+ARG RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE
+ENV RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE=$RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE
+
+ARG RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE
+ENV RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE=$RABBIT_MQ_WHATSAPP_MESSAGING_SERVICE_QUEUE
+
+# Correction des fins de ligne et permissions
+RUN dos2unix ./scripts/start.sh && \
+    chmod +x ./scripts/start.sh
+
+EXPOSE 5555
+
+# Définir le point d'entrée
+SHELL [ "/bin/sh", "-c" ]
+ENTRYPOINT ["/bin/sh", "./scripts/start.sh"]
+
+FROM node:22.13.1-alpine AS production
+
+# Même chose pour la production
+RUN apk add --no-cache openssl
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install -g pnpm
+
+RUN pnpm install --only=production
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
+
+CMD ["node", "dist/apps/app-backend/main"]

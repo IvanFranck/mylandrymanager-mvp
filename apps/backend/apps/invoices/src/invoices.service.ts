@@ -62,6 +62,11 @@ export class InvoicesService {
                 id: createInvoiceDto.commandId,
               },
             },
+            Agency: {
+              connect: {
+                id: 1,
+              },
+            },
           },
           select: {
             id: true,
@@ -115,6 +120,12 @@ export class InvoicesService {
                 user: {
                   select: {
                     username: true,
+                    phone: true,
+                  },
+                },
+                Agency: {
+                  select: {
+                    name: true,
                     phone: true,
                     address: true,
                   },

@@ -12,6 +12,10 @@ export class InvoicePDFParamsDto {
       user: {
         username: string;
         phone: string;
+      };
+      Agency: {
+        name: string;
+        phone: string;
         address: string;
       };
       customer: {

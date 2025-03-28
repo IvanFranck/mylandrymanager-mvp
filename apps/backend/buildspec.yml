@@ -1,0 +1,25 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+  pre_build:
+    commands:
+      - echo "Starting build phase install all dependencies"
+  post_build:
+    commands:
+      - echo "Build completed on `date`"
+      - cd apps/backend
+      - openssl genrsa -out ./private-key.pem 4096
+      - openssl rsa -in private-key.pem -pubout -outform PEM -out public-key.pem
+
+artifacts:
+  files:
+    - '**/*'
+  base-directory: "apps/backend"
+
+cache:
+  paths:
+    - 'node_modules/**/*'  # Cache des dépendances
