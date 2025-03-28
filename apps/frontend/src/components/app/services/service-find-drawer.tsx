@@ -13,6 +13,7 @@ import { Minus, Plus, SquarePen, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion"
 import SearchSkeleton from "../search-skeleton";
 import { DrawerContent, Drawer, DrawerTrigger, DrawerPortal, DrawerOverlay, DrawerTitle, DrawerFooter, DrawerClose } from "@/components/ui/drawer";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 
 type ServiceFindDrawerProps = {
     selectedServices: ServiceOnCommandEntity[] | []
@@ -23,9 +24,10 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
     const [findedServices, setFindedServices] = useState<ServicesEntity[] | undefined>();
     const [isOpen, setOpen] = useState(false)
 
+    const agencyId = useAuth.getState().selectedAgency?.id
     const { data: services } = useQuery({
-        queryKey: SERVICES_QUERY_KEY,
-        queryFn: fetchAllServicesQuery,
+        queryKey: SERVICES_QUERY_KEY({agencyId}),
+        queryFn: () => fetchAllServicesQuery({agencyId}),
         staleTime: 12000
     })
 
@@ -80,7 +82,6 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                     selectedServices.length > 0
                         ? <SquarePen size={24} onClick={() => setOpen(true)} className="text-blue-600 cursor-pointer" />
                         : <Input onClick={() => setOpen(true)} className="bg-inherit" type="search" placeholder="Rechercher un service" />
-
                 }
             </div>
             <AnimatePresence>
@@ -99,7 +100,11 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                                     {/* modal close btn */}
                                     <div className="grow-0">
                                         <Button variant='ghost' onClick={() => setOpen(false)}>
-                                            <span className="text-blue-600">Terminer</span>
+                                            <span className="text-blue-600">
+                                                {
+                                                    selectedServices && selectedServices.length > 0 ? 'Suivant' : 'Annuler'
+                                                }
+                                            </span>
                                         </Button>
                                     </div>
                                 </div>
@@ -116,7 +121,7 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                                                         qty={quantity}
                                                     >
                                                         <Badge variant='secondary' className="flex justify-center items-center space-x-2 mb-2 mr-2 ">
-                                                            <span>{service.label} ({quantity})</span>
+                                                            <span>{service.currentVersion.label} ({quantity})</span>
                                                             <X onClick={() => unselectService(index)} strokeWidth={4} size={12} className="text-gray-500 cursor-pointer" />
                                                         </Badge>
                                                     </ServiceOnCommandDrawer>
@@ -135,7 +140,7 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                                                     return (
                                                         <ServiceOnCommandDrawer
                                                             key={service.id}
-                                                            disbaled={Boolean(selectedServices.find((selectedService) => selectedService.service.id === service.id))}
+                                                            disabled={Boolean(selectedServices.find((selectedService) => selectedService.service.id === service.id))}
                                                             service={service}
                                                             onQuantityChange={handleSelectService}
                                                             className="w-full"
@@ -149,7 +154,7 @@ export default function ServiceFindDrawer({ selectedServices, setSelectedService
                                                         return (
                                                             <ServiceOnCommandDrawer
                                                                 key={service.id}
-                                                                disbaled={Boolean(selectedServices.find((selectedService) => selectedService.service.id === service.id))}
+                                                                disabled={Boolean(selectedServices.find((selectedService) => selectedService.service.id === service.id))}
                                                                 service={service}
                                                                 onQuantityChange={handleSelectService}
                                                                 className="w-full"
@@ -174,11 +179,11 @@ type ServiceOnCommandDrawerProps = {
     service: ServicesEntity,
     children: ReactNode
     onQuantityChange: (quantity: number, service: ServicesEntity) => void
-    disbaled?: boolean
+    disabled?: boolean
     qty?: number
 }
 
-const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disbaled = false, qty = 0, ...props }: ServiceOnCommandDrawerProps & React.HTMLProps<HTMLDivElement>) => {
+const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disabled = false, qty = 0, ...props }: ServiceOnCommandDrawerProps & React.HTMLProps<HTMLDivElement>) => {
     const [quantity, setQuantity] = useState<number>(qty)
     const drawerCloserBtn = useRef<HTMLButtonElement>(null)
 
@@ -196,7 +201,7 @@ const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disbaled 
     }
     return (
         <Drawer onClose={handleClose}>
-            <DrawerTrigger disabled={disbaled} className={`${props.className} text-start ${disbaled ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <DrawerTrigger disabled={disabled} className={`${props.className} text-start ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}>
                 {children}
             </DrawerTrigger>
 
@@ -206,7 +211,7 @@ const ServiceOnCommandDrawer = ({ service, children, onQuantityChange, disbaled 
                     <div className="mx-auto w-full space-y-6 px-4 mt-4 mb-10">
                         <DrawerTitle className="text-center font-normal leading-8">
                             Définissez la quantité pour le service
-                            <br />" <i className="font-medium">{service.label}</i> "
+                            <br />" <i className="font-medium">{service.currentVersion.label}</i> "
                         </DrawerTitle>
                         <div className="w-full flex flex-row justify-evenly items-center">
                             <Button variant='secondary' disabled={quantity <= 0} onClick={() => setQuantity(quantity - 1)}>

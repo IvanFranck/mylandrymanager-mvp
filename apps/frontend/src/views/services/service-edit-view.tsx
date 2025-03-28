@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button"
 import { GenericForm } from "@/components/ui/generic-form"
-import { ServiceFormSchema } from "@/lib/api/services"
+import { ServiceEditFormSchema } from "@/lib/api/services"
 import { useGetServiceById } from "@/lib/hooks/use-cases/services/useGetServiceById"
 import { useUpdateService } from "@/lib/hooks/use-cases/services/useUpdateService"
+import { useAuth } from "@/lib/hooks/use-cases/useAuth"
 import { Loader } from "lucide-react"
 import { useNavigate, useParams } from "react-router-dom"
 import z from "zod"
@@ -10,12 +11,13 @@ import z from "zod"
 export default function ServiceEditView() {
     const { serviceId } = useParams<{ serviceId: string }>()
     const numericServiceId = Number(serviceId) || 0; // Fallback to 0 if ServiceId is undefined or not a number
+    const agencyId = useAuth.getState().selectedAgency?.id
     const navigate = useNavigate()
 
-    const {isServiceUpdating, updateService} = useUpdateService({serviceId: numericServiceId})
-    const {isServiceLoading, service: serviceData} = useGetServiceById({serviceId: numericServiceId})
+    const {isServiceUpdating, updateService} = useUpdateService({serviceId: numericServiceId, query: {agencyId}})
+    const {isServiceLoading, service: serviceData} = useGetServiceById({serviceId: numericServiceId, query: {agencyId}})
 
-    const onSubmit = async (values: z.infer<typeof ServiceFormSchema>) => {
+    const onSubmit = async (values: z.infer<typeof ServiceEditFormSchema>) => {
         await updateService(values)
     }
 
@@ -23,19 +25,19 @@ export default function ServiceEditView() {
     return (
         <div className="w-full flex-1 rounded-t-3xl px-2 bg-white">
             {
-                isServiceLoading ? <p> loading ...</p> : 
+                isServiceLoading ? <p className="p6"> Chargement ...</p> : 
                 serviceData 
                     ? (
                         <div className="w-full px-4 mt-8 space-y-4">
-                            <h2 className="font-medium text-lg">Modifier le service <span className="italic">"{serviceData.label}"</span></h2>
+                            <h2 className="font-medium text-lg">Modifier le service <span className="italic">"{serviceData.currentVersion.label}"</span></h2>
 
                             <GenericForm
-                                schema={ServiceFormSchema}
+                                schema={ServiceEditFormSchema}
                                 onSubmit={onSubmit}
                                 defaultValues={{
-                                    label: serviceData.label,
-                                    price: Number(serviceData.price),
-                                    description: serviceData.description
+                                    label: serviceData.currentVersion.label,
+                                    price: Number(serviceData.currentVersion.price),
+                                    description: serviceData.currentVersion.description
                                 }}
                                 fields={[
                                     { name: "label", label: "Titre", type: "text", errorMessage: "Le titre est requis." },

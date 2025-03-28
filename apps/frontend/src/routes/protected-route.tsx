@@ -1,13 +1,16 @@
-import { useAuth } from "@/lib/hooks/useAuth"
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 import { Navigate, Outlet } from "react-router-dom";
 
 export const ProtectedRoute = () => {
-    const auth = useAuth();
-    const user = auth?.user;
+    const { user, selectedAgency } = useAuth()
 
     if (!user) {
-        return <Navigate to='/' replace/>
+        return <Navigate to="/login" replace />
     }
 
-    return <Outlet/>
+    if (!selectedAgency) {
+        return <Navigate to="/select-agency" replace />
+    }
+
+    return <Outlet />
 }

@@ -10,7 +10,7 @@ import {
   Put,
   Query,
   UseGuards,
-  Req,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -24,7 +24,10 @@ import {
   ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
+import {
+  GenericQueryType,
+  SearchByNameQueriesType,
+} from '@app-backend/common/queries.type';
 
 @ApiTags('customers')
 @UseGuards(AccessTokenAuthGuard)
@@ -41,23 +44,34 @@ export class CustomersController {
   })
   @ApiBadRequestResponse()
   @Post()
-  async create(
-    @Body() createCustomerDto: CreateCustomerDto,
-    @Req() req: AccessTokenValidatedRequestInterface,
-  ) {
-    return await this.customersService.create(createCustomerDto, req);
+  async create(@Body() createCustomerDto: CreateCustomerDto) {
+    return await this.customersService.create(createCustomerDto);
   }
 
   @ApiOkResponse({ description: 'liste des clients' })
   @ApiNotFoundResponse()
   @Get()
-  async findAll(@Req() req: AccessTokenValidatedRequestInterface) {
-    return await this.customersService.findAll(req);
+  async findAll(@Query() query: GenericQueryType) {
+    return await this.customersService.findAll(query);
   }
 
   @Get('search')
-  async findOne(@Query('name') name: string) {
-    return await this.customersService.findOne(name);
+  async searchByName(
+    @Query(new ValidationPipe({ transform: true }))
+    query: SearchByNameQueriesType,
+  ) {
+    return await this.customersService.searchByName(query);
+  }
+
+  @Get(':id')
+  async findOneById(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
+    id: number,
+  ) {
+    return await this.customersService.findOneById(id);
   }
 
   @Put(':id')

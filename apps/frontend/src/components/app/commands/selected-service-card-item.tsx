@@ -15,11 +15,11 @@ export default function SelectedServiceItem({
         <Card className={props.className}>
             <CardHeader className="">
                 <CardTitle className="text-lg flex justify-between">
-                    <span className="font-normal">{selectedService.service.label}</span>
-                    <strong>{selectedService.quantity * selectedService.service.price} fcfa</strong>
+                    <span className="font-normal">{selectedService.service.currentVersion.label}</span>
+                    <strong>{selectedService.quantity * selectedService.service.currentVersion.price} fcfa</strong>
                 </CardTitle>
                 <CardDescription className="text-gray-600 text-xs">
-                    {selectedService.quantity} * {selectedService.service.price}
+                    {selectedService.quantity} * {selectedService.service.currentVersion.price}
                 </CardDescription>
             </CardHeader>
         </Card>

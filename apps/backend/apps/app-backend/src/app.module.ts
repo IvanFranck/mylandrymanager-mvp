@@ -13,6 +13,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 import { IncomesModule } from './incomes/incomes.module';
+import { AgenciesModule } from './agencies/agencies.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { IncomesModule } from './incomes/incomes.module';
     ServicesModule,
     CommandsModule,
     UsersModule,
+    AgenciesModule,
     IncomesModule,
     AuthModule,
     JwtKeysModule,

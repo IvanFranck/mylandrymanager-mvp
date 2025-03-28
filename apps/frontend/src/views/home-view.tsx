@@ -1,13 +1,15 @@
 import { Loader, PackageCheck } from "lucide-react";
-import DeliveriesOverview from "./home/deliveries-overview";
-import { WeekIncomesView } from "./home/week-incomes";
-import KPIBlock from "./home/KPIBlock";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
+import KPIBlock from "@/components/app/home/KPIBlock";
+import { WeekIncomesView } from "@/components/app/home/week-incomes";
+import DeliveriesOverview from "@/components/app/home/deliveries-overview";
 
 export const HomeView = () => {
+  const connectedUser = useAuth().user
   return (
     <div className='px-3'>
       <h2 className="text-gray-600 text-sm font-light">Salut</h2>
-      <p className="text-2xl font-semibold">Ivan !</p>
+      <p className="text-2xl font-semibold">{connectedUser?.username}</p>
 
       <section className="w-full mt-4">
         <div className="w-full flex">

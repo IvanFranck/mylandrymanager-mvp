@@ -7,55 +7,105 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Agency {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String   @db.VarChar(255)
+  address   String?  @db.VarChar(255)
+  phone     String?
+
+  owner   User @relation("OwnedAgencies", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId Int // user who owns the agency
+
+  staffMembers UserAgency[] // Relation with team members
+  services     Service[]
+  commands     Command[]
+  customers    Customer[]
+  invoices     Invoice[]
+  incomes      Incomes[]
+  incomesStats IncomesStats[]
+  // statusDefinitions CommandStatusDefinition[]
+}
+
+// Table de jointure pour les relations user-agency
+model UserAgency {
+  userId    Int
+  agencyId  Int
+  role      UserRole // user role in the agency
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+
+  @@id([userId, agencyId])
+}
+
+enum UserRole {
+  OWNER // owner, full access
+  MANAGER // Manager, almost full access
+  AGENT // Agent, limited access (ex: services edit)
+  ACCOUNTANT // Accountant, only access to incomes and invoices
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   username  String    @db.VarChar(255)
   phone     String    @unique
-  address   String    @db.VarChar(255)
   password  String    @db.VarChar(255)
   verified  DateTime?
 
-  services     Service[]
+  ownedAgencies     Agency[]     @relation("OwnedAgencies") // Agencies owned by the user
+  agencyMemberships UserAgency[] // agencies where user is a member
+
   Command      Command[]
-  Customer     Customer[]
   IncomesStats IncomesStats[]
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String   @db.VarChar(255)
-  phone     String   @unique
-  address   String?  @db.VarChar(255)
-  userId    Int
+  id                       Int      @id @default(autoincrement())
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  name                     String   @db.VarChar(255)
+  phone                    String   @unique
+  address                  String?  @db.VarChar(255)
+  agreeWithMessagingPolicy Boolean  @default(false)
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Agency   Agency @relation(fields: [agencyId], references: [id])
+  agencyId Int
+
   commands Command[]
 }
 
 model Service {
-  id               Int              @id @default(autoincrement())
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  userId           Int
-  currentVersionId Int
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  versions         ServiceVersion[]
+  id               Int      @id @default(autoincrement())
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  currentVersionId Int?     @unique
+  isDeleted        Boolean  @default(false)
+
+  Agency         Agency          @relation(fields: [agencyId], references: [id])
+  agencyId       Int
+  currentVersion ServiceVersion? @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+
+  versions ServiceVersion[]
 }
 
-// ServiceVersion is the version (an update) of the service: it is created when user updates the service
+// ServiceVersion is the version (an update) of the service: it is created when user updates or creates the service
 model ServiceVersion {
-  id          Int                @id @default(autoincrement())
-  createdAt   DateTime           @default(now())
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
   label       String
-  price       Int
+  price       Int?
   description String?
-  serviceId   Int
-  service     Service            @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  commands    ServiceOnCommand[]
+
+  service          Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId        Int
+  serviceAsCurrent Service? @relation("CurrentVersion")
+
+  commands ServiceOnCommand[]
 }
 
 model Command {
@@ -66,26 +116,29 @@ model Command {
   price        Int
   description  String?       @db.VarChar(255)
   discount     Int           @default(0)
-  customerId   Int
-  userId       Int
   withdrawDate DateTime
   advance      Int           @default(0)
   status       CommandStatus @default(NOT_PAID)
 
-  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  customer Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     Int
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId Int
+  Agency     Agency   @relation(fields: [agencyId], references: [id])
+  agencyId   Int
+
   services ServiceOnCommand[]
   invoices Invoice[]
   Incomes  Incomes[]
 }
 
 model ServiceOnCommand {
-  quantity  Int
-  serviceId Int
-  commandId Int
+  quantity Int
 
-  service ServiceVersion @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  command Command        @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  service   ServiceVersion @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId Int
+  command   Command        @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  commandId Int
 
   @@id([serviceId, commandId])
 }
@@ -96,33 +149,42 @@ model Invoice {
   fileName   String   @unique @db.VarChar(36)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  commandId  Int
   amountPaid Int      @default(0)
-  command    Command  @relation(fields: [commandId], references: [id], onDelete: Cascade)
+
+  command   Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  commandId Int
+  Agency    Agency  @relation(fields: [agencyId], references: [id])
+  agencyId  Int
 }
 
 model IncomesStats {
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   day       String
-  amount    Int
-  accountId Int
-  incomes   Incomes[]
-  user      User      @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  @@id(name: "incomeId", [day, accountId])
+  user      User   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountId Int
+  Agency    Agency @relation(fields: [agencyId], references: [id])
+  agencyId  Int
+
+  incomes Incomes[]
+
+  @@unique([day, agencyId])
 }
 
 model Incomes {
-  id                    Int           @id @default(autoincrement())
-  createdAt             DateTime      @default(now())
-  updatedAt             DateTime      @updatedAt
-  commandId             Int
-  amount                Int
-  command               Command       @relation(fields: [commandId], references: [id], onDelete: Cascade)
-  IncomesStats          IncomesStats? @relation(fields: [incomesStatsDay, incomesStatsAccountId], references: [day, accountId])
-  incomesStatsDay       String?
-  incomesStatsAccountId Int?
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  amount    Int
+
+  command       Command      @relation(fields: [commandId], references: [id], onDelete: Cascade)
+  commandId     Int
+  incomeStats   IncomesStats @relation(fields: [incomeStatsId], references: [id], onDelete: Cascade)
+  incomeStatsId Int
+  Agency        Agency       @relation(fields: [agencyId], references: [id])
+  agencyId      Int
 }
 
 enum CommandStatus {

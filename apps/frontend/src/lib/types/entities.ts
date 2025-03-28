@@ -3,13 +3,27 @@ type BaseEntity = {
     createdAt: Date
     updatedAt: Date
 }
+
+
+export interface AgencyEntity {
+    id: number
+    address: string
+    name: string
+    phone: string
+}
 export type UserEntity = BaseEntity & {
     username: string
     phone: number
-    password: string
-    signUpCompleted: boolean
+    agencyMemberships: {
+        agencyId: number
+        userId: number
+        createdAt: Date
+        agency: AgencyEntity
+    }[]
     services: ServicesEntity[]
 }
+
+
 
 export type UserProfileEntity = {
     id: number
@@ -18,11 +32,17 @@ export type UserProfileEntity = {
     address: string
 }
 
-export type ServicesEntity = BaseEntity & {
+export type ServiceVersionEntity = BaseEntity & {
     label: string
     price: number
     description: string | undefined
+}
+
+export type ServicesEntity = BaseEntity & {
+    isDeleted: boolean
     currentVersionId: number
+    agencyId: number
+    currentVersion: ServiceVersionEntity
 }
 
 
@@ -58,9 +78,15 @@ export type InvoiceENtity = BaseEntity & {
     amountPaid: number
 }
 
+type IncomesEntity = BaseEntity & {
+    commandId: number,
+    amount: number,
+    incomeStatsId: number
+}
+
 export type IncomesStatsEntity = Pick<BaseEntity, 'createdAt' | 'updatedAt'> & {
     day: string,
-    amount: number,
+    incomes: Array<IncomesEntity>
     accountId: number
 }
 

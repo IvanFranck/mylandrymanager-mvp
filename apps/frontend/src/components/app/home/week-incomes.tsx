@@ -9,19 +9,23 @@ import { useToast } from '@/components/ui/use-toast';
 import { AxiosError } from 'axios';
 import { TGenericAxiosError } from '@/lib/types/responses';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '@/lib/hooks/use-cases/useAuth';
 
 export function WeekIncomesView() {
   const { toast } = useToast();
   const [chartData, setChartData] = useState<IncomesChartDataType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const agencyId = useAuth().selectedAgency?.id
 
   const fetchIncomes = useCallback(async () => {
     setIsLoading(true);
     try {
       const from = currentWeekStart.toISOString();
       const to = endOfWeek(currentWeekStart).toISOString();
-      const results = await getIncomesStats({ from, to });
+      const results = await getIncomesStats({ from, to, agencyId });
+
+      console.log(results);
       setChartData(getCurrentWeekData(results.details, currentWeekStart));
     } catch (error) {
       const message = (error as AxiosError<TGenericAxiosError>).response?.data?.message || 'Impossible de récupérer les entrées pour la période sélectionnée';
@@ -33,7 +37,7 @@ export function WeekIncomesView() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentWeekStart, toast]);
+  }, [currentWeekStart, toast, agencyId]);
 
   const totalSales = useMemo(() => {
     return chartData.reduce((acc, cur) => acc + cur.Sales, 0);

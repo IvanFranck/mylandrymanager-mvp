@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateServiceDto } from './dto/create-service.dto';
@@ -10,11 +12,12 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { Service, ServiceVersion } from '@prisma/client';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
-import { AccessTokenValidatedRequestInterface } from '@common-app-backend/interfaces/access-token-validated-request.interface';
 import { ServiceEntity } from './entities/service.entity';
+import { SearchByNameQueriesType } from '@app-backend/common/queries.type';
 
 @Injectable()
 export class ServicesService {
+  private readonly logger = new Logger(ServicesService.name);
   constructor(private readonly prisma: PrismaService) {}
 
   /**
@@ -26,60 +29,59 @@ export class ServicesService {
    */
   async create(
     createServiceDto: CreateServiceDto,
-    request: AccessTokenValidatedRequestInterface,
   ): Promise<CustomResponseInterface<ServiceVersion>> {
-    const id = request.user.sub;
     try {
-      const serviceVersion = await this.prisma.$transaction(async (tx) => {
-        // create new service row with fake currentversion id
-        const newService = await tx.service.create({
-          data: {
-            currentVersionId: 1,
-            user: {
-              connect: {
-                id: id,
-              },
-            },
-          },
-        });
-
-        // create a service version and connect it to the new service
+      const { agencyId, ...serviceData } = createServiceDto;
+      const service = await this.prisma.$transaction(async (tx) => {
+        // create new service version an parent service
         const serviceVersion = await tx.serviceVersion.create({
           data: {
-            ...createServiceDto,
+            ...serviceData,
             service: {
-              connect: {
-                id: newService.id,
+              create: {
+                Agency: {
+                  connect: {
+                    id: agencyId,
+                  },
+                },
               },
             },
+          },
+          select: {
+            id: true,
+            service: true,
           },
         });
 
-        // update the servcive created by setting the right currentversion id
-        return tx.service.update({
+        // update the service created by setting the right currentversion id
+
+        return await tx.service.update({
           where: {
-            id: newService.id,
+            id: serviceVersion.service.id,
           },
           data: {
-            currentVersionId: serviceVersion.id,
+            currentVersion: {
+              connect: {
+                id: serviceVersion.id,
+              },
+            },
           },
           select: {
-            versions: {
-              orderBy: {
-                createdAt: 'desc',
-              },
-              take: 1,
-            },
+            currentVersion: true,
           },
         });
       });
       return {
         message: 'service créé!',
-        details: serviceVersion.versions[0],
+        details: service.currentVersion,
       };
     } catch (error) {
+      this.logger.error('error: ', error);
       if (error.code === 'P2002') {
         throw new BadRequestException('un service avec ce nom existe déja');
+      }
+      if (error instanceof HttpException) {
+        throw error;
       }
       throw new BadRequestException(error);
     }
@@ -91,26 +93,23 @@ export class ServicesService {
    * @return {Promise<Service[]>} The list of services found
    */
   async findAll(
-    request: AccessTokenValidatedRequestInterface,
+    agencyId: number,
   ): Promise<CustomResponseInterface<ServiceEntity[]>> {
-    const userId = request.user.sub;
     try {
-      const user = await this.prisma.user.findUnique({
+      const user = await this.prisma.agency.findUnique({
         where: {
-          id: userId,
+          id: agencyId,
         },
         include: {
           services: {
+            where: {
+              isDeleted: false,
+            },
             orderBy: {
               createdAt: 'desc',
             },
             include: {
-              versions: {
-                orderBy: {
-                  createdAt: 'desc',
-                },
-                take: 1,
-              },
+              currentVersion: true,
             },
           },
         },
@@ -134,27 +133,39 @@ export class ServicesService {
    * @return {Promise<{ message: string, service: Service }>} an object containing a message and the service found
    */
   async findOneByName(
-    name: string,
-    request: AccessTokenValidatedRequestInterface,
+    query: SearchByNameQueriesType,
   ): Promise<CustomResponseInterface<ServiceEntity[]>> {
     try {
-      // improve this: it make call to DB to retrieve all customers every time we call this.
-      // try to cache the response from DB at the first place
-      const services = await this.findAll(request);
-
-      const service = services.details.filter((service) =>
-        service.versions[0]?.label
-          .trim()
-          .toLowerCase()
-          .includes(name.trim().toLowerCase()),
-      );
+      if (query.name.trim().length === 0) {
+        throw new BadRequestException('Veillez saisir le nom du service');
+      }
+      const services = await this.prisma.service.findMany({
+        where: {
+          agencyId: query.agencyId,
+          isDeleted: false,
+          currentVersion: {
+            label: {
+              contains: query.name,
+              mode: 'insensitive',
+            },
+          },
+        },
+        include: {
+          currentVersion: true,
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+      });
 
       return {
         message: 'services trouvés',
-        details: service,
+        details: services,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof HttpException) {
         throw error;
       }
       console.error('error: ', error);
@@ -164,15 +175,21 @@ export class ServicesService {
 
   async findOneById(
     id: number,
-    request: AccessTokenValidatedRequestInterface,
+    agencyId: number,
   ): Promise<CustomResponseInterface<Service>> {
     try {
-      const services = await this.findAll(request);
-
-      const service = services.details.find((service) => service.id === id);
+      const service = await this.prisma.service.findUnique({
+        where: {
+          id: id,
+          isDeleted: false,
+        },
+        include: {
+          currentVersion: true,
+        },
+      });
 
       if (!service) {
-        throw new NotFoundException('service not found');
+        throw new NotFoundException('service inexistant ou supprimé');
       }
       return {
         message: 'service trouvé',
@@ -180,6 +197,9 @@ export class ServicesService {
       };
     } catch (error) {
       if (error instanceof NotFoundException) {
+        throw error;
+      }
+      if (error instanceof HttpException) {
         throw error;
       }
       console.error('error: ', error);
@@ -203,21 +223,23 @@ export class ServicesService {
         const service = await tx.service.findUnique({
           where: {
             id: id,
+            isDeleted: false,
+          },
+          select: {
+            currentVersion: true,
           },
         });
 
-        const lastServiceVersion = await tx.serviceVersion.findUnique({
-          where: {
-            id: service.currentVersionId,
-          },
-        });
+        if (!service) {
+          throw new NotFoundException('Service inexistant ou supprimé');
+        }
 
         const {
           createdAt,
           id: lastServiceVersionId,
           serviceId,
           ...lastServiceVersionUsefulData
-        } = lastServiceVersion;
+        } = service.currentVersion;
 
         const newServiceVersion = {
           ...lastServiceVersionUsefulData,
@@ -231,6 +253,11 @@ export class ServicesService {
                 id: id,
               },
             },
+            serviceAsCurrent: {
+              connect: {
+                id: id,
+              },
+            },
           },
         });
         const updatedService = await tx.service.update({
@@ -238,15 +265,14 @@ export class ServicesService {
             id: id,
           },
           data: {
-            currentVersionId: newVersion.id,
+            currentVersion: {
+              connect: {
+                id: newVersion.id,
+              },
+            },
           },
           select: {
-            versions: {
-              orderBy: {
-                createdAt: 'desc',
-              },
-              take: 1,
-            },
+            currentVersion: true,
           },
         });
         return updatedService;
@@ -257,13 +283,15 @@ export class ServicesService {
       }
       return {
         message: 'service modifié',
-        details: service.versions[0],
+        details: service.currentVersion,
       };
     } catch (error) {
       if (error.code === 'P2025') {
         throw new BadRequestException('impossible de trouver ce service');
       }
-      console.error('error: ', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new BadRequestException(error);
     }
   }
@@ -276,9 +304,12 @@ export class ServicesService {
    */
   async remove(id: number): Promise<CustomResponseInterface<Service>> {
     try {
-      const service = await this.prisma.service.delete({
+      const service = await this.prisma.service.update({
         where: {
           id,
+        },
+        data: {
+          isDeleted: true,
         },
       });
       return {

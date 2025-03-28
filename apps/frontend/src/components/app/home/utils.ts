@@ -20,7 +20,7 @@ export const getCurrentWeekData = (apiData: IncomesStatsEntity[], weekDay: Date)
       const incomesData = apiData.find(item => item.day === date);
       return {
         date: format(addDays(startDate, index), 'E dd', {locale: fr}), 
-        Sales: incomesData ? incomesData.amount : 0,
+        Sales: incomesData ? incomesData.incomes.reduce((sum, income) => sum + income.amount, 0): 0,
       };
     });
     return weekData;
