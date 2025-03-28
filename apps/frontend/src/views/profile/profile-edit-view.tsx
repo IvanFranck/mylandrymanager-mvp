@@ -12,7 +12,6 @@ export default function ProfileEditView() {
 
     const { updateUser, isUserUpdating } = useUpdateUser();
     const onSubmit = async (values: z.infer<typeof ProfileFormSchema>) => {
-        console.log('values', values);
         await updateUser(values);
     }
 
@@ -36,8 +35,16 @@ export default function ProfileEditView() {
                                     label: "Nom d'utilisateur", 
                                     type: "text", 
                                     errorMessage: "Le nom d'utilisateur est requis.", 
-                                    inputStyle:"border-0 shadow-none py-0 px-0 focus-visible:ring-0 focus-visible:border-0 text-lg font-semibold", 
-                                    labelStyle: "font-thin"
+                                    inputStyle:"shadow-none focus-visible:ring-0 focus-visible:border-black text-lg font-semibold", 
+                                    labelStyle: "text-gray-600"
+                                },
+                                { 
+                                    name: "phone", 
+                                    label: "Numéro de téléphone",
+                                    type: "text", 
+                                    errorMessage: "Le numéro de téléphone est requis.", 
+                                    inputStyle:"shadow-none focus-visible:ring-0 focus-visible:border-black text-lg font-semibold", 
+                                    labelStyle: "text-gray-600"
                                 },
                             ]}
                             submitButton={

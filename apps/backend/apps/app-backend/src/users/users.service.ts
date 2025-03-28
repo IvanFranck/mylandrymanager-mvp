@@ -169,6 +169,11 @@ export class UsersService {
         details: user,
       };
     } catch (error) {
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          'Un utilisateur avec ce numéro existe déjà. Veillez utiliser un autre numéro',
+        );
+      }
       console.error('error: ', error);
       throw new BadRequestException('an error occurred while updating user');
     }

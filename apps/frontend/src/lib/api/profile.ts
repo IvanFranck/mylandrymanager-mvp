@@ -18,7 +18,7 @@ export async function fetchUserInfosQuery() {
                 })
 } 
 
-export async function editUserQuery(data: z.infer<typeof ProfileFormSchema>): Promise<UserEntity> {
+export async function editUserQuery(data: z.infer<typeof ProfileFormSchema>) {
     return await axiosInstance
                 .patch(API_ROUTES.USER.UPDATE, data)
                 .then((resp: AxiosResponse<TGenericResponse<UserEntity>>) => {

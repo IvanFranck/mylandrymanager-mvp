@@ -1,59 +1,99 @@
-import { LogOut, Phone } from "lucide-react"
+import { LogOut, Phone, Building2, MapPin, User, Settings } from "lucide-react"
 import UserProfileSkeleton from '../components/app/profile/user-profile-skeleton';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/hooks/use-cases/useAuth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useMemo } from "react";
 
 export function ProfileView() {
-    const userProfile = useAuth().user;
+    const { user, selectedAgency, logout } = useAuth();
     const navigate = useNavigate();
 
+    const agencyMemberships = useMemo(
+        () => user?.agencyMemberships || [],
+        [user]
+    );
+
+    if (!user) return <UserProfileSkeleton/>;
+
     return (
-        <div className="px-3">
-        {
-            !userProfile ? <UserProfileSkeleton/> : 
-            (
-                <>
-                    <div className="w-full text-center mt-8">
-                        <p className="text-base font-thin text-gray-400">Nom de l'utlistaeur</p>
-                        <h1 className="text-2xl font-semibold">{userProfile?.username}</h1>
-
-                        <div className="mt-4">
-                            <button
-                                onClick={() => navigate('/profile/edit')}
-                                className="py-2 px-6 bg-purple-700 text-white tracking-wider rounded-2xl font-light"
-                            >
-                                Modifier
-                            </button>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+            <div className="space-y-6">
+                {/* En-tête du profil */}
+                <Card>
+                    <CardHeader className="text-center pb-2">
+                        <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
+                            <User className="w-12 h-12 text-purple-600" />
                         </div>
-                    </div>
+                        <CardTitle className="text-2xl font-semibold">{user.username}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex justify-center">
+                        <Button
+                            onClick={() => navigate('/profile/edit')}
+                            variant="outline"
+                            className="gap-2"
+                        >
+                            <Settings className="w-4 h-4" />
+                            Modifier le profil
+                        </Button>
+                    </CardContent>
+                </Card>
 
-                    <div className="w-full mt-8 flex flex-col gap-8 bg-white rounded-2xl p-4 shadow-lg">
-                        {/* <div className="flex flex-col">
-                            <p className="text-base font-thin text-gray-500 flex justify-center items-center w-max">
-                                <MapPin className="mr-2 w-4 h-5" /> 
-                                <span>Adresse</span>
-                            </p>
-                            <p className="text-lg font-semibold">{userProfile?.address}</p>
-                        </div> */}
-                        <div className="flex flex-col">
-                            <p className="text-base font-thin text-gray-500 flex justify-center items-center w-max">
-                                <Phone className="mr-2 w-4 h-4" /> 
-                                <span>Téléphone</span>
-                            </p>
-                            <p className="text-lg font-semibold">{userProfile?.phone}</p>
+                {/* Informations de l'utilisateur */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-lg">Informations personnelles</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex items-center gap-2 text-gray-600">
+                            <Phone className="w-4 h-4" />
+                            <span>{user.phone}</span>
                         </div>
-                    </div>
+                    </CardContent>
+                </Card>
 
-                    <div className="w-full mt-8 flex flex-col gap-8 bg-white rounded-2xl p-4">
-                        <p className="text-base text-red-500 flex justify-center items-center w-max">
-                            <LogOut className="mr-2 w-4 h-5" /> 
-                            <span>Se déconnecter</span>
-                        </p>
-                    </div>
-                </>
-            )
-        }
+                {/* Informations de l'agence */}
+                {selectedAgency && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg">Agence actuelle</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <Building2 className="w-4 h-4" />
+                                <span className="font-medium">{selectedAgency.name}</span>
+                            </div>
+                            {selectedAgency.address && (
+                                <div className="flex items-center gap-2 text-gray-600">
+                                    <MapPin className="w-4 h-4" />
+                                    <span>{selectedAgency.address}</span>
+                                </div>
+                            )}
+                            {
+                                agencyMemberships.length > 1 &&
+                                <Button
+                                    onClick={() => navigate('/select-agency')}
+                                    variant="outline"
+                                    className="w-full gap-2"
+                                >
+                                    <Building2 className="w-4 h-4" />
+                                    Changer d'agence
+                                </Button>
+                            } 
+                        </CardContent>
+                    </Card>
+                )}
+
+                {/* Bouton de déconnexion */}
+                <Button
+                    onClick={logout}
+                    className="w-full gap-2 bg-red-100 text-red-600 font-normal py-4 focus:bg-red-200 focus:text-red-700"
+                >
+                    <LogOut className="w-4 h-4" />
+                    Se déconnecter
+                </Button>
+            </div>
         </div>
-        
-    )
+    );
 }
