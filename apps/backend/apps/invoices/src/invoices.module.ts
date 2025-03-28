@@ -18,7 +18,7 @@ import { S3Service } from './s3.service';
       validationSchema: joi.object({
         RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE: joi.string().required(),
         INVOICES_ROOT_PATH: joi.string().required(),
-        S3_REGION: joi.string().required(),
+        AWS_REGION: joi.string().required(),
         S3_BUCKET_NAME: joi.string().required(),
       }),
     }),

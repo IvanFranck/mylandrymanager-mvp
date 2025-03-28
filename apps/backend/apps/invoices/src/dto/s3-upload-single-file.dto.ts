@@ -1,10 +1,9 @@
 export type S3UploadSingleFileDTO = {
   file: Buffer;
-  fileKey: string;
-  tagList: {
-    customer: string;
-    user: string;
-    billId: string;
-  };
-  isPublic: boolean;
+  invoiceCreatedAt: Date;
+  invoiceId: number;
+  agencyId: number;
+  customerId: number;
+  commandId: number;
+  invoiceCode: string;
 };

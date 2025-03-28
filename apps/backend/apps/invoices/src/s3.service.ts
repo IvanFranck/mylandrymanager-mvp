@@ -1,45 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { S3UploadSingleFileDTO } from './dto/s3-upload-single-file.dto';
-
+import { format } from 'date-fns';
 @Injectable()
 export class S3Service {
   private client: S3Client;
-  private bucketName = this.configService.get('S3_BUCKET_NAME');
+  private loger = new Logger(S3Service.name);
   constructor(private readonly configService: ConfigService) {
-    const s3Region = this.configService.get('S3_REGION');
+    const s3Region = this.configService.get('AWS_REGION');
 
     this.client = new S3Client({
       region: s3Region,
-      forcePathStyle: true,
     });
   }
 
+  private generateS3Key(
+    invoiceCreatedAt: Date,
+    agencyId: number,
+    invoiceCode: string,
+  ): string {
+    const date = new Date(invoiceCreatedAt);
+    const year = date.getFullYear();
+    const month = format(date, 'MM');
+    const day = format(date, 'dd');
+
+    return `agencies/${agencyId}/${year}/${month}/${day}/invoices/${invoiceCode}.pdf`;
+  }
+
   async uploadSIngleFile(dto: S3UploadSingleFileDTO) {
+    const s3Key = this.generateS3Key(
+      dto.invoiceCreatedAt,
+      dto.agencyId,
+      dto.invoiceCode,
+    );
+
     try {
       const command = new PutObjectCommand({
         Bucket: this.configService.get('S3_BUCKET_NAME'),
-        Key: `${dto.fileKey}.pdf`,
+        Key: s3Key,
         ContentType: 'application/pdf',
         Body: dto.file,
-        Tagging: this.tagging(dto.tagList),
-        ACL: dto.isPublic ? 'public-read' : 'private',
+        Metadata: {
+          'invoice-id': dto.invoiceId.toString(),
+          'command-id': dto.commandId.toString(),
+          'agency-id': dto.agencyId.toString(),
+          'customer-id': dto.customerId.toString(),
+        },
+        ServerSideEncryption: 'AES256',
       });
 
       const result = await this.client.send(command);
-      console.log('result', result);
+      this.loger.error('result', result);
+      return result;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
-  }
-
-  private tagging(tagsList: Record<string, string>) {
-    return Object.entries(tagsList)
-      .map(
-        ([key, value]) =>
-          `${encodeURIComponent(key)}=${encodeURIComponent(value)}`,
-      )
-      .join('&');
   }
 }

@@ -144,17 +144,24 @@ model ServiceOnCommand {
 }
 
 model Invoice {
-  id         Int      @id @default(autoincrement())
-  code       String?  @unique @db.VarChar(36)
-  fileName   String?  @unique @db.Text
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  amountPaid Int      @default(0)
+  id            Int                  @id @default(autoincrement())
+  code          String?              @unique @db.VarChar(36)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  amountPaid    Int                  @default(0)
+  s3key         String? // chemin vers le bucket s3 où est stocké le fichier
+  storageStatus InvoiceStorageStatus @default(PENDING)
 
   command   Command @relation(fields: [commandId], references: [id], onDelete: Cascade)
   commandId Int
   Agency    Agency  @relation(fields: [agencyId], references: [id])
   agencyId  Int
+}
+
+enum InvoiceStorageStatus {
+  PENDING
+  UPLOADED
+  ERROR
 }
 
 model IncomesStats {
