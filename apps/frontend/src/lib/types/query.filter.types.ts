@@ -1,6 +1,6 @@
 import { CommandStatus } from "./entities";
 
-export type CommandQueriesType = {
+export type CommandQueriesType = GenericQueryType & {
     code?: string;
     status?: CommandStatus;
     createdAt?: string;
@@ -9,8 +9,12 @@ export type CommandQueriesType = {
     to?: string
 };
 
-export type IncomesQueriesType = {
+export type IncomesQueriesType = GenericQueryType & {
   from: string,
   to: string
 };
-  
+
+export type GenericQueryType = {
+  agencyId?: number
+  limit?: number
+}

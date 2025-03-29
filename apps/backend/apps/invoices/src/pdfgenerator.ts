@@ -1,17 +1,24 @@
 import PDFDocument from 'pdfkit';
-import { createWriteStream } from 'fs-extra';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import dayjs from 'dayjs';
+import { PassThrough } from 'stream';
 
-export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
+export const pdfGenerator = async (
+  invoiceParams: InvoicePDFParamsDto,
+): Promise<Buffer | Error> => {
   const doc: PDFKit.PDFDocument = new PDFDocument({
     margin: 50,
     size: 'A4',
   });
 
-  const pdfFilePath = invoiceParams.pdfFilePath;
-  const pdfStream = createWriteStream(pdfFilePath);
-  const barcodeFilePath = invoiceParams.barcodeFilePath;
+  const pdfStream = new PassThrough();
+  const chunks: Buffer[] = [];
+  const barcodeBuffer = invoiceParams.barcodeBuffer;
+
+  // Collecter les données du stream
+  pdfStream.on('data', (chunk) => {
+    chunks.push(chunk);
+  });
 
   doc.pipe(pdfStream);
 
@@ -28,22 +35,26 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
    * ****************************************
    */
 
-  const enterpriseIndfosStartX = doc.page.margins.left;
-  const enterpriseIndfosStartY = doc.page.margins.top;
+  const enterpriseInfosStartX = doc.page.margins.left;
+  const enterpriseInfosStartY = doc.page.margins.top;
 
-  const userInfos = invoiceParams.invoice.command.user;
+  const agencyInfos = invoiceParams.invoice.command.Agency;
+  const agentInfos = invoiceParams.invoice.command.user;
 
   doc.font('Helvetica-Bold').fontSize(20);
-  doc.text(userInfos.username, enterpriseIndfosStartX, enterpriseIndfosStartY, {
+  doc.text(agentInfos.username, enterpriseInfosStartX, enterpriseInfosStartY, {
     width: usableWidth,
     align: 'center',
   });
   doc.font('Helvetica').fontSize(12);
-  doc.text(userInfos.address, {
+  doc.text(agencyInfos.address ? agencyInfos.address : '', {
     width: usableWidth,
     align: 'center',
   });
-  doc.text(userInfos.phone.toString(), { width: usableWidth, align: 'center' });
+  doc.text(agencyInfos.phone ? agencyInfos.phone.toString() : '', {
+    width: usableWidth,
+    align: 'center',
+  });
 
   const enterpriseIndfosHeight = 70;
 
@@ -331,15 +342,15 @@ export const pdfGenerator = async (invoiceParams: InvoicePDFParamsDto) => {
   const barcodeStartY =
     doc.page.margins.top + enterpriseIndfosHeight + bodyHeight + 40;
 
-  doc.image(barcodeFilePath, barcodeStartX, barcodeStartY, {
+  doc.image(barcodeBuffer, barcodeStartX, barcodeStartY, {
     width: barcodeWidth,
   });
 
   doc.end();
 
   return new Promise((resolve, reject) => {
-    pdfStream.on('finish', () => {
-      resolve(pdfFilePath);
+    pdfStream.on('end', () => {
+      resolve(Buffer.concat(chunks));
     });
 
     pdfStream.on('error', (err) => {

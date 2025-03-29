@@ -1,16 +1,16 @@
 import { GenerateBarcodeDTO } from './dto/generate-barcode.dto';
 import {
   BadRequestException,
+  HttpException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
 } from '@nestjs/common';
 import { RenderOptions, toBuffer } from 'bwip-js';
-import { promises, ensureDir } from 'fs-extra';
 import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
-import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
@@ -23,17 +23,23 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { pdfGenerator } from './pdfgenerator';
 import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
+import { S3Service } from '@app/aws/s3.service';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
+  private invoiceId: number;
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaClient: PrismaService,
+    private readonly storageService: S3Service,
     @Inject(WHATSAPP_MESSAGING_SERVICE)
     private readonly whatsappMessagingService: ClientProxy,
   ) {}
+
+  // Générer le chemin S3 basé sur les métadonnées
+
   async createInvoice(createInvoiceDto: CreateInvoiceEventDTO) {
-    console.log('event payload', createInvoiceDto);
+    this.loger.log('event payload', createInvoiceDto);
     try {
       const command = await this.prismaClient.command.findUnique({
         where: { id: createInvoiceDto.commandId },
@@ -45,100 +51,137 @@ export class InvoicesService {
         );
       }
 
-      const filePath = uuidv4();
       const hashIds = new Hashids(
         this.configService.get('CODE_SALT'),
         Number(this.configService.get('CODE_MIN_LENGTH')),
         this.configService.get('CODE_ALPHABET'),
       );
 
-      const invoice = await this.prismaClient.$transaction(async (tx) => {
-        const newInvoice = await tx.invoice.create({
-          data: {
-            fileName: filePath,
-            amountPaid: createInvoiceDto.advance,
-            command: {
-              connect: {
-                id: createInvoiceDto.commandId,
-              },
+      const invoice = await this.prismaClient.invoice.create({
+        data: {
+          amountPaid: createInvoiceDto.advance,
+          storageStatus: 'PENDING',
+          command: {
+            connect: {
+              id: createInvoiceDto.commandId,
             },
           },
-        });
-
-        const code = hashIds.encode(newInvoice.id);
-        const invoice = await tx.invoice.update({
-          where: {
-            id: newInvoice.id,
+          Agency: {
+            connect: {
+              id: createInvoiceDto.agencyId,
+            },
           },
-          data: {
-            code,
-          },
-          select: {
-            id: true,
-            code: true,
-            amountPaid: true,
-            fileName: true,
-            createdAt: true,
-            command: {
-              select: {
-                withdrawDate: true,
-                code: true,
-                discount: true,
-                advance: true,
-                user: {
-                  select: {
-                    username: true,
-                    phone: true,
-                    address: true,
-                  },
+        },
+        select: {
+          id: true,
+          code: true,
+          amountPaid: true,
+          createdAt: true,
+          command: {
+            select: {
+              id: true,
+              withdrawDate: true,
+              code: true,
+              discount: true,
+              advance: true,
+              user: {
+                select: {
+                  username: true,
+                  phone: true,
                 },
-                services: {
-                  select: {
-                    quantity: true,
-                    service: {
-                      select: {
-                        label: true,
-                        price: true,
-                      },
+              },
+              Agency: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  address: true,
+                },
+              },
+              services: {
+                select: {
+                  quantity: true,
+                  service: {
+                    select: {
+                      label: true,
+                      price: true,
                     },
                   },
                 },
-                customer: {
-                  select: {
-                    name: true,
-                    phone: true,
-                    address: true,
-                  },
+              },
+              customer: {
+                select: {
+                  id: true,
+                  name: true,
+                  phone: true,
+                  address: true,
                 },
               },
             },
           },
-        });
-        return invoice;
+        },
       });
 
-      const barcodeDirPath = this.getFileSubPath(
-        this.configService.get('COMMAND_BARCODE_ROOT_PATH'),
-      );
-      const pdfDirPath = this.getFileSubPath(
-        this.configService.get('INVOICES_ROOT_PATH'),
-      );
+      if (!invoice) {
+        throw new InternalServerErrorException(
+          "Erreur lors de l'enregistrement de la facture",
+        );
+      }
 
-      await ensureDir(barcodeDirPath);
-      await ensureDir(pdfDirPath);
+      this.invoiceId = invoice.id;
 
-      const barcodeFilePath = join(barcodeDirPath, `${invoice.fileName}.png`);
-      const pdfFilePath = join(pdfDirPath, `${invoice.fileName}.pdf`);
-      await this.generateInvoiceBarcode({
-        barcodeText: invoice.code,
-        outputPath: barcodeFilePath,
+      //generate invoice code and ensure it is unique
+      let code = hashIds.encode(invoice.id);
+      let isCodeUnique = false;
+
+      do {
+        const invoice = await this.prismaClient.invoice.findUnique({
+          where: {
+            code,
+          },
+        });
+        this.loger.log('invoice', invoice);
+        if (invoice === null) {
+          isCodeUnique = false;
+        } else {
+          code = hashIds.encode(invoice.id);
+        }
+      } while (isCodeUnique);
+
+      const barcodeBuffer = await this.generateInvoiceBarcode({
+        barcodeText: code,
       });
       const params: InvoicePDFParamsDto = {
-        pdfFilePath,
-        barcodeFilePath,
+        barcodeBuffer,
         invoice: invoice,
       };
-      await pdfGenerator(params);
+      const pdfStream: Buffer = (await pdfGenerator(params)) as Buffer;
+
+      if (!pdfStream) {
+        throw new InternalServerErrorException(
+          'Erreur lors de la génération du pdf',
+        );
+      }
+      const s3Key = await this.storageService.uploadSIngleFile({
+        file: pdfStream,
+        invoiceCode: code,
+        invoiceId: invoice.id,
+        invoiceCreatedAt: invoice.createdAt,
+        agencyId: invoice.command.Agency.id,
+        customerId: invoice.command.customer.id,
+        commandId: invoice.command.id,
+      });
+
+      await this.prismaClient.invoice.update({
+        where: {
+          id: invoice.id,
+        },
+        data: {
+          code,
+          s3key: s3Key,
+          storageStatus: 'UPLOADED',
+        },
+      });
 
       await lastValueFrom<SendWhatsappTextMessageDto>(
         this.whatsappMessagingService.emit(COMMAND_CREATED_EVENT, {
@@ -148,11 +191,26 @@ export class InvoicesService {
         }),
       );
     } catch (error) {
+      this.handleErrorWhenGeneratingInvoice(this.invoiceId);
       this.loger.error('Erreur lors de la génération de la facture:', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new BadRequestException(
-        'Erreur lors de la génération de la facture',
+        'Une erreur est survenue lors de la génération de la facture',
       );
     }
+  }
+
+  private async handleErrorWhenGeneratingInvoice(invoiceId: number) {
+    await this.prismaClient.invoice.update({
+      where: {
+        id: invoiceId,
+      },
+      data: {
+        storageStatus: 'ERROR',
+      },
+    });
   }
 
   private async generateInvoiceBarcode(dto: GenerateBarcodeDTO) {
@@ -166,15 +224,7 @@ export class InvoicesService {
       textxalign: 'justify',
     };
     try {
-      // Générer le code-barres
-      const png = await toBuffer(options);
-      const fullOutputPath = dto.outputPath;
-
-      await promises.writeFile(fullOutputPath, png);
-      this.loger.log(`Code-barres sauvegardé à ${fullOutputPath}`);
-      return {
-        message: 'Code-barres sauvegardé',
-      };
+      return await toBuffer(options);
     } catch (error) {
       this.loger.error('Erreur lors de la génération du code-barres:', error);
       throw new Error('Erreur lors de la génération du code-barres:');

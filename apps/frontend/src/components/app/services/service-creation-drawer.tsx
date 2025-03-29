@@ -8,6 +8,7 @@ import { ServicesEntity } from "@/lib/types/entities"
 import { RefObject, useEffect, useRef } from "react"
 import { useCreateService } from "@/lib/hooks/use-cases/services/useCreateService"
 import { GenericForm } from "@/components/ui/generic-form"
+import { useAuth } from "@/lib/hooks/use-cases/useAuth"
 
 type ServiceCreationDrawerProps = {
     onServiceCreated?: (customer: ServicesEntity) => void
@@ -15,7 +16,7 @@ type ServiceCreationDrawerProps = {
 
 export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreationDrawerProps) {
     const drawerCloserBtn = useRef<HTMLButtonElement>(null)
-
+    const agencyId = useAuth.getState().selectedAgency?.id
     const { createService, isCreating, isSuccess } = useCreateService()
 
     useEffect(()=>{
@@ -29,6 +30,10 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
         if (onServiceCreated) onServiceCreated(newService.details)
     }
 
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        return parseFloat(e.target.value)
+    }
+
     return (
         <Drawer>
             <DrawerTrigger asChild>
@@ -38,7 +43,7 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
             </DrawerTrigger>
             <DrawerPortal>
                 <DrawerOverlay className="fixed inset-0 bg-black/[0.5]" />
-                <DrawerContent>
+                <DrawerContent aria-description="Créer un nouveau service">
                     <div className="mx-auto w-full space-y-6 px-4 mt-4 mb-10">
                         <DrawerTitle className="text-center">Creér un nouveau service</DrawerTitle>
                         <div className="w-full">
@@ -48,12 +53,35 @@ export default function ServiceCreationDrawer({ onServiceCreated }: ServiceCreat
                                 defaultValues={{
                                     label: '',
                                     price: 0,
-                                    description: ''
+                                    description: '',
+                                    agencyId: agencyId
                                 }}
                                 fields={[
-                                    { name: "label", label: "Titre", type: "text", errorMessage: "Le titre est requis." },
-                                    { name: "price", label: "Prix du service", type: "text", errorMessage: "Le prix est requis." },
-                                    { name: "description", label: "Description", type: "textarea", placeholder:"décrivez brievement ce service", inputStyle:"border border-gray-400" },
+                                    { 
+                                        name: "label", 
+                                        label: "Titre", 
+                                        type: "text", 
+                                        errorMessage: "Le titre est requis." 
+                                    },
+                                    { 
+                                        name: "price", 
+                                        label: "Prix du service", 
+                                        type: "number", 
+                                        errorMessage: "Le prix est requis.", 
+                                        onFieldChange: handlePriceChange
+                                    },
+                                    { 
+                                        name: "description", 
+                                        label: "Description", 
+                                        type: "textarea", 
+                                        placeholder:"décrivez brievement ce service", 
+                                        inputStyle:"border border-gray-400" 
+                                    },
+                                    {
+                                        name: 'agencyId',
+                                        type: 'hidden',
+                                        
+                                    }
                                 ]}
                                 isPending={isCreating}
                                 submitButton={

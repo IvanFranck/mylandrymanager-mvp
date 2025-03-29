@@ -17,10 +17,4 @@ export class IncomesStatsController {
     await this.incomesStatsService.handleIncomes(data);
     this.rmqService.ack(context);
   }
-
-  @EventPattern('test_event')
-  async test(@Payload() data: any, @Ctx() context: RmqContext) {
-    console.log('data test_event', data);
-    this.rmqService.ack(context);
-  }
 }

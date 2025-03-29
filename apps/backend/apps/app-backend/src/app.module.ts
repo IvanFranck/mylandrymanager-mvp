@@ -13,6 +13,7 @@ import { LoggerMiddleware } from './common/middlewares/logger.middleware';
 import { InvoicesModule } from './invoices/invoices.module';
 import { JwtKeysModule } from './jwtkeys/jwtkeys.module';
 import { IncomesModule } from './incomes/incomes.module';
+import { AgenciesModule } from './agencies/agencies.module';
 
 @Module({
   imports: [
@@ -20,10 +21,10 @@ import { IncomesModule } from './incomes/incomes.module';
     ServicesModule,
     CommandsModule,
     UsersModule,
+    AgenciesModule,
     IncomesModule,
     AuthModule,
     JwtKeysModule,
-    // OTPModule,
     InvoicesModule,
     RmqModule.register({
       name: 'INCOMES_STATS_SERVICE',
@@ -32,13 +33,10 @@ import { IncomesModule } from './incomes/incomes.module';
       isGlobal: true,
       validationSchema: joi.object({
         DATABASE_URL: joi.string().required(),
-        PORT: joi.number().required(),
-        AUTHORIZED_ORIGINS: joi.string().required(),
         CODE_ALPHABET: joi.string().required(),
         CODE_SALT: joi.string().required(),
         CODE_MIN_LENGTH: joi.number().required(),
         INVOICES_ROOT_PATH: joi.string().required(),
-        COMMAND_BARCODE_ROOT_PATH: joi.string().required(),
         JWT_ALGORITHM: joi.string().required(),
         RABBIT_MQ_INCOMES_STATS_SERVICE_QUEUE: joi.string().required(),
       }),

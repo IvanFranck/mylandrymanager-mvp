@@ -1,0 +1,13 @@
+services:
+  frontend:
+    build: .
+    container_name: frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - mlm_network
+
+networks:
+  mlm_network:
+    external: true

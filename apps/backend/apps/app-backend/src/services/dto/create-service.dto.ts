@@ -15,4 +15,9 @@ export class CreateServiceDto {
   })
   @IsOptional()
   description?: string;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsNumber()
+  agencyId: number;
 }

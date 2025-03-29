@@ -39,3 +39,14 @@ export const getCommandStatusVariant= (status: CommandStatus): {
       break;
   }
 }
+
+export function formatRequestQuery<T extends Record<string, unknown>>(query: T) {
+  let isFirstQueryParamSet = false
+  return Object.entries(query).map(([key, value])=>{
+    if (value) {
+      const prefix = isFirstQueryParamSet ? '&' : '?';
+      isFirstQueryParamSet = true;
+      return `${prefix}${key}=${value}`;
+    }
+  }).join('')
+}

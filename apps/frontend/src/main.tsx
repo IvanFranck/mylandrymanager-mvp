@@ -10,19 +10,9 @@ import { AuthProvider } from './components/app/providers/auth-provider'
 
 const router = createBrowserRouter(routes)
 const queryClient = new QueryClient()
+const env: 'dev' | 'prod' = import.meta.env.VITE_APP_ENVIRONMENT;
 
-const env: 'dev' | 'prod' = import.meta.env.VITE_APP_ENVIRONMENT
-
-if (env === 'prod') {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
-    <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <RouterProvider router={router} ></RouterProvider>
-          <Toaster />
-        </AuthProvider>
-    </QueryClientProvider>,
-  )
-} else {
+if (env === 'dev') {
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
@@ -34,5 +24,13 @@ if (env === 'prod') {
       </QueryClientProvider>
     </React.StrictMode>,
   )
-
+} else {
+  ReactDOM.createRoot(document.getElementById('root')!).render(
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <RouterProvider router={router} ></RouterProvider>
+        <Toaster />
+      </AuthProvider>
+    </QueryClientProvider>
+  )
 }

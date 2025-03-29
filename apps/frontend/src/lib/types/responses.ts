@@ -24,5 +24,5 @@ export type TGenericAxiosError = {
 export type TLoginResponseDetails = {
     accessToken: string
     refreshToken: string
-    user: Omit<UserEntity, 'password'>
+    user: UserEntity
 }

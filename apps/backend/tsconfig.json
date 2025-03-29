@@ -35,6 +35,12 @@
       ],
       "@app/event-patterns/*": [
         "libs/event-patterns/src/*"
+      ],
+      "@app/aws": [
+        "libs/aws/src"
+      ],
+      "@app/aws/*": [
+        "libs/aws/src/*"
       ]
     },
     "incremental": true,

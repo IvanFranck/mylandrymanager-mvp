@@ -36,7 +36,8 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
     }, [showDiscount, setDiscount])
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputDiscount(parseFloat(e.target.value))
+        setInputDiscount(parseFloat(e.target.value));
+        return parseFloat(e.target.value);
     }
 
     const onSubmit = (values: z.infer<typeof DiscountFormSchema>) => {
@@ -82,7 +83,7 @@ export default function DiscountStep({ setDiscount, billingPrice, discount }: Di
                                             {
                                                 name: "discount", 
                                                 type: "number", 
-                                                onFieldChange:handleChange, 
+                                                onFieldChange: handleChange, 
                                                 inputStyle: 'grow bg-inherit', 
                                                 errorMessage: "La valeur de la réduction ne doit pas être supérieure au montant de la facture !"
                                             }

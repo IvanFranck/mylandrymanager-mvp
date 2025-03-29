@@ -20,8 +20,8 @@ import { JwtKeysService } from '@app-backend/jwtkeys/jwtkeys.service';
         jwtKeysService: JwtKeysService,
       ) => {
         return {
-          privateKey: jwtKeysService.privateKey,
-          publicKey: jwtKeysService.publicKey,
+          privateKey: jwtKeysService.getPrivateKey(),
+          publicKey: jwtKeysService.getPublicKey(),
           signOptions: { algorithm: configService.get('JWT_ALGORITHM') },
         };
       },

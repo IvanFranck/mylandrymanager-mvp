@@ -1,17 +1,17 @@
 import { CUSTOMERS_QUERY_KEY } from "@/common/constants/query-keys";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerClose, DrawerContent, DrawerOverlay, DrawerPortal, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { GenericForm } from "@/components/ui/generic-form";
 import { useToast } from "@/components/ui/use-toast";
 import { CustomerFormSchema, createCustomerQuery } from "@/lib/api/customers";
+import { useAuth } from "@/lib/hooks/use-cases/useAuth";
 import { CustomersEntity } from "@/lib/types/entities";
 import { TGenericAxiosError, TGenericResponse } from "@/lib/types/responses";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { Loader, Plus } from "lucide-react";
-import { useRef } from "react";
+import { RefObject, useRef } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
@@ -24,6 +24,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
     const { toast } = useToast()
     const queryClient = useQueryClient()
     const drawerCloserBtn = useRef<HTMLButtonElement>(null)
+    const agencyId = useAuth.getState().selectedAgency?.id;
 
     const { mutateAsync: createCustomer, isPending: isCreating } = useMutation({
         mutationFn: async (data: z.infer<typeof CustomerFormSchema>) => await createCustomerQuery(data),
@@ -36,7 +37,7 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
             })
         },
         onSuccess: (data: TGenericResponse<CustomersEntity>) => {
-            queryClient.invalidateQueries({ queryKey: CUSTOMERS_QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: CUSTOMERS_QUERY_KEY({agencyId}) })
             toast({
                 variant: 'success',
                 description: data.message,
@@ -77,71 +78,76 @@ export default function CustomerCreationDrawer({ onCustomerCreated }: CustomerCr
                     <div className="mx-auto w-full space-y-6 px-4 mt-4 mb-10">
                         <DrawerTitle className="text-center">Creer un nouveau client</DrawerTitle>
                         <div className="w-full">
-                            <Form {...form}>
-                                <form onSubmit={form.handleSubmit(onSubmit)}>
-                                    <div className="w-full flex flex-col space-y-6">
-                                        <FormField
-                                            control={form.control}
-                                            name="name"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-500">Nom</FormLabel>
-                                                    <FormControl>
-                                                        <Input disabled={isCreating} className="border border-gray-400" placeholder="Nom du client" {...field} />
-                                                    </FormControl>
-                                                    {
-                                                        form.formState.errors.name && <FormDescription className="text-red-500">Ce champ est obligatoire</FormDescription>
-                                                    }
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="phone"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-500">Téléphone</FormLabel>
-                                                    <FormControl>
-                                                        <Input disabled={isCreating} type="tel" className="border border-gray-400" placeholder="677889922" {...field} />
-                                                    </FormControl>
-                                                    {
-                                                        form.formState.errors.phone && <FormDescription className="text-red-500">Numéro de téléphone obligatoire ou invalide</FormDescription>
-                                                    }
-                                                </FormItem>
-                                            )}
-                                        />
-
-                                        <FormField
-                                            control={form.control}
-                                            name="address"
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormLabel className="text-gray-500">Adresse</FormLabel>
-                                                    <FormControl>
-                                                        <Input disabled={isCreating} className="border border-gray-400" placeholder="Adresse du client" {...field} />
-                                                    </FormControl>
-                                                    {
-                                                        form.formState.errors.address && <FormDescription className="text-red-500">Ce champ est obligatoire</FormDescription>
-                                                    }
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    <Button disabled={isCreating} className="mt-8 text-md py-5 w-full" type="submit">
-                                        Enregitrer
-                                        {isCreating && <Loader size={18} className="animate-spin ml-3" />}
-                                    </Button>
-                                    <DrawerClose ref={drawerCloserBtn} asChild className="w-full flex mt-4">
-                                        <Button variant="outline">Annuler</Button>
-                                    </DrawerClose>
-                                </form>
-                            </Form>
-
+                            <GenericForm
+                                schema={CustomerFormSchema}
+                                onSubmit={onSubmit}
+                                defaultValues={
+                                    {
+                                        name: '',
+                                        phone: '',
+                                        address: '',
+                                        agencyId,
+                                        agreeWithMessagingPolicy: false
+                                    }
+                                }
+                                fields={[
+                                    {
+                                        name: 'name',
+                                        label: 'Nom',
+                                        type: 'text',
+                                        placeholder: 'Nom du client'
+                                    },
+                                    {
+                                        name: 'phone',
+                                        label: 'Téléphone',
+                                        type: 'tel',
+                                        placeholder: '677889922'
+                                    },
+                                    {
+                                        name: 'address',
+                                        label: 'Adresse',
+                                        type: 'text',
+                                        placeholder: 'Adresse du client',       
+                                    },
+                                    {
+                                        name: 'agreeWithMessagingPolicy',
+                                        label: 'Accepter la politique de messagerie',
+                                        type: 'checkbox',
+                                        errorMessage: 'Veuillez accepter la politique de messagerie'
+                                    },
+                                    {
+                                        name: 'agencyId',
+                                        type: 'hidden'
+                                    }
+                                ]}
+                                isPending={isCreating}
+                                submitButton={
+                                    <FormButtons loading={isCreating}  drawerCloserBtn={drawerCloserBtn} />
+                                }
+                            />
                         </div>
                     </div>
                 </DrawerContent>
             </DrawerPortal>
         </Drawer >
+    )
+}
+
+type FormButtonsProps = {
+    loading: boolean,
+    drawerCloserBtn: RefObject<HTMLButtonElement>
+}
+
+const FormButtons = ({ loading, drawerCloserBtn }: FormButtonsProps) => {
+    return(
+        <div className="w-full">
+            <Button disabled={loading} className="mt-8 text-md py-5 w-full" type="submit">
+                Enregitrer
+                {loading && <Loader size={18} className="animate-spin ml-3" />}
+            </Button>
+            <DrawerClose ref={drawerCloserBtn} asChild className="w-full flex mt-4">
+                <Button variant="outline">Annuler</Button>
+            </DrawerClose>
+        </div>
     )
 }
