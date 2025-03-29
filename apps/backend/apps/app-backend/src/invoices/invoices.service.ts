@@ -12,9 +12,10 @@ import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
-import { Invoice, InvoiceStorageStatus } from '@prisma/client';
+import { InvoiceStorageStatus } from '@prisma/client';
 import { CloudFrontService, S3Service } from '@app/aws';
 import { S3Client } from '@aws-sdk/client-s3';
+import { CommandInvoicesEntity } from './entities/commad-invoices.entity';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
@@ -78,7 +79,8 @@ export class InvoicesService {
 
   async getInvoicesByCommandId(
     commandId: number,
-  ): Promise<CustomResponseInterface<Invoice[]>> {
+    userId: number,
+  ): Promise<CustomResponseInterface<CommandInvoicesEntity[]>> {
     try {
       const invoices = await this.prismaClient.invoice.findMany({
         where: {
@@ -89,9 +91,22 @@ export class InvoicesService {
         },
       });
 
+      const results: CommandInvoicesEntity[] = await Promise.all(
+        invoices.map(async (invoice) => {
+          const invoiceUrl = await this.getInvoiceUrlForStaff(
+            invoice.id,
+            userId,
+          );
+          return {
+            ...invoice,
+            url: invoiceUrl,
+          };
+        }),
+      );
+
       return {
         message: `liste des facture de la command ${commandId}`,
-        details: invoices,
+        details: results,
       };
     } catch (error) {
       if (error instanceof NotFoundException) {

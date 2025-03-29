@@ -57,6 +57,11 @@ export type CustomersEntity = BaseEntity & {
     address: string
 }
 
+type ServiceCommandEntity = {
+    service: ServiceVersionEntity,
+    quantity: number 
+}
+
 export type CommandsEntity = BaseEntity & {
     price: number
     description: string | undefined
@@ -68,14 +73,20 @@ export type CommandsEntity = BaseEntity & {
     customer: CustomersEntity,
     code: string,
     status: CommandStatus,
-    services: ServiceOnCommandEntity[]
+    services: ServiceCommandEntity[]
 }
+
+
 
 export type InvoiceENtity = BaseEntity & {
     code:string,
     fileName: string
     commandId: number,
     amountPaid: number
+}
+
+export type CommandInvoicesEntity = InvoiceENtity & {
+    url: string
 }
 
 type IncomesEntity = BaseEntity & {

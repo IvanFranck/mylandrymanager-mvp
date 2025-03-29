@@ -28,7 +28,7 @@ export const CommandDetailView = () => {
         enabled: numericCommandId > 0,
     })
 
-    const commandServices = useMemo(() => command?.services, [command])
+    const commandServices = useMemo(() => command?.services, [command]);
 
     return (
         <div className="w-full rounded-t-3xl bg-white overflow-hidden flex-1 mt-4">

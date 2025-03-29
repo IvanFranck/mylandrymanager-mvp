@@ -34,8 +34,11 @@ export class InvoicesController {
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
     )
     commandId: number,
+    @Req() req: AccessTokenValidatedRequestInterface,
   ) {
-    return await this.invoicesService.getInvoicesByCommandId(commandId);
+    const userId = req.user.sub;
+
+    return await this.invoicesService.getInvoicesByCommandId(commandId, userId);
   }
 
   @Get(':invoiceCode')
