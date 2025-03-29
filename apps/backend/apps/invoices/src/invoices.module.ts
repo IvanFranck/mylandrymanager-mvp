@@ -6,7 +6,7 @@ import { RmqModule } from '@app/rmq';
 import { WHATSAPP_MESSAGING_SERVICE } from '@app/event-patterns';
 import joi from 'joi';
 import { ConfigModule } from '@nestjs/config';
-import { S3Service } from './s3.service';
+import { S3Service } from '@app/aws';
 
 @Module({
   imports: [
@@ -17,8 +17,9 @@ import { S3Service } from './s3.service';
       isGlobal: true,
       validationSchema: joi.object({
         RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE: joi.string().required(),
-        INVOICES_ROOT_PATH: joi.string().required(),
         AWS_REGION: joi.string().required(),
+        AWS_ACCESS_KEY_ID: joi.string().required(),
+        AWS_SECRET_ACCESS_KEY: joi.string().required(),
         S3_BUCKET_NAME: joi.string().required(),
       }),
     }),

@@ -31,6 +31,12 @@ ENV S3_BUCKET_NAME=$S3_BUCKET_NAME
 ARG AWS_REGION
 ENV AWS_REGION=$AWS_REGION
 
+ARG AWS_SECRET_ACCESS_KEY
+ENV AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+
+ARG AWS_ACCESS_KEY_ID
+ENV AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+
 # Correction des fins de ligne et permissions
 RUN dos2unix ./scripts/start.sh && \
     chmod +x ./scripts/start.sh

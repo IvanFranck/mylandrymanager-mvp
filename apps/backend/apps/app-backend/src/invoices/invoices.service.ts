@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -11,14 +12,69 @@ import { ConfigService } from '@nestjs/config';
 import dayjs from 'dayjs';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { CustomResponseInterface } from '@common-app-backend/interfaces/response.interface';
-import { Invoice } from '@prisma/client';
+import { Invoice, InvoiceStorageStatus } from '@prisma/client';
+import { CloudFrontService, S3Service } from '@app/aws';
+import { S3Client } from '@aws-sdk/client-s3';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
+  private bucketName: string;
+  private s3Client: S3Client;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly prismaClient: PrismaService,
-  ) {}
+    private readonly cloudFrontService: CloudFrontService,
+    private readonly s3: S3Service,
+  ) {
+    const s3Region = this.configService.get('AWS_REGION');
+
+    this.s3Client = new S3Client({
+      region: s3Region,
+      credentials: {
+        accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
+      },
+    });
+    this.bucketName = this.configService.get('S3_BUCKET_NAME');
+  }
+
+  async getInvoiceUrlForStaff(
+    invoiceId: number,
+    userId: number,
+  ): Promise<string> {
+    const invoice = await this.prismaClient.invoice.findUnique({
+      where: { id: invoiceId },
+      include: {
+        Agency: true,
+      },
+    });
+
+    if (!invoice) {
+      throw new NotFoundException('Facture non trouvée');
+    }
+
+    if (invoice.storageStatus !== InvoiceStorageStatus.UPLOADED) {
+      throw new NotFoundException('Facture non disponible');
+    }
+
+    // Vérifier les droits d'accès de l'utilisateur
+    const userAgency = await this.prismaClient.userAgency.findUnique({
+      where: {
+        userId_agencyId: {
+          userId,
+          agencyId: invoice.agencyId,
+        },
+      },
+    });
+
+    if (!userAgency) {
+      throw new ForbiddenException('Accès non autorisé');
+    }
+
+    // Générer une URL signée valable 1 heure pour le staff
+    return this.cloudFrontService.generateSignedUrl(invoice.s3key, 60 * 60);
+  }
 
   async getInvoicesByCommandId(
     commandId: number,

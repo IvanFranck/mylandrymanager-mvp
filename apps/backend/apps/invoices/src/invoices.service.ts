@@ -23,7 +23,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { pdfGenerator } from './pdfgenerator';
 import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
-import { S3Service } from './s3.service';
+import { S3Service } from '@app/aws/s3.service';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);

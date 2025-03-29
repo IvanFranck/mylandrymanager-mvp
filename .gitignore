@@ -59,8 +59,8 @@ node_modules
 /apps/backend/report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # JWT keys
-/apps/backend/private-key.pem
-/apps/backend/public-key.pem
+/apps/backend/*private-key.pem
+/apps/backend/*public-key.pem
 
 
 # environment variables
