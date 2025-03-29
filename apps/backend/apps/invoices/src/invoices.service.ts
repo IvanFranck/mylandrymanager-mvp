@@ -15,7 +15,7 @@ import { PrismaService } from '@app/prisma/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
 import {
-  SEND_WHATSAPP_MESSAGE_EVENT,
+  COMMAND_CREATED_EVENT,
   SendWhatsappTextMessageDto,
   WHATSAPP_MESSAGING_SERVICE,
 } from '@app/event-patterns';
@@ -141,7 +141,7 @@ export class InvoicesService {
       await pdfGenerator(params);
 
       await lastValueFrom<SendWhatsappTextMessageDto>(
-        this.whatsappMessagingService.emit(SEND_WHATSAPP_MESSAGE_EVENT, {
+        this.whatsappMessagingService.emit(COMMAND_CREATED_EVENT, {
           type: 'invoice',
           to: invoice.command.customer.phone,
           invoiceCode: invoice.code,

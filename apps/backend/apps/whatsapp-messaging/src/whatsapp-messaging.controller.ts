@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { WhatsappMessagingService } from './whatsapp-messaging.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import {
-  SEND_WHATSAPP_MESSAGE_EVENT,
+  COMMAND_CREATED_EVENT,
   SendWhatsappTextMessageDto,
 } from '@app/event-patterns';
 import { RmqService } from '@app/rmq';
@@ -13,7 +13,7 @@ export class WhatsappMessagingController {
     private readonly whatsappMessagingService: WhatsappMessagingService,
     private readonly rmqService: RmqService,
   ) {}
-  @EventPattern(SEND_WHATSAPP_MESSAGE_EVENT)
+  @EventPattern(COMMAND_CREATED_EVENT)
   async sendMessage(
     @Payload() data: SendWhatsappTextMessageDto,
     @Ctx() context: RmqContext,

@@ -1,4 +1,4 @@
-import { SendWhatsappTextMessageDto } from '@app/event-patterns';
+import { OrderConfirmationTemplateData } from '@app/event-patterns';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
@@ -19,7 +19,7 @@ export class WhatsappMessagingService {
   private readonly logger = new Logger(WhatsappMessagingService.name);
 
   async sendOrderConfirmationMessage(
-    sendWhatsappTextMessageDto: SendWhatsappTextMessageDto,
+    orderConfirmationTemplateData: OrderConfirmationTemplateData,
   ) {
     const phoneNumberId = this.configService.get(
       'WHATSAPP_API_PHONE_NUMBER_ID',
@@ -27,7 +27,7 @@ export class WhatsappMessagingService {
     const messageUrl = `${WHATSAPP_API_BASE_URL}/${WHATSAPP_API_VERSION}/${phoneNumberId}/messages`;
 
     try {
-      console.log('send whatsapp message', sendWhatsappTextMessageDto);
+      console.log('send whatsapp message', orderConfirmationTemplateData);
       const data = await firstValueFrom(
         this.httpService
           .post(
@@ -45,35 +45,27 @@ export class WhatsappMessagingService {
                     parameters: [
                       {
                         type: 'text',
-                        text: 'John',
+                        text: orderConfirmationTemplateData.customer_name,
                       },
                       {
                         type: 'text',
-                        text: 'CLEAN Pressing',
+                        text: orderConfirmationTemplateData.order_id,
                       },
                       {
                         type: 'text',
-                        text: '#cdy01a',
+                        text: orderConfirmationTemplateData.agency_name,
                       },
                       {
                         type: 'text',
-                        text: '01 Mars 2025',
+                        text: orderConfirmationTemplateData.services_list,
                       },
                       {
                         type: 'text',
-                        text: '655663322',
+                        text: orderConfirmationTemplateData.order_amount,
                       },
-                    ],
-                  },
-                  {
-                    type: 'button',
-                    sub_type: 'url',
-                    index: '0',
-                    parameters: [
                       {
-                        type: 'payload',
-                        payload:
-                          'https://laundry-manager.nzimaivan.com/invoices/cdy01a',
+                        type: 'text',
+                        text: orderConfirmationTemplateData.withdrawal_date,
                       },
                     ],
                   },
