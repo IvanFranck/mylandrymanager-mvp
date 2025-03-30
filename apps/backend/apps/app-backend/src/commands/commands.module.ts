@@ -4,8 +4,9 @@ import { CommandsController } from './commands.controller';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { RmqModule } from '@app/rmq';
 import {
-  CREATE_INVOICES_SERVICE,
+  INVOICES_SERVICE,
   INCOMES_STATS_SERVICE,
+  WHATSAPP_MESSAGING_SERVICE,
 } from '@app/event-patterns';
 
 @Module({
@@ -14,7 +15,10 @@ import {
       name: INCOMES_STATS_SERVICE,
     }),
     RmqModule.register({
-      name: CREATE_INVOICES_SERVICE,
+      name: INVOICES_SERVICE,
+    }),
+    RmqModule.register({
+      name: WHATSAPP_MESSAGING_SERVICE,
     }),
   ],
   controllers: [CommandsController],

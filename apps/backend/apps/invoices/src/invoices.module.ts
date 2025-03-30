@@ -16,7 +16,7 @@ import { S3Service } from '@app/aws';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: joi.object({
-        RABBIT_MQ_CREATE_INVOICES_SERVICE_QUEUE: joi.string().required(),
+        RABBIT_MQ_INVOICES_SERVICE_QUEUE: joi.string().required(),
         AWS_REGION: joi.string().required(),
         AWS_ACCESS_KEY_ID: joi.string().required(),
         AWS_SECRET_ACCESS_KEY: joi.string().required(),

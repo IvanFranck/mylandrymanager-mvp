@@ -18,12 +18,16 @@ import { CommandQueriesType } from '@common-app-backend/queries.type';
 import {
   INCOMES_STATS_SERVICE,
   HANDLE_COMMAND_EVENT,
-  CREATE_INVOICES_SERVICE,
+  INVOICES_SERVICE,
   CREATE_INVOICE_EVENT,
+  COMMAND_CREATED_EVENT,
+  OrderConfirmationTextMessageDto,
+  WHATSAPP_MESSAGING_SERVICE,
 } from '@app/event-patterns';
 import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
+import { format } from 'date-fns';
 
 @Injectable()
 export class CommandsService {
@@ -32,7 +36,8 @@ export class CommandsService {
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
     @Inject(INCOMES_STATS_SERVICE) private incomesServiceClient: ClientProxy,
-    @Inject(CREATE_INVOICES_SERVICE) private invoiceClient: ClientProxy,
+    @Inject(INVOICES_SERVICE) private invoiceClient: ClientProxy,
+    @Inject(WHATSAPP_MESSAGING_SERVICE) private messagingClient: ClientProxy,
   ) {}
 
   /**
@@ -158,6 +163,7 @@ export class CommandsService {
             advance: true,
             status: true,
             agencyId: true,
+            Agency: true,
             services: {
               select: {
                 service: true,
@@ -180,9 +186,26 @@ export class CommandsService {
       //send an event to the invoices service
       await lastValueFrom<CreateInvoiceEventDTO>(
         this.invoiceClient.emit(CREATE_INVOICE_EVENT, {
+          isitFirst: true,
           commandId: command.id,
           advance: advance,
           agencyId: command.agencyId,
+        }),
+      ).catch((error) => {
+        console.log(`error when send ${CREATE_INVOICE_EVENT}`, error);
+      });
+
+      //send an event to the messaging service for order creation confirmation
+      await lastValueFrom<OrderConfirmationTextMessageDto>(
+        this.messagingClient.emit(COMMAND_CREATED_EVENT, {
+          customer_name: command.customer.name,
+          order_id: command.code,
+          agency_name: command.Agency.name,
+          services_list: command.services
+            .map((service) => `${service.service.label} (${service.quantity})`)
+            .join(', '),
+          order_amount: command.price.toString(),
+          withdrawal_date: format(command.withdrawDate, 'dd/MM/yyyy'),
         }),
       ).catch((error) => {
         console.log(`error when send ${CREATE_INVOICE_EVENT}`, error);

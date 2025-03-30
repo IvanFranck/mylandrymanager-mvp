@@ -8,15 +8,13 @@ import {
   Logger,
 } from '@nestjs/common';
 import { RenderOptions, toBuffer } from 'bwip-js';
-import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
-import dayjs from 'dayjs';
 import { PrismaService } from '@app/prisma/prisma.service';
 import { InvoicePDFParamsDto } from './dto/invoice-pdf-params.dto';
 import Hashids from 'hashids';
 import {
-  COMMAND_CREATED_EVENT,
-  SendWhatsappTextMessageDto,
+  INVOICE_CREATED_EVENT,
+  InvoiceMessageDto,
   WHATSAPP_MESSAGING_SERVICE,
 } from '@app/event-patterns';
 import { ClientProxy } from '@nestjs/microservices';
@@ -24,6 +22,7 @@ import { lastValueFrom } from 'rxjs';
 import { pdfGenerator } from './pdfgenerator';
 import { CreateInvoiceEventDTO } from '@app/event-patterns/dto/create-invoice.dto';
 import { S3Service } from '@app/aws/s3.service';
+import { CommandStatus } from '@prisma/client';
 @Injectable()
 export class InvoicesService {
   private loger = new Logger(InvoicesService.name);
@@ -172,7 +171,7 @@ export class InvoicesService {
         commandId: invoice.command.id,
       });
 
-      await this.prismaClient.invoice.update({
+      const result = await this.prismaClient.invoice.update({
         where: {
           id: invoice.id,
         },
@@ -181,15 +180,34 @@ export class InvoicesService {
           s3key: s3Key,
           storageStatus: 'UPLOADED',
         },
+        include: {
+          Agency: true,
+          command: true,
+        },
       });
 
-      await lastValueFrom<SendWhatsappTextMessageDto>(
-        this.whatsappMessagingService.emit(COMMAND_CREATED_EVENT, {
-          type: 'invoice',
-          to: invoice.command.customer.phone,
-          invoiceCode: invoice.code,
-        }),
-      );
+      if (createInvoiceDto.isitFirst) {
+        const customer = await this.prismaClient.customer.findUnique({
+          where: {
+            id: result.id,
+          },
+        });
+        if (!customer) {
+          throw new BadRequestException(
+            'impossible de retrouver le client lié à cette facture',
+          );
+        }
+        await lastValueFrom<InvoiceMessageDto>(
+          this.whatsappMessagingService.emit(INVOICE_CREATED_EVENT, {
+            invoice_url: result.s3key,
+            order_code: result.command.code,
+            customer_name: customer.name,
+            agency_name: result.Agency.name,
+            order_amount: result.amountPaid.toString(),
+            order_status: this.getCommandStatus(command.status),
+          }),
+        );
+      }
     } catch (error) {
       this.handleErrorWhenGeneratingInvoice(this.invoiceId);
       this.loger.error('Erreur lors de la génération de la facture:', error);
@@ -231,10 +249,16 @@ export class InvoicesService {
     }
   }
 
-  private getFileSubPath(rootPath: string, date?: Date) {
-    if (date) {
-      return join(rootPath, `${dayjs(date).format('YYYY/MM')}/`);
+  private getCommandStatus(status: CommandStatus) {
+    switch (status) {
+      case 'NOT_PAID':
+        return 'À régler';
+      case 'PAID':
+        return 'Réglée';
+      case 'PENDING':
+        return 'Avancée';
+      default:
+        return 'à payer';
     }
-    return join(rootPath, `${dayjs().format('YYYY/MM')}/`);
   }
 }

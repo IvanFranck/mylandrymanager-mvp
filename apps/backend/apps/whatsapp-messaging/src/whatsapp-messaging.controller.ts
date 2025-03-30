@@ -3,7 +3,9 @@ import { WhatsappMessagingService } from './whatsapp-messaging.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import {
   COMMAND_CREATED_EVENT,
-  SendWhatsappTextMessageDto,
+  INVOICE_CREATED_EVENT,
+  InvoiceMessageDto,
+  OrderConfirmationTextMessageDto,
 } from '@app/event-patterns';
 import { RmqService } from '@app/rmq';
 
@@ -14,11 +16,20 @@ export class WhatsappMessagingController {
     private readonly rmqService: RmqService,
   ) {}
   @EventPattern(COMMAND_CREATED_EVENT)
-  async sendMessage(
-    @Payload() data: SendWhatsappTextMessageDto,
+  async sendOrderCretaionConfirmationMessage(
+    @Payload() data: OrderConfirmationTextMessageDto,
     @Ctx() context: RmqContext,
   ) {
     await this.whatsappMessagingService.sendOrderConfirmationMessage(data);
+    this.rmqService.ack(context);
+  }
+
+  @EventPattern(INVOICE_CREATED_EVENT)
+  async sendInvoiceMessage(
+    @Payload() data: InvoiceMessageDto,
+    @Ctx() context: RmqContext,
+  ) {
+    await this.whatsappMessagingService.sendInvoiceMessage(data);
     this.rmqService.ack(context);
   }
 }
