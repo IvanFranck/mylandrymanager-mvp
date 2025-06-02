@@ -27,6 +27,16 @@ services:
     networks:
       - my-landry-network
 
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "6060:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "pgadmin@mlm.fr"
+      PGADMIN_DEFAULT_PASSWORD: "8052bd2ec46c02c38560799c53a86909"
+    networks:
+      - my-landry-network
+
 # Définition des volumes pour la persistance des données
 volumes:
   postgresql-persistance-data:
